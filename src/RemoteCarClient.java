@@ -5,12 +5,13 @@ import java.net.Socket;
 
 public class RemoteCarClient extends Frame implements KeyListener {
 	public static final int PORT = ServerRemote.port;
-	public static final int CLOSE = 0;
+	public static final int CLOSE = 27;
 	public static final int FORWARD = 87, //W = main up
 	STRAIGHT = 83, // S = straight
 	LEFT = 65, // A = LEFT
 	RIGHT = 68, //D = RIGHT
 	BACKWARD = 88; //X = main down
+	
 	
 	Button btnConnect;
 	TextField txtIpAddress;

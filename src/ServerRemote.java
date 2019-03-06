@@ -7,7 +7,7 @@ import lejos.robotics.RegulatedMotor;
 
 public class ServerRemote {
 
-	public static final int port = 1234;
+	public static final int port = 12345;
 	private Socket client;
 	private static boolean looping = true;
 	private static ServerSocket server;
@@ -69,6 +69,8 @@ public class ServerRemote {
 					{
 						client.close();
 						client = null;
+						looping = false;
+						System.exit(0);
 					}
 					else 
 					{
@@ -93,6 +95,7 @@ private class EscapeListener implements KeyListener
 	@Override
 	public void keyReleased(Key k) {}
 	}
+
 	
 }
 
