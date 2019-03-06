@@ -5,7 +5,7 @@ import java.net.Socket;
 
 public class RemoteCarClient extends Frame implements KeyListener {
 	public static final int PORT = ServerRemote.port;
-	public static final int CLOSE = Q;
+	public static final int CLOSE = 0;
 	public static final int FORWARD = 87, //W = main up
 	STRAIGHT = 83, // S = straight
 	LEFT = 65, // A = LEFT
@@ -37,7 +37,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	
 	public static void main(String args[])
 	{
-		String ip = "10.0.1.1";
+		String ip = "192.168.43.199";
+		//String ip = "10.0.1.1";
 		if(args.length > 0) {
 			ip = args[0];
 		}
@@ -89,4 +90,54 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		messages.setText("status: command sent");
 	}
 	
+	/**A listener class for all the buttons of the GUI */
+	
+	private class ControlListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String command = e.getActionCommand();
+			if(command.equals("Connect")) {
+				try {
+					socket = new Socket(txtIpAddress.getText(), PORT);
+					outStream = new DataOutputStream(socket.getOutputStream());
+					messages.setText("Status: CONNECTED");
+					
+					btnConnect.setLabel("disconnect");
+				} catch (Exception exc) {
+					messages.setText("status: FAILURE Error establishing connection with server.");
+					System.out.println("Error: " + exc);
+				}
+			} else if (command.equals("Disconnect"))
+			{
+				disconnect();
+			}
+		} 
+	}
+	public void disconnect()
+	{
+		try {
+			SendCommand(CLOSE);
+			socket.close();
+			
+			btnConnect.setLabel("Connect");
+			messages.setText("Status: DISCONNECTED");
+		} catch (Exception exc)
+		{
+			messages.setText("status: Failure Error closing connection with server");
+			System.out.println("error: " + exc);
+		}
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		SendCommand(e.getKeyCode());
+		System.out.println("Pressed " + e.getKeyCode());
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {}
 }

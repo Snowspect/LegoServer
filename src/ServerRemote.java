@@ -7,14 +7,15 @@ import lejos.robotics.RegulatedMotor;
 
 public class ServerRemote {
 
-	public static final int port = 7360;
+	public static final int port = 1234;
 	private Socket client;
 	private static boolean looping = true;
 	private static ServerSocket server;
-	private static RegulatedMotor A = new EV3LargeRegulatedMotor(MotorPort.A);
+	private static UnregulatedMotor left = new UnregulatedMotor(MotorPort.A);
+	//private static RegulatedMotor A = new EV3LargeRegulatedMotor(MotorPort.A);
 	//private static EV3MediumRegulatedMotor A = new 
-	private static RegulatedMotor B = new EV3LargeRegulatedMotor(MotorPort.A);
-	private static RegulatedMotor C = new EV3LargeRegulatedMotor(MotorPort.A);
+	private static RegulatedMotor B = new EV3LargeRegulatedMotor(MotorPort.B);
+	private static RegulatedMotor C = new EV3LargeRegulatedMotor(MotorPort.C);
 	
 	public ServerRemote(Socket client) {
 		this.client = client;
@@ -28,27 +29,28 @@ public class ServerRemote {
 		while(looping)
 		{
 			System.out.println("Awaiting Client..");
-			new ServerRemote(server.accept()).start();	
+			new ServerRemote(server.accept()).run();	
 		}
 	}
 	public void carAction(int command) {
-		switch(command)
+		switch(command) {
 		case RemoteCarClient.BACKWARD:
 			B.rotate(-360, true);
 			C.rotate(-360);
 			break;
-		case RemoteCarClient.FORWARD;
+		case RemoteCarClient.FORWARD:
 			B.rotate(360, true);
 			C.rotate(360);
 			break;
-		case RemoteCarClient.STRAIGHT:A.rotateTo(0);
+		/*case RemoteCarClient.STRAIGHT:A.rotateTo(0);
 			break;
 		case RemoteCarClient.RIGHT:
 			A.rotateTo(-170);
 			break;
-		case RemoteCarClient.LEFT;
+		case RemoteCarClient.LEFT:
 			A.rotateTo(170);
 			break;
+		*/
 	}
 }
 
