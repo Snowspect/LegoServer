@@ -35,16 +35,24 @@ public class ServerRemote {
 	public void carAction(int command) {
 		switch(command) {
 		case RemoteCarClient.BACKWARD:
-			A.rotate(-360, true);
-			B.rotate(-360);
+			A.backward();
+			B.backward();
+			//A.rotate(-360, true);
+			//B.rotate(-360);
 			break;
 		case RemoteCarClient.FORWARD:
-			A.rotate(360, true);
-			B.rotate(360);
+			B.forward();
+			A.forward();
+			//A.rotate(360, true);
+			//B.rotate(360);
 			break;
-		/*case RemoteCarClient.STRAIGHT:A.rotateTo(0);
-			break;
-		case RemoteCarClient.RIGHT:
+		case RemoteCarClient.STOP:
+			B.stop();
+			A.stop();
+		//case RemoteCarClient.STRAIGHT://A.rotateTo(0);
+			
+//			break;
+		/*case RemoteCarClient.RIGHT:
 			A.rotateTo(-170);
 			break;
 		case RemoteCarClient.LEFT:
