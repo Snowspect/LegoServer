@@ -16,7 +16,8 @@ public class ServerRemote {
 	//private static EV3MediumRegulatedMotor A = new 
 	private static RegulatedMotor A = new EV3LargeRegulatedMotor(MotorPort.A);
 	private static RegulatedMotor B = new EV3LargeRegulatedMotor(MotorPort.B);
-	
+	private static RegulatedMotor C = new EV3MediumRegulatedMotor(MotorPort.C);
+	private static RegulatedMotor D = new EV3MediumRegulatedMotor(MotorPort.D);
 	public ServerRemote(Socket client) {
 		this.client = client;
 		
@@ -35,23 +36,44 @@ public class ServerRemote {
 	public void carAction(int command) {
 		switch(command) {
 		case RemoteCarClient.BACKWARD:
+			A.setSpeed(1000);
+			B.setSpeed(1000);
 			A.backward();
 			B.backward();
 			//A.rotate(-360, true);
 			//B.rotate(-360);
 			break;
 		case RemoteCarClient.FORWARD:
+			A.setSpeed(1000);
+			B.setSpeed(1000);
 			B.forward();
 			A.forward();
+			C.rotate(80,true);
 			//A.rotate(360, true);
 			//B.rotate(360);
 			break;
 		case RemoteCarClient.STOP:
-			B.stop();
-			A.stop();
+			//A.
+			//B.flt();
+			B.setSpeed(0);
+			A.setSpeed(0);
 		//case RemoteCarClient.STRAIGHT://A.rotateTo(0);
-			
+		case RemoteCarClient.ARMUP:
+			C.rotate(-440,true);
+			break;
+		case RemoteCarClient.ARMDOWN:
+			C.rotate(440,true);
+			break;
 //			break;
+		case RemoteCarClient.WHEELUP:
+			D.backward();
+			break;
+		case RemoteCarClient.WHEELDOWN:
+			D.forward();
+			break;
+		case RemoteCarClient.WHEELSTOP:
+			D.stop();
+			break;
 		/*case RemoteCarClient.RIGHT:
 			A.rotateTo(-170);
 			break;

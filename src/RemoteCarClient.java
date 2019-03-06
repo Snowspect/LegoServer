@@ -11,7 +11,14 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	LEFT = 65, // A = LEFT
 	RIGHT = 68, //D = RIGHT
 	BACKWARD = 88, //X = main down
-	STOP = 81;
+	STOP = 81, //Q = Stops motors
+	ARMUP = 84, //T = Arm goes UP
+	ARMDOWN = 85,
+	WHEELUP = 49,
+	WHEELDOWN = 50,
+	WHEELSTOP = 51;
+	; //U = arm goes DOWN	
+	
 	
 	Button btnConnect;
 	TextField txtIpAddress;
