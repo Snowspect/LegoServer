@@ -11,11 +11,11 @@ public class ServerRemote {
 	private Socket client;
 	private static boolean looping = true;
 	private static ServerSocket server;
-	private static UnregulatedMotor left = new UnregulatedMotor(MotorPort.A);
+//	private static UnregulatedMotor left = new UnregulatedMotor(MotorPort.A);
 	//private static RegulatedMotor A = new EV3LargeRegulatedMotor(MotorPort.A);
 	//private static EV3MediumRegulatedMotor A = new 
+	private static RegulatedMotor A = new EV3LargeRegulatedMotor(MotorPort.A);
 	private static RegulatedMotor B = new EV3LargeRegulatedMotor(MotorPort.B);
-	private static RegulatedMotor C = new EV3LargeRegulatedMotor(MotorPort.C);
 	
 	public ServerRemote(Socket client) {
 		this.client = client;
@@ -35,12 +35,12 @@ public class ServerRemote {
 	public void carAction(int command) {
 		switch(command) {
 		case RemoteCarClient.BACKWARD:
-			B.rotate(-360, true);
-			C.rotate(-360);
+			A.rotate(-360, true);
+			B.rotate(-360);
 			break;
 		case RemoteCarClient.FORWARD:
-			B.rotate(360, true);
-			C.rotate(360);
+			A.rotate(360, true);
+			B.rotate(360);
 			break;
 		/*case RemoteCarClient.STRAIGHT:A.rotateTo(0);
 			break;
