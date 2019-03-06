@@ -16,8 +16,8 @@ public class ServerRemote {
 	//private static EV3MediumRegulatedMotor A = new 
 	private static RegulatedMotor A = new EV3LargeRegulatedMotor(MotorPort.A);
 	private static RegulatedMotor B = new EV3LargeRegulatedMotor(MotorPort.B);
-	private static RegulatedMotor C = new EV3MediumRegulatedMotor(MotorPort.C);
-	private static RegulatedMotor D = new EV3MediumRegulatedMotor(MotorPort.D);
+	private static RegulatedMotor GrappleArm = new EV3MediumRegulatedMotor(MotorPort.C);
+	private static RegulatedMotor ArmWheelMoter = new EV3MediumRegulatedMotor(MotorPort.D);
 	public ServerRemote(Socket client) {
 		this.client = client;
 		
@@ -36,6 +36,7 @@ public class ServerRemote {
 	public void carAction(int command) {
 		switch(command) {
 		case RemoteCarClient.BACKWARD:
+			//For activate : X
 			A.setSpeed(1000);
 			B.setSpeed(1000);
 			A.backward();
@@ -44,35 +45,44 @@ public class ServerRemote {
 			//B.rotate(-360);
 			break;
 		case RemoteCarClient.FORWARD:
+			//For activate : W
 			A.setSpeed(1000);
 			B.setSpeed(1000);
 			B.forward();
 			A.forward();
-			C.rotate(80,true);
+			GrappleArm.rotate(80,true);
 			//A.rotate(360, true);
 			//B.rotate(360);
 			break;
 		case RemoteCarClient.STOP:
-			//A.
-			//B.flt();
+			//For activate : Q
 			B.setSpeed(0);
 			A.setSpeed(0);
 		//case RemoteCarClient.STRAIGHT://A.rotateTo(0);
 		case RemoteCarClient.ARMUP:
-			C.rotate(-440,true);
+			//For activate : T
+			GrappleArm.rotate(-440,true);
 			break;
 		case RemoteCarClient.ARMDOWN:
-			C.rotate(440,true);
+			//For activate : U
+			GrappleArm.rotate(-440,true);
 			break;
 //			break;
 		case RemoteCarClient.WHEELUP:
-			D.backward();
+			//For activate : 1
+			ArmWheelMoter.backward();
 			break;
 		case RemoteCarClient.WHEELDOWN:
-			D.forward();
+			//For activate : 2
+			ArmWheelMoter.forward();
 			break;
 		case RemoteCarClient.WHEELSTOP:
-			D.stop();
+			//For activate : 3
+			ArmWheelMoter.stop();
+			break;
+		case RemoteCarClient.grappleArmFunction:
+			//For activate : F1
+			Opsamling();
 			break;
 		/*case RemoteCarClient.RIGHT:
 			A.rotateTo(-170);
@@ -126,7 +136,34 @@ private class EscapeListener implements KeyListener
 	public void keyReleased(Key k) {}
 	}
 
+//Herfra skrives diverse funktioner til robotten
+
+
+
+private void Opsamling() {
+	ArmWheelMoter.backward();
+	grappleArmDown();
+	try {
+		Thread.sleep(3000);
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	grappleArmUp();
+	ArmWheelMoter.stop();
 	
+	
+}
+
+private void grappleArmUp(){
+	GrappleArm.rotate(440,true);
+}
+
+private void grappleArmDown() {
+	GrappleArm.rotate(-440,true);
+}
+
+
 }
 
 
