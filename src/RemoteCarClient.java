@@ -5,19 +5,20 @@ import java.net.Socket;
 
 public class RemoteCarClient extends Frame implements KeyListener {
 	public static final int PORT = ServerRemote.port;
-	public static final int CLOSE = 27;
+	public static final int CLOSE = 27; //escape = luk program
 	public static final int FORWARD = 87, //W = main up
-	STRAIGHT = 83, // S = straight
+
 	LEFT = 65, // A = LEFT
 	RIGHT = 68, //D = RIGHT
 	BACKWARD = 88, //X = main down
 	STOP = 81, //Q = Stops motors
-	ARMUP = 84, //T = Arm goes UP
-	ARMDOWN = 85,
+	ARMUP = 112, //pil op = Arm goes UP
+	ARMDOWN = 113, // pil ned = arm goes down
 	WHEELUP = 49,
 	WHEELDOWN = 50,
-	WHEELSTOP = 51;
-	; //U = arm goes DOWN	
+	WHEELSTOP = 51,
+	UNLOAD = 80, //P for unload
+	GRAPPLEARMFUNCTION = 86	; // V = grappleFunction	
 	
 	
 	Button btnConnect;

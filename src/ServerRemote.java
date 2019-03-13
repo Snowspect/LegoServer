@@ -60,12 +60,12 @@ public class ServerRemote {
 			A.setSpeed(0);
 		//case RemoteCarClient.STRAIGHT://A.rotateTo(0);
 		case RemoteCarClient.ARMUP:
-			//For activate : T
-			GrappleArm.rotate(-440,true);
+			//For activate : F1
+			GrappleArm.rotate(-460,true);
 			break;
 		case RemoteCarClient.ARMDOWN:
-			//For activate : U
-			GrappleArm.rotate(-440,true);
+			//For activate : F2
+			GrappleArm.rotate(460,true);
 			break;
 //			break;
 		case RemoteCarClient.WHEELUP:
@@ -80,9 +80,13 @@ public class ServerRemote {
 			//For activate : 3
 			ArmWheelMoter.stop();
 			break;
-		case RemoteCarClient.grappleArmFunction:
-			//For activate : F1
+		case RemoteCarClient.GRAPPLEARMFUNCTION:
+			//For activate : v
 			Opsamling();
+			break;
+		case RemoteCarClient.UNLOAD:
+			//For activate : P
+			unload();
 			break;
 		/*case RemoteCarClient.RIGHT:
 			A.rotateTo(-170);
@@ -105,7 +109,7 @@ public class ServerRemote {
 				{
 					int command = dIn.readInt();
 					System.out.println("REC: " + command);
-					if(command == RemoteCarClient.CLOSE)
+					if(command == RemoteCarClient.CLOSE) //escape for luk
 					{
 						client.close();
 						client = null;
@@ -141,7 +145,7 @@ private class EscapeListener implements KeyListener
 
 
 private void Opsamling() {
-	ArmWheelMoter.backward();
+	ArmWheelMoter.forward();
 	grappleArmDown();
 	try {
 		Thread.sleep(3000);
@@ -150,19 +154,36 @@ private void Opsamling() {
 		e.printStackTrace();
 	}
 	grappleArmUp();
+	try {
+		Thread.sleep(3000);
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	ArmWheelMoter.stop();
 	
 	
 }
 
 private void grappleArmUp(){
-	GrappleArm.rotate(440,true);
-}
-
-private void grappleArmDown() {
 	GrappleArm.rotate(-440,true);
 }
 
+private void grappleArmDown() {
+	GrappleArm.rotate(440,true);
+}
+
+
+private void unload(){
+	ArmWheelMoter.backward();
+	try {
+		Thread.sleep(15000);
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	ArmWheelMoter.stop();
+}
 
 }
 
