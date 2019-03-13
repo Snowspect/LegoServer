@@ -7,11 +7,10 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	public static final int PORT = ServerRemote.port;
 	public static final int CLOSE = 27; //escape = luk program
 	public static final int FORWARD = 87, //W = main up
-
+			STOP = 81, //Q = Stops motors
 	LEFT = 65, // A = LEFT
 	RIGHT = 68, //D = RIGHT
 	BACKWARD = 88, //X = main down
-	STOP = 81, //Q = Stops motors
 	ARMUP = 112, //pil op = Arm goes UP
 	ARMDOWN = 113, // pil ned = arm goes down
 	WHEELUP = 49,

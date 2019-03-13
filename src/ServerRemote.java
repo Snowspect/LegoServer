@@ -49,28 +49,15 @@ public class ServerRemote {
 		switch(command) {
 		case RemoteCarClient.BACKWARD:
 			//For activate : X
-			motorLeft.setSpeed(1000);
-			motorRight.setSpeed(1000);
-			motorLeft.backward();
-			motorRight.backward();
-			//A.rotate(-360, true);
-			//B.rotate(-360);
+			reverse();
 			break;
-		case RemoteCarClient.FORWARD:
-			//For activate : W
-			motorLeft.setSpeed(1000);
-			motorRight.setSpeed(1000);
-			motorRight.forward();
-			motorLeft.forward();
-			GrappleArm.rotate(80,true);
-			//A.rotate(360, true);
-			//B.rotate(360);
+		case RemoteCarClient.FORWARD: // W for activate
+			driveForward();
 			break;
-		case RemoteCarClient.STOP:
-			//For activate : Q
-			motorRight.setSpeed(0);
-			motorLeft.setSpeed(0);
-		//case RemoteCarClient.STRAIGHT://A.rotateTo(0);
+		case RemoteCarClient.STOP: // Q for activate
+			fullStop();
+			break;
+			
 		case RemoteCarClient.ARMUP:
 			//For activate : F1
 			GrappleArm.rotate(-460,true);
@@ -119,6 +106,7 @@ public class ServerRemote {
 	}
 }
 
+
 	public void run()
 	{
 		System.out.println("CLIENT CONNECT");
@@ -163,47 +151,24 @@ private class EscapeListener implements KeyListener
 
 //Herfra skrives diverse funktioner til robotten
 
-
-
-private void Opsamling() {
-	ArmWheelMoter.forward();
-	grappleArmDown();
-	try {
-		Thread.sleep(3000);
-	} catch (InterruptedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	grappleArmUp();
-	try {
-		Thread.sleep(3000);
-	} catch (InterruptedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	ArmWheelMoter.stop();
-	
-	
+//navigation methods
+public void driveForward() { // w for activate
+	motorLeft.setSpeed(1000);
+	motorRight.setSpeed(1000);
+	motorRight.forward();
+	motorLeft.forward();
 }
 
-private void grappleArmUp(){
-	GrappleArm.rotate(-440,true);
+public void fullStop() { // q for activate
+	motorRight.setSpeed(0);
+	motorLeft.setSpeed(0);
 }
 
-private void grappleArmDown() {
-	GrappleArm.rotate(440,true);
-}
-
-
-private void unload(){
-	ArmWheelMoter.backward();
-	try {
-		Thread.sleep(15000);
-	} catch (InterruptedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	ArmWheelMoter.stop();
+private void reverse() { // x for activate
+	motorLeft.setSpeed(500);
+	motorRight.setSpeed(500);
+	motorLeft.backward();
+	motorRight.backward();
 }
 
 private void turnLeft() {
@@ -236,7 +201,6 @@ private void turnLeft() {
 	gyroSensor.reset();
 }
 
-
 public void turnRight() {
 	motorLeft.setSpeed(200);
 	motorRight.setSpeed(200);
@@ -266,6 +230,49 @@ public void turnRight() {
 	
 }
 
+
+//Arm functions
+private void Opsamling() {
+	ArmWheelMoter.forward();
+	grappleArmDown();
+	try {
+		Thread.sleep(3000);
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	grappleArmUp();
+	try {
+		Thread.sleep(3000);
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	ArmWheelMoter.stop();
+	
+	
+}
+
+private void grappleArmUp(){
+	GrappleArm.rotate(-440,true);
+}
+
+private void grappleArmDown() {
+	GrappleArm.rotate(440,true);
+}
+
+private void unload(){
+	ArmWheelMoter.backward();
+	try {
+		Thread.sleep(15000);
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	ArmWheelMoter.stop();
+}
+
+
 public void printGyro() {
 	
 	final SampleProvider sp = gyroSensor.getAngleMode();
@@ -279,6 +286,7 @@ public void printGyro() {
 
 	
 }
+
 
 }
 
