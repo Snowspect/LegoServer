@@ -18,7 +18,11 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	WHEELDOWN = 50,
 	WHEELSTOP = 51,
 	UNLOAD = 80, //P for unload
-	GRAPPLEARMFUNCTION = 86	; // V = grappleFunction	
+	GRAPPLEARMFUNCTION = 86,// V = grappleFunction	
+	TURNLEFT = 115, //F4
+	TURNRIGHT = 116, //F5
+	PRINTGYRO = 117; 
+	
 	
 	
 	Button btnConnect;

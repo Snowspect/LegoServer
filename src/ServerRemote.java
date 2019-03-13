@@ -1,9 +1,19 @@
-import java.io.*;
-import java.net.*;
-import lejos.hardware.*;
-import lejos.hardware.motor.*;
-import lejos.hardware.port.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+import lejos.hardware.Button;
+import lejos.hardware.Key;
+import lejos.hardware.KeyListener;
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.motor.EV3MediumRegulatedMotor;
+import lejos.hardware.port.MotorPort;
+import lejos.hardware.port.SensorPort;
+import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.RegulatedMotor;
+import lejos.robotics.SampleProvider;
 
 public class ServerRemote {
 
@@ -14,10 +24,11 @@ public class ServerRemote {
 //	private static UnregulatedMotor left = new UnregulatedMotor(MotorPort.A);
 	//private static RegulatedMotor A = new EV3LargeRegulatedMotor(MotorPort.A);
 	//private static EV3MediumRegulatedMotor A = new 
-	private static RegulatedMotor A = new EV3LargeRegulatedMotor(MotorPort.A);
-	private static RegulatedMotor B = new EV3LargeRegulatedMotor(MotorPort.B);
+	private static RegulatedMotor motorLeft = new EV3LargeRegulatedMotor(MotorPort.A);
+	private static RegulatedMotor motorRight = new EV3LargeRegulatedMotor(MotorPort.B);
 	private static RegulatedMotor GrappleArm = new EV3MediumRegulatedMotor(MotorPort.C);
 	private static RegulatedMotor ArmWheelMoter = new EV3MediumRegulatedMotor(MotorPort.D);
+	private static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
 	public ServerRemote(Socket client) {
 		this.client = client;
 		
@@ -27,6 +38,7 @@ public class ServerRemote {
 	public static void main(String[] args) throws IOException
 	{
 		server = new ServerSocket(port);
+		gyroSensor.reset();
 		while(looping)
 		{
 			System.out.println("Awaiting Client..");
@@ -37,27 +49,27 @@ public class ServerRemote {
 		switch(command) {
 		case RemoteCarClient.BACKWARD:
 			//For activate : X
-			A.setSpeed(1000);
-			B.setSpeed(1000);
-			A.backward();
-			B.backward();
+			motorLeft.setSpeed(1000);
+			motorRight.setSpeed(1000);
+			motorLeft.backward();
+			motorRight.backward();
 			//A.rotate(-360, true);
 			//B.rotate(-360);
 			break;
 		case RemoteCarClient.FORWARD:
 			//For activate : W
-			A.setSpeed(1000);
-			B.setSpeed(1000);
-			B.forward();
-			A.forward();
+			motorLeft.setSpeed(1000);
+			motorRight.setSpeed(1000);
+			motorRight.forward();
+			motorLeft.forward();
 			GrappleArm.rotate(80,true);
 			//A.rotate(360, true);
 			//B.rotate(360);
 			break;
 		case RemoteCarClient.STOP:
 			//For activate : Q
-			B.setSpeed(0);
-			A.setSpeed(0);
+			motorRight.setSpeed(0);
+			motorLeft.setSpeed(0);
 		//case RemoteCarClient.STRAIGHT://A.rotateTo(0);
 		case RemoteCarClient.ARMUP:
 			//For activate : F1
@@ -87,6 +99,15 @@ public class ServerRemote {
 		case RemoteCarClient.UNLOAD:
 			//For activate : P
 			unload();
+			break;
+		case RemoteCarClient.TURNLEFT:
+			turnLeft();
+			break;
+		case RemoteCarClient.TURNRIGHT:
+			turnRight();
+			break;
+		case RemoteCarClient.PRINTGYRO:
+			printGyro();
 			break;
 		/*case RemoteCarClient.RIGHT:
 			A.rotateTo(-170);
@@ -183,6 +204,80 @@ private void unload(){
 		e.printStackTrace();
 	}
 	ArmWheelMoter.stop();
+}
+
+private void turnLeft() {
+
+	motorLeft.setSpeed(200);
+	motorRight.setSpeed(200);
+	motorLeft.forward();
+	motorRight.backward();
+
+	final SampleProvider sp = gyroSensor.getAngleMode();
+	int value = 0;
+
+	while(true) {
+    	float [] sample = new float[sp.sampleSize()];
+        sp.fetchSample(sample, 0);
+        value = (int)sample[0];
+
+		System.out.println("Iteration: " + value);
+		System.out.println("Gyro angle: " + value);
+		
+		if(value >= 360) {
+			break;
+		}
+	}
+	
+	motorLeft.setSpeed(0);
+	motorRight.setSpeed(0);
+	motorLeft.stop();
+	motorRight.stop();
+	gyroSensor.reset();
+}
+
+
+public void turnRight() {
+	motorLeft.setSpeed(200);
+	motorRight.setSpeed(200);
+	motorLeft.backward();
+	motorRight.forward();
+
+	final SampleProvider sp = gyroSensor.getAngleMode();
+	int value = 0;
+
+	while(true) {
+    	float [] sample = new float[sp.sampleSize()];
+        sp.fetchSample(sample, 0);
+        value = (int)sample[0];
+
+		System.out.println("Iteration: " + value);
+		System.out.println("Gyro angle: " + value);
+		
+		if(value <= -360) {
+			motorLeft.setSpeed(0);
+			motorRight.setSpeed(0);
+			motorLeft.stop();
+			motorRight.stop();
+			gyroSensor.reset();
+			break;
+		}
+	}
+	
+}
+
+public void printGyro() {
+	
+	final SampleProvider sp = gyroSensor.getAngleMode();
+	int value = 0;
+	float [] sample = new float[sp.sampleSize()];
+    sp.fetchSample(sample, 0);
+    value = (int)sample[0];
+
+	System.out.println("Iteration: " + value);
+	System.out.println("Gyro angle: " + value);
+
+	
 }
 
 }
