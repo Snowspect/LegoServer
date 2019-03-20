@@ -173,8 +173,8 @@ private void reverse() { // x for activate
 
 private void turnLeft() {
 
-	motorLeft.setSpeed(400);
-	motorRight.setSpeed(400);
+	motorLeft.setSpeed(300);
+	motorRight.setSpeed(300);
 	motorLeft.forward();
 	motorRight.backward();
 
@@ -218,8 +218,8 @@ private void turnLeft() {
 }
 
 public void turnRight() {
-	motorLeft.setSpeed(400);
-	motorRight.setSpeed(400);
+	motorLeft.setSpeed(300);
+	motorRight.setSpeed(300);
 	motorLeft.backward();
 	motorRight.forward();
 
@@ -240,7 +240,7 @@ public void turnRight() {
 			System.out.println("Iteration: " + value);
 			System.out.println("Gyro angle: " + value);
 			
-			if(value != 360) {
+			if(value != -360) {
 				motorLeft.setSpeed(50);
 				motorRight.setSpeed(50);
 				motorLeft.rotate(-360+value);
