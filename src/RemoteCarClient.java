@@ -21,8 +21,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	TURNLEFT = 115, //F4
 	TURNRIGHT = 116, //F5
 	PRINTGYRO = 117; 
-	
-	
+	public static int [] [] GRID = new int [20][20];
 	
 	Button btnConnect;
 	TextField txtIpAddress;
@@ -33,29 +32,74 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	
 	public RemoteCarClient(String title, String ip)
 	{
-		super(title);
-		this.setSize(400, 300);
+		//super(title);
+		/*this.setSize(400, 300);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				System.out.println("Ending  Warbird Client");
 				disconnect();
 				System.exit(0);
 			}
-		});
-		buildGUI(ip);
-		this.setVisible(true);
-		btnConnect.addKeyListener(this);
+		});*/
+		//buildGUI(ip);
+		//this.setVisible(true);
+		//btnConnect.addKeyListener(this);
 	}
 	
 	public static void main(String args[])
 	{
+		
 		String ip = "192.168.43.199";
 		//String ip = "10.0.1.1";
 		if(args.length > 0) {
 			ip = args[0];
 		}
 		System.out.println("Starting Client...");
-		new RemoteCarClient("R/C Client", ip);
+		//new RemoteCarClient("R/C Client", ip);
+		RemoteCarClient car = new RemoteCarClient("ghjklæ", ip);
+		car.getDir(56, 56);
+		
+	}
+	
+	public double calc_Angle(int x1, int y1, int x2, int y2) {
+		
+		double diffx = x2 - x1;
+		double diffy = y2 - y1;
+		double angle = Math.atan2((x1 - x2), (y1 - y2)) * 180 / Math.PI;
+		if (angle < 0)
+			return angle;
+		else 
+			return angle;
+	}
+	
+	public void getDir(int pos, int dir) {
+		int dirRow = dir/20, dirCol = dir - (dirRow*20);
+		int posRow = pos/20, posCol = pos - (posRow*20);
+		
+		double angle = calc_Angle(posCol+1, posRow, dirCol, dirRow);
+		System.out.println("uhbjnklmmnjbhgfcgvhbjkml  		"+angle);
+		
+		if (angle > 0) {
+			SendCommand(RIGHT);
+		} else if (angle < 0) {
+			SendCommand(LEFT);
+		} else {
+			//Kør lige ud eller bagud
+		}
+		
+	}
+	
+	public void getRowDir(int pos, int dir) {
+		int dirRow = dir/20;
+		int posRow = pos/20;
+		
+		if (posRow < dirRow) {
+			SendCommand(LEFT);
+		} else if (posRow> dirRow) {
+			SendCommand(RIGHT);
+		} else {
+			SendCommand(WHEELUP);
+		}
 	}
 	
 	public void buildGUI(String ip)
@@ -91,15 +135,15 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	public void SendCommand(int command)
 	{
 		//Send coordinates to the server
-		messages.setText("Status: sending command");
-		try {
+		//messages.setText("Status: sending command");
+		System.out.println("Sending command: " + command);
+		/*try {
 			outStream.writeInt(command);
-		} catch (IOException io)
-		{
-			messages.setText("Status: Error problems occurred sending data");
+		} catch (IOException io) {
+			System.out.println("Status: Error problems occurred sending data");
 		}
-		
-		messages.setText("status: command sent");
+		*/
+		//messages.setText("status: command sent");
 	}
 	
 	/**A listener class for all the buttons of the GUI */
@@ -152,4 +196,6 @@ public class RemoteCarClient extends Frame implements KeyListener {
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {}
+		
+	
 }
