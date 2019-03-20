@@ -88,10 +88,12 @@ public class ServerRemote {
 			unload();
 			break;
 		case RemoteCarClient.TURNLEFT: //f4
-			turnLeft();
+			turnRight(360);
+			gyroSensor.reset();
 			break;
 		case RemoteCarClient.TURNRIGHT: // f5
-			turnRight();
+			turnleft(-360);
+			gyroSensor.reset();
 			break;
 		case RemoteCarClient.PRINTGYRO:
 			printGyro();
@@ -171,42 +173,35 @@ private void reverse() { // x for activate
 	motorRight.backward();
 }
 
-private void turnLeft() {
+private void turnRight(int angle) {
 
+	final SampleProvider sp = gyroSensor.getAngleMode();
+	int value = 0;
+	
 	motorLeft.setSpeed(300);
 	motorRight.setSpeed(300);
 	motorLeft.forward();
 	motorRight.backward();
 
-	final SampleProvider sp = gyroSensor.getAngleMode();
-	int value = 0;
+
 
 	while(true) {
     	float [] sample = new float[sp.sampleSize()];
         sp.fetchSample(sample, 0);
         value = (int)sample[0];
 
-		if(value == 360) {
+		if(value >= angle) {
 			motorLeft.setSpeed(0);
 			motorRight.setSpeed(0);
 			motorLeft.stop();
 			motorRight.stop();
 			System.out.println("Iteration: " + value);
 			System.out.println("Gyro angle: " + value);
-			
+
+	        
 			if(value != 360) {
-				motorLeft.setSpeed(50);
-				motorRight.setSpeed(50);
-				motorLeft.rotate(360-value);
-				motorRight.rotate(360-value);
-				System.out.println("Iteration: " + value);
-				System.out.println("Gyro angle: " + value);
-				
-			
+				turnleft(360-value);
 			}
-				
-			
-			
 			
 			System.out.println("Resetting");
 			gyroSensor.reset();
@@ -217,11 +212,12 @@ private void turnLeft() {
 
 }
 
-public void turnRight() {
+public void turnleft(int angle) {
 	motorLeft.setSpeed(300);
 	motorRight.setSpeed(300);
 	motorLeft.backward();
 	motorRight.forward();
+
 
 	final SampleProvider sp = gyroSensor.getAngleMode();
 	int value = 0;
@@ -232,7 +228,7 @@ public void turnRight() {
         value = (int)sample[0];
 
 		
-		if(value >= -360) {
+		if(value <= -angle) {
 			motorLeft.setSpeed(0);
 			motorRight.setSpeed(0);
 			motorLeft.stop();
@@ -240,15 +236,9 @@ public void turnRight() {
 			System.out.println("Iteration: " + value);
 			System.out.println("Gyro angle: " + value);
 			
-			if(value != -360) {
-				motorLeft.setSpeed(50);
-				motorRight.setSpeed(50);
-				motorLeft.rotate(-360+value);
-				motorRight.rotate(-360+value);
-				System.out.println("Iteration: " + value);
-				System.out.println("Gyro angle: " + value);
-				
-			
+			if(value != -angle) {
+				turnRight(-360+angle);
+				}
 			}
 			
 			
@@ -258,7 +248,7 @@ public void turnRight() {
 		}
 	}
 	
-}
+
 
 
 //Arm functions
@@ -301,6 +291,8 @@ private void unload(){
 	}
 	ArmWheelMoter.stop();
 }
+
+
 
 
 public void printGyro() {
