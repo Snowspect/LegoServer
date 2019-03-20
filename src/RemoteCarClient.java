@@ -57,15 +57,17 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		System.out.println("Starting Client...");
 		//new RemoteCarClient("R/C Client", ip);
 		RemoteCarClient car = new RemoteCarClient("ghjklæ", ip);
-		car.getDir(56, 56);
+		car.getDir(50, 70);
 		
 	}
 	
-	public double calc_Angle(int x1, int y1, int x2, int y2) {
+	public double calc_Angle(int x1, int y1, int x2, int y2, int startx, int starty) {
 		
+		double angle1 = Math.atan2((x1 - startx), (y1 - starty)) * 180 / Math.PI;
+		double angle2 = Math.atan2(x2 - startx, y2 - starty) * 180/Math.PI;
 		double diffx = x2 - x1;
 		double diffy = y2 - y1;
-		double angle = Math.atan2((x1 - x2), (y1 - y2)) * 180 / Math.PI;
+		double angle = angle2 - angle1;
 		if (angle < 0)
 			return angle;
 		else 
@@ -76,7 +78,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		int dirRow = dir/20, dirCol = dir - (dirRow*20);
 		int posRow = pos/20, posCol = pos - (posRow*20);
 		
-		double angle = calc_Angle(posCol+1, posRow, dirCol, dirRow);
+		double angle = calc_Angle(posCol+1, posRow, dirCol, dirRow, posCol, posRow);
 		System.out.println("uhbjnklmmnjbhgfcgvhbjkml  		"+angle);
 		
 		if (angle > 0) {
@@ -87,19 +89,6 @@ public class RemoteCarClient extends Frame implements KeyListener {
 			//Kør lige ud eller bagud
 		}
 		
-	}
-	
-	public void getRowDir(int pos, int dir) {
-		int dirRow = dir/20;
-		int posRow = pos/20;
-		
-		if (posRow < dirRow) {
-			SendCommand(LEFT);
-		} else if (posRow> dirRow) {
-			SendCommand(RIGHT);
-		} else {
-			SendCommand(WHEELUP);
-		}
 	}
 	
 	public void buildGUI(String ip)
