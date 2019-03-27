@@ -16,7 +16,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	WHEELUP = 49,
 	WHEELDOWN = 50,
 	WHEELSTOP = 51,
-	UNLOAD = 80, //P for unload
+	UNLOAD = 80, //P = unload
 	GRAPPLEARMFUNCTION = 86,// V = grappleFunction	
 	TURNLEFT = 115, //F4
 	TURNRIGHT = 116, //F5
@@ -60,11 +60,22 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		car.getDir(90, 70);
 		
 	}
-	//Calculation angle from point a to b, assuming the car points from left to right
-	public double calc_Angle(int x1, int y1, int x2, int y2, int startx, int starty) {
+	
+	public double calc_Dist(int endX, int endY, int startX, int startY) {
 		
-		double angle1 = Math.atan2((x1 - startx), (y1 - starty)) * 180/Math.PI;
-		double angle2 = Math.atan2(x2 - startx, y2 - starty) * 180/Math.PI;
+		int colDist = endX-startX;
+		int rowDist = endY-startY;
+		
+		double hypDist = (int) Math.sqrt(Math.pow(colDist, 2) + Math.pow(rowDist, 2));
+
+		return hypDist;
+	}
+	
+	//Calculation angle from point a to b, assuming the car points from left to right
+	public double calc_Angle(int x1, int y1, int x2, int y2, int startX, int startY) {
+		
+		double angle1 = Math.atan2((x1 - startX), (y1 - startY)) * 180/Math.PI;
+		double angle2 = Math.atan2(x2 - startX, y2 - startY) * 180/Math.PI;
 		System.out.println("1111111111111111		" + angle1);
 		System.out.println("222222222222222222222222222		" + angle2);
 		double angle = angle2 - angle1;
@@ -74,21 +85,24 @@ public class RemoteCarClient extends Frame implements KeyListener {
 			return angle;
 	}
 	
-	public void getDir(int pos, int dir) {
-		int dirRow = dir/20, dirCol = dir - (dirRow*20);
+	public void getDir(int pos, int dest) {
+		int destRow = dest/20, destCol = dest - (destRow*20);
 		int posRow = pos/20, posCol = pos - (posRow*20);
 		
-		double angle = calc_Angle(posCol+1, posRow, dirCol, dirRow, posCol, posRow);
+		double angle = calc_Angle(posCol+1, posRow, destCol, destRow, posCol, posRow);
 		
 		System.out.println("ANGLE:  		"+angle);
+//		
+//		if (angle > 0) {
+//			SendCommand(RIGHT);
+//		} else if (angle < 0) {
+//			SendCommand(LEFT);
+//		} else {
+//			//Kør lige ud eller bagud
+//		}
 		
-		if (angle > 0) {
-			SendCommand(RIGHT);
-		} else if (angle < 0) {
-			SendCommand(LEFT);
-		} else {
-			//Kør lige ud eller bagud
-		}
+		double dist = calc_Dist(destRow, destCol, posCol, posRow);
+		System.out.println(dist);
 		
 	}
 	
