@@ -50,24 +50,22 @@ public class ServerRemote {
 		switch(command) {
 		case RemoteCarClient.BACKWARD:
 			//For activate : X
-			reverse();
+			driveBackwards(400, 360, interupt);
 			break;
 		case RemoteCarClient.FORWARD: // W for activate
-			driveForward(400, 360, interupt);
+			driveForward(-400, 360, interupt);
 			break;
 		case RemoteCarClient.STOP: // Q for activate
 			stopWheels();
 			break;
-			
 		case RemoteCarClient.ARMUP:
 			//For activate : F1
-			GrappleArm.rotate(-460,true);
+			GrappleArm.rotate(500,true);
 			break;
 		case RemoteCarClient.ARMDOWN:
 			//For activate : F2
-			GrappleArm.rotate(460,true);
+			GrappleArm.rotate(-500,true);
 			break;
-//			break;
 		case RemoteCarClient.WHEELUP:
 			//For activate : 1
 			ArmWheelMoter.backward();
@@ -90,11 +88,11 @@ public class ServerRemote {
 			break;
 		case RemoteCarClient.TURNLEFT: //f4
 			turnRight(200, 180, true);
-			gyroSensor.reset();
+			//gyroSensor.reset();
 			break;
 		case RemoteCarClient.TURNRIGHT: // f5
 			turnLeft(200, 180, true);
-			gyroSensor.reset();
+			//gyroSensor.reset();
 			break;
 		case RemoteCarClient.PRINTGYRO:
 			printGyro();
@@ -182,7 +180,7 @@ public void fullStop() { // q for activate
 	
 }
 
-private void reverse() { // x for activate
+private void driveReverse() { // x for activate
 	motorLeft.setSpeed(500);
 	motorRight.setSpeed(500);
 	motorLeft.backward();
@@ -239,11 +237,11 @@ private void Opsamling() {
 }
 
 private void grappleArmUp(){
-	GrappleArm.rotate(-440,true);
+	GrappleArm.rotate(500);
 }
 
 private void grappleArmDown() {
-	GrappleArm.rotate(440,true);
+	GrappleArm.rotate(-500);
 }
 
 private void unload(){
@@ -349,6 +347,9 @@ public void turnleftGyroImplementation(int angle) {
 		}
 	}
 
+public void lockCarWhilePickup() {
+	
+}
 
 
 }
