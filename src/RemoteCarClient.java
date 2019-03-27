@@ -7,7 +7,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	public static final int PORT = ServerRemote.port;
 	public static final int CLOSE = 27; //escape = luk program
 	public static final int FORWARD = 87, //W = main up
-			STOP = 81, //Q = Stops motors
+	STOP = 81, //Q = Stops motors
 	LEFT = 65, // A = LEFT
 	RIGHT = 68, //D = RIGHT
 	BACKWARD = 88, //X = main down
@@ -49,7 +49,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	
 	public static void main(String args[])
 	{
-		String ip = "192.168.43.199";
+		String ip = "192.168.43.107";
 		//String ip = "10.0.1.1";
 		if(args.length > 0) {
 			ip = args[0];
@@ -93,6 +93,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		//Send coordinates to the server
 		messages.setText("Status: sending command");
 		try {
+
 			outStream.writeInt(command);
 		} catch (IOException io)
 		{
