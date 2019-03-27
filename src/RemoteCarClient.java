@@ -3,6 +3,8 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
 
+import RouteCalculator.RouteCalculator;
+
 public class RemoteCarClient extends Frame implements KeyListener {
 	public static final int PORT = ServerRemote.port;
 	public static final int CLOSE = 27; //escape = luk program
@@ -57,52 +59,10 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		System.out.println("Starting Client...");
 		//new RemoteCarClient("R/C Client", ip);
 		RemoteCarClient car = new RemoteCarClient("ghjklæ", ip);
-		car.getDir(90, 70);
 		
-	}
-	
-	public double calc_Dist(int endX, int endY, int startX, int startY) {
+		RouteCalculator rc = new RouteCalculator();
+		rc.getDir(50, 71, 29);
 		
-		int colDist = endX-startX;
-		int rowDist = endY-startY;
-		
-		double hypDist = (int) Math.sqrt(Math.pow(colDist, 2) + Math.pow(rowDist, 2));
-
-		return hypDist;
-	}
-	
-	//Calculation angle from point a to b, assuming the car points from left to right
-	public double calc_Angle(int x1, int y1, int x2, int y2, int startX, int startY) {
-		
-		double angle1 = Math.atan2((x1 - startX), (y1 - startY)) * 180/Math.PI;
-		double angle2 = Math.atan2(x2 - startX, y2 - startY) * 180/Math.PI;
-		System.out.println("1111111111111111		" + angle1);
-		System.out.println("222222222222222222222222222		" + angle2);
-		double angle = angle2 - angle1;
-		if (angle < 0)
-			return angle;
-		else
-			return angle;
-	}
-	
-	public void getDir(int pos, int dest) {
-		int destRow = dest/20, destCol = dest - (destRow*20);
-		int posRow = pos/20, posCol = pos - (posRow*20);
-		
-		double angle = calc_Angle(posCol+1, posRow, destCol, destRow, posCol, posRow);
-		
-		System.out.println("ANGLE:  		"+angle);
-//		
-//		if (angle > 0) {
-//			SendCommand(RIGHT);
-//		} else if (angle < 0) {
-//			SendCommand(LEFT);
-//		} else {
-//			//Kør lige ud eller bagud
-//		}
-		
-		double dist = calc_Dist(destRow, destCol, posCol, posRow);
-		System.out.println(dist);
 		
 	}
 	
