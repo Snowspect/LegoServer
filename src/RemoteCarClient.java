@@ -57,20 +57,20 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		System.out.println("Starting Client...");
 		//new RemoteCarClient("R/C Client", ip);
 		RemoteCarClient car = new RemoteCarClient("ghjklæ", ip);
-		car.getDir(50, 70);
+		car.getDir(90, 70);
 		
 	}
-	
+	//Calculation angle from point a to b, assuming the car points from left to right
 	public double calc_Angle(int x1, int y1, int x2, int y2, int startx, int starty) {
 		
-		double angle1 = Math.atan2((x1 - startx), (y1 - starty)) * 180 / Math.PI;
+		double angle1 = Math.atan2((x1 - startx), (y1 - starty)) * 180/Math.PI;
 		double angle2 = Math.atan2(x2 - startx, y2 - starty) * 180/Math.PI;
-		double diffx = x2 - x1;
-		double diffy = y2 - y1;
+		System.out.println("1111111111111111		" + angle1);
+		System.out.println("222222222222222222222222222		" + angle2);
 		double angle = angle2 - angle1;
 		if (angle < 0)
 			return angle;
-		else 
+		else
 			return angle;
 	}
 	
@@ -79,7 +79,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		int posRow = pos/20, posCol = pos - (posRow*20);
 		
 		double angle = calc_Angle(posCol+1, posRow, dirCol, dirRow, posCol, posRow);
-		System.out.println("uhbjnklmmnjbhgfcgvhbjkml  		"+angle);
+		
+		System.out.println("ANGLE:  		"+angle);
 		
 		if (angle > 0) {
 			SendCommand(RIGHT);
