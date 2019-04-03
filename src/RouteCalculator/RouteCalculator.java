@@ -18,18 +18,17 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		double angle2 = Math.atan2(x2 - startX, y2 - startY) * 180/Math.PI;
 		System.out.println("angle1: " + angle1);
 		System.out.println("angle2: " + angle2);
+		System.out.println("angle3: " + (angle2 - angle1) + "\n");
 		double angle = angle2 - angle1;
-		if (angle < 0)
 			return angle;
-		else
-			return angle;
+
 	}
 
 	@Override
-	public void getDir(int pos, int dest, int conPoint) {
-		int destRow = dest/20, destCol = dest - (destRow*20);
-		int posRow = pos/20, posCol = pos - (posRow*20);
-		int conRow = conPoint/20, conCol = conPoint - (conRow*20);
+	public void getDir(PointInGrid a, PointInGrid b, PointInGrid c) {
+		int destRow = b.getX(), destCol = b.getY();
+		int posRow = a.getX(), posCol = b.getY();
+		int conRow = c.getX(), conCol = b.getY();
 		
 		double angle = calc_Angle(conCol, conRow, destCol, destRow, posCol, posRow);
 		

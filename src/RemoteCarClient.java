@@ -3,6 +3,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
 
+import RouteCalculator.PointInGrid;
 import RouteCalculator.RouteCalculator;
 
 public class RemoteCarClient extends Frame implements KeyListener {
@@ -61,7 +62,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		RemoteCarClient car = new RemoteCarClient("ghjklæ", ip);
 		
 		RouteCalculator rc = new RouteCalculator();
-		rc.getDir(50, 71, 29);
+		rc.getDir(new PointInGrid(12, 19), new PointInGrid(3, 12), new PointInGrid(1, 10));
 		
 		
 	}
