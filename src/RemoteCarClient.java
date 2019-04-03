@@ -62,7 +62,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		RemoteCarClient car = new RemoteCarClient("ghjklæ", ip);
 		
 		RouteCalculator rc = new RouteCalculator();
-		rc.getDir(new PointInGrid(12, 19), new PointInGrid(3, 12), new PointInGrid(1, 10));
+		rc.getDir(new PointInGrid(12, 19), new PointInGrid(3, 12), new PointInGrid(10, 10));
 		
 		
 	}
