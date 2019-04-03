@@ -6,6 +6,6 @@ public interface RouteCalculatorInterface {
 	
 	public double calc_Angle(int x1, int y1, int x2, int y2, int startX, int startY);
 	
-	public void getDir(PointInGrid a, PointInGrid b, PointInGrid c); //pos: current position, dest: destnation
+	public String[] getDir(PointInGrid a, PointInGrid b, PointInGrid c); //pos: current position, dest: destnation
 
 }
