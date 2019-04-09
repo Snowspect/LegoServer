@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.Socket;
 
 public class RemoteCarClient extends Frame implements KeyListener {
+	
+	/// VARIABLES START ///
 	public static final int PORT = ServerRemote.port;
 	public static final int CLOSE = 27; //escape = luk program
 	public static final int FORWARD = 40, //W = main up
@@ -20,15 +22,18 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	TURNRIGHT = 39, //F5
 	PRINTGYRO = 117; 
 	
-	
-	
 	Button btnConnect;
 	TextField txtIpAddress;
 	TextArea messages;
 	
 	private Socket socket;
 	private DataOutputStream outStream;
+	/// VARIABLES END ///
 	
+	/**
+	 * @param title : unsure, suspect it sets the title of the GUI
+	 * @param ip : the ip address in which we want to show in the GUI.
+	 */
 	public RemoteCarClient(String title, String ip)
 	{
 		super(title);
@@ -45,6 +50,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		btnConnect.addKeyListener(this);
 	}
 	
+	
 	public static void main(String args[])
 	{
 		String ip = "192.168.43.107";
@@ -55,7 +61,90 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		System.out.println("Starting Client...");
 		new RemoteCarClient("R/C Client", ip);
 	}
+
+	/**
+	 * Sends the string for the robot to interpret.
+	 * @param command : currently the number which is written to the server
+	 */
+	public void SendCommandString(String command)
+	{
+		//Send coordinates to the server
+		messages.setText("Status: sending command");
+		try {
+			outStream.writeUTF(command);
+		} catch (IOException io)
+		{
+			messages.setText("Status: Error problems occurred sending data");
+		}		
+		messages.setText("status: command sent");
+	}
+
 	
+	/**
+	 * shuts down both server and client
+	 */
+	public void disconnect()
+	{
+		try {
+			SendCommandString(CLOSE + "");
+			socket.close();
+			
+			btnConnect.setLabel("Connect");
+			messages.setText("Status: DISCONNECTED");
+		} catch (Exception exc)
+		{
+			messages.setText("status: Failure Error closing connection with server");
+			System.out.println("error: " + exc);
+		}
+	}
+
+	/**
+	 * Registers the pressed key
+	 */
+	@Override
+	public void keyPressed(KeyEvent e) {
+		SendCommandString(e.getKeyCode() + "");
+		System.out.println("Pressed " + e.getKeyCode());
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {}
+	
+	/**
+	 * A listener class for all the buttons of the GUI
+	 * (The gui in which you connect to the server car)
+	 * no need to change this at any point in the future.
+	 */
+	private class ControlListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String command = e.getActionCommand();
+			if(command.equals("Connect")) {
+				try {
+					socket = new Socket(txtIpAddress.getText(), PORT);
+					outStream = new DataOutputStream(socket.getOutputStream());
+					messages.setText("Status: CONNECTED");
+					
+					btnConnect.setLabel("disconnect");
+				} catch (Exception exc) {
+					messages.setText("status: FAILURE Error establishing connection with server.");
+					System.out.println("Error: " + exc);
+				}
+			} else if (command.equals("Disconnect"))
+			{
+				disconnect();
+			}
+		}
+	}
+	
+	/**
+	 * Builds the client GUI to be able to connect to the robot.
+	 * @param ip : The ip which it connects to, defined in main.
+	 */
 	public void buildGUI(String ip)
 	{
 		Panel mainPanel = new Panel (new BorderLayout());
@@ -84,9 +173,13 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		mainPanel.add(north, "North");
 		mainPanel.add(center, "Center");
 		this.add(mainPanel);
-	}	
+	}		
 	
-	public void SendCommand(int command)
+	
+	/**
+	 * Sends command to car, Integer version
+	 */
+/*	public void SendCommand(int command)
 	{
 		//Send coordinates to the server
 		messages.setText("Status: sending command");
@@ -100,71 +193,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		
 		messages.setText("status: command sent");
 	}
+	*/
 	
-	public void SendCommandString(String command)
-	{
-		//Send coordinates to the server
-		messages.setText("Status: sending command");
-		try {
-
-			outStream.writeUTF(command);
-		} catch (IOException io)
-		{
-			messages.setText("Status: Error problems occurred sending data");
-		}
-		
-		messages.setText("status: command sent");
-	}
 	
-	/**A listener class for all the buttons of the GUI */
-	
-	private class ControlListener implements ActionListener{
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			String command = e.getActionCommand();
-			if(command.equals("Connect")) {
-				try {
-					socket = new Socket(txtIpAddress.getText(), PORT);
-					outStream = new DataOutputStream(socket.getOutputStream());
-					messages.setText("Status: CONNECTED");
-					
-					btnConnect.setLabel("disconnect");
-				} catch (Exception exc) {
-					messages.setText("status: FAILURE Error establishing connection with server.");
-					System.out.println("Error: " + exc);
-				}
-			} else if (command.equals("Disconnect"))
-			{
-				disconnect();
-			}
-		} 
-	}
-	public void disconnect()
-	{
-		try {
-			SendCommand(CLOSE);
-			socket.close();
-			
-			btnConnect.setLabel("Connect");
-			messages.setText("Status: DISCONNECTED");
-		} catch (Exception exc)
-		{
-			messages.setText("status: Failure Error closing connection with server");
-			System.out.println("error: " + exc);
-		}
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		//SendCommand(e.getKeyCode());
-		SendCommandString(e.getKeyCode() + "");
-		System.out.println("Pressed " + e.getKeyCode());
-	}
-
-	@Override
-	public void keyReleased(KeyEvent arg0) {}
-
-	@Override
-	public void keyTyped(KeyEvent arg0) {}
 }
