@@ -8,6 +8,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	/// VARIABLES START ///
 	public static final int PORT = ServerRemote.port;
 	public static final int CLOSE = 27; //escape = luk program
+	
 	public static final int FORWARD = 40, //W = main up
 	STOP = 81, //Q = Stops motors
 	BACKWARD = 38, //X = main down
@@ -50,10 +51,14 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		btnConnect.addKeyListener(this);
 	}
 	
-	
+	/**
+	 * The ip is set here.
+	 * @param args
+	 */
 	public static void main(String args[])
 	{
-		String ip = "192.168.43.107";
+		String ip = "192.168.0.17";
+		//String ip = "192.168.43.107";
 		//String ip = "10.0.1.1";
 		if(args.length > 0) {
 			ip = args[0];

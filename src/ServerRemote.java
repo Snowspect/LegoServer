@@ -30,7 +30,7 @@ public class ServerRemote {
 	public static final int port = 12345;
 	private Socket client;
 	private static boolean looping = true;
-	private static boolean interrupt = false; 
+	private static boolean interrupt = false;
 	private static ServerSocket server;
 	private static RegulatedMotor motorLeft = new EV3LargeRegulatedMotor(MotorPort.A);
 	private static RegulatedMotor motorRight = new EV3LargeRegulatedMotor(MotorPort.B);
