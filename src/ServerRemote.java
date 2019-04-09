@@ -116,9 +116,12 @@ public class ServerRemote {
 			InputStream in = client.getInputStream();
 			DataInputStream dIn = new DataInputStream(in);
 			
+			System.out.println("Client Connected");
 			while(client != null)
 				{
-					int command = dIn.readInt();
+					String commandString = dIn.readUTF();
+					int command = Integer.parseInt(commandString);
+					//int command = dIn.readInt();
 					System.out.println("REC: " + command);
 					if(command == RemoteCarClient.CLOSE) //escape for luk
 					{

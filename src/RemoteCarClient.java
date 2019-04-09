@@ -9,13 +9,13 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	public static final int FORWARD = 40, //W = main up
 	STOP = 81, //Q = Stops motors
 	BACKWARD = 38, //X = main down
-	ARMUP = 112, //pil op = Arm goes UP
-	ARMDOWN = 113, // pil ned = arm goes down
-	WHEELUP = 49,
-	WHEELDOWN = 50,
-	WHEELSTOP = 51,
+	ARMUP = 66, //B = Arm goes UP
+	ARMDOWN = 78, //N = arm goes down
+	WHEELUP = 49, //1
+	WHEELDOWN = 50, //2
+	WHEELSTOP = 51, //3
 	UNLOAD = 80, //P for unload
-	GRAPPLEARMFUNCTION = 86,// V = grappleFunction	
+	GRAPPLEARMFUNCTION = 86,// V = grappleFunction
 	TURNLEFT = 37, //F4
 	TURNRIGHT = 39, //F5
 	PRINTGYRO = 117; 
@@ -101,6 +101,21 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		messages.setText("status: command sent");
 	}
 	
+	public void SendCommandString(String command)
+	{
+		//Send coordinates to the server
+		messages.setText("Status: sending command");
+		try {
+
+			outStream.writeUTF(command);
+		} catch (IOException io)
+		{
+			messages.setText("Status: Error problems occurred sending data");
+		}
+		
+		messages.setText("status: command sent");
+	}
+	
 	/**A listener class for all the buttons of the GUI */
 	
 	private class ControlListener implements ActionListener{
@@ -142,7 +157,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		SendCommand(e.getKeyCode());
+		//SendCommand(e.getKeyCode());
+		SendCommandString(e.getKeyCode() + "");
 		System.out.println("Pressed " + e.getKeyCode());
 	}
 
