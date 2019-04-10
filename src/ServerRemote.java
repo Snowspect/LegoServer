@@ -25,8 +25,7 @@ public class ServerRemote {
 	//private static EV3MediumRegulatedMotor A = new 
 				///old motors end ///
 	
-	int functionInt;
-	Float grades, speed, leftRotation, rightRotation;
+	int functionInt, speed, grades, wheelRotation;
 	public static final int port = 12345;
 	private Socket client;
 	private static boolean looping = true;
@@ -101,7 +100,7 @@ public class ServerRemote {
 			break;
 		case RemoteCarClient.GRAPPLEARMFUNCTION:
 			//For activate : v
-			Opsamling();
+			pickUpBall();
 			break;
 		case RemoteCarClient.UNLOAD:
 			//For activate : P
@@ -133,28 +132,40 @@ public class ServerRemote {
 	public void carMovement() {
 		switch(functionInt){
 			case 1:	//forward
+				driveForward(speed, wheelRotation, interrupt);
 				break;
 			case 2: //backward
+				driveBackwards(speed, wheelRotation, interrupt);
 				break;
 			case 3: //left
+				turnLeft(speed, grades, interrupt);
 				break;
 			case 4: //right
+				turnRight(speed, grades, interrupt);
 				break;
 			case 5: //stop
+				stopWheels();
 				break;
 			case 6: //arm up
+				grappleArmUp();
 				break;
 			case 7: //arm down
+				grappleArmDown();
 				break;
 			case 8: //wheel up
+				ArmWheelMoter.backward();
 				break;
 			case 9: //wheel down
+				ArmWheelMoter.forward();
 				break;
 			case 10: //wheel stop
+				stopWheels();
 				break;
 			case 11: //grappleFunction
+				pickUpBall();
 				break;
 			case 12: //unloadFunction
+				unload();
 				break;
 			
 		}
@@ -228,7 +239,7 @@ private class EscapeListener implements KeyListener
  * @param wheelrotation : How far we want to go forward in degrees
  * @param override : If we want to stop going forward
  */
-public void driveForward(int speed, int wheelrotation, boolean override) { // w for activate
+public void driveForward(int speed, float wheelrotation, boolean override) { // w for activate
 	motorLeft.setSpeed(speed);
 	motorRight.setSpeed(speed);
 	motorRight.forward();
@@ -243,7 +254,7 @@ public void driveForward(int speed, int wheelrotation, boolean override) { // w 
  * @param wheelrotation : how far we want to go backwards in Degrees
  * @param override : if we want to stop going backwards
  */
-public void driveBackwards(int speed, int wheelrotation, boolean override) { // w for activate
+public void driveBackwards(int speed, float wheelrotation, boolean override) { // w for activate
 	motorLeft.setSpeed(speed);
 	motorRight.setSpeed(speed);
 	motorRight.backward();
@@ -312,7 +323,7 @@ public void stopWheels() {
 /**
  * Activates pickup wheel, moves arm down, moves arm up.
  */
-private void Opsamling() {
+private void pickUpBall() {
 	ArmWheelMoter.forward();
 	grappleArmDown();
 	try {
@@ -480,19 +491,19 @@ public void Interrupter(String clientString) //takes format :
 		}
 		if(value.contains("0G"))
 		{
-			grades = Float.parseFloat(value.substring(3));
+			grades = Integer.parseInt(value.substring(3));
 		}
 		if(value.contains("0S"))
 		{
-			speed = Float.parseFloat(value.substring(3));
+			speed = Integer.parseInt(value.substring(3));
 		}
 		if(value.contains("LR"))
 		{
-			leftRotation = Float.parseFloat(value.substring(3));
+			wheelRotation = -Integer.parseInt(value.substring(3));
 		}
 		if(value.contains("RR"))
 		{
-			rightRotation = Float.parseFloat(value.substring(3));
+			wheelRotation = Integer.parseInt(value.substring(3));
 		}
 		if(value.contains("0B"))
 		{
