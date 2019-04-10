@@ -107,11 +107,11 @@ public class ServerRemote {
 			unload();
 			break;
 		case RemoteCarClient.TURNLEFT: //f4
-			turnRight(200, 180, true);
+			turnRight(400, 10, true);
 			//gyroSensor.reset();
 			break;
 		case RemoteCarClient.TURNRIGHT: // f5
-			turnLeft(200, 180, true);
+			turnLeft(400, 10, true);
 			//gyroSensor.reset();
 			break;
 		case RemoteCarClient.PRINTGYRO:
@@ -190,7 +190,7 @@ public class ServerRemote {
 					String commandString = dIn.readUTF();
 					
 					String splitter = "0F:2;0G:200;0S:300;LR:40;RR:50;0B:true";
-					Interrupter(splitter); //sets values og global variables. 
+					parser(splitter); //sets values og global variables. 
 					
 					//currently not using the Interrupter method, but it is simply implemented
 					int command = Integer.parseInt(commandString);
@@ -481,7 +481,7 @@ public void lockCarWhilePickup() {
  * Splits the client string into substrings for the functions to use
  * @param clientString : The string that gets splitted
  */
-public void Interrupter(String clientString) //takes format : 
+public void parser(String clientString) //takes format : 
 {
 	String[] Values = clientString.split(";");
 	for (String value : Values) {
