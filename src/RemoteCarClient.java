@@ -57,8 +57,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	 */
 	public static void main(String args[])
 	{
-		String ip = "192.168.0.17";
-		//String ip = "192.168.43.107";
+		//String ip = "192.168.0.17";
+		String ip = "192.168.43.107";
 		//String ip = "10.0.1.1";
 		if(args.length > 0) {
 			ip = args[0];
