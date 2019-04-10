@@ -3,17 +3,15 @@ package RouteCalculator;
 public interface RouteCalculatorInterface {
 	
 	/**
-	 * @param endX: Row coordinate for target
-	 * @param endY: Col coordinate for target
-	 * @param startX: Row coordinate for rotation center
-	 * @param startY: Col coordinate for rotation center
+	 * @param posPoint the position of rotation center
+	 * @param destPoint the position of target
 	 * @return: The distance between start and and
 	 */
-	public double calc_Dist(int endX, int endY, int startX, int startY);
+	public double calc_Dist(PointInGrid posPoint, PointInGrid destPoint);
 	
 	
 	/**
-	 * @param x1: Row coordinate for controlpoint
+	 * @param x1: Row coordinate for controlPoint
 	 * @param y1: Row coordinate for target
 	 * @param x2: Col coordinate for controlPoint
 	 * @param y2: Col coordinate for target
@@ -24,7 +22,7 @@ public interface RouteCalculatorInterface {
 	public double calc_Angle(int x1, int y1, int x2, int y2, int startX, int startY);
 	
 	/**
-	 * @param conPoint: Controlpoint in from of robot
+	 * @param conPoint: ControlPoint in from of robot
 	 * @param pospoint: Rotation center of robot
 	 * @param destPoin:	Position of target tabletennis ball
 	 * @return: String-array that contains the command that will be sent to the robot

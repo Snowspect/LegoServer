@@ -3,11 +3,16 @@ package RouteCalculator;
 public class RouteCalculator implements RouteCalculatorInterface  {
 	
 	@Override
-	public double calc_Dist(int endX, int endY, int startX, int startY) {
-		int colDist = endX-startX;
-		int rowDist = endY-startY;
+	public double calc_Dist(PointInGrid posPoint, PointInGrid destPoint) {
+		int colDist = destPoint.getX()-posPoint.getX();
+		int rowDist = destPoint.getY()-posPoint.getY();
+		System.out.println("Col: " + colDist);
+		System.out.println("Row: " + rowDist);
 		
-		double hypDist = Math.sqrt(Math.pow(colDist, 2) + Math.pow(rowDist, 2));
+		double SqHyp = Math.pow(colDist, 2) + Math.pow(rowDist, 2);
+		double hypDist = Math.sqrt(SqHyp);
+		
+		
 		System.out.println("Dist_calc: " + Math.pow(colDist, 2) + " + "+ Math.sqrt(Math.pow(rowDist, 2)));
 		return hypDist;
 	}
@@ -31,19 +36,21 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		int posRow = posPoint.getX(), posCol = posPoint.getY();
 		int conRow = conPoint.getX(), conCol = conPoint.getY();
 		
-		double angle = calc_Angle(conRow, conCol, destRow, destCol, posRow, posCol);
-		dir[0] = "\"" + angle + "\"";
-		System.out.println("--------- NOT ABS ----------");
-		System.out.println("ANGLE: "+ angle);
-		System.out.println("ANGLE2: "+ (360 - angle)+"\n");
+//		double angle = calc_Angle(conRow, conCol, destRow, destCol, posRow, posCol);
+//		dir[0] = "\"" + angle + "\"";
+//		System.out.println("--------- NOT ABS ----------");
+//		System.out.println("ANGLE: "+ angle);
+//		System.out.println("ANGLE2: "+ (360 - angle)+"\n");
+//		
+//		System.out.println("--------- WITH ABS ---------");
+//		System.out.println("ANGLE: "+ Math.abs(angle));
+//		System.out.println("ANGLE2: "+ (360 - Math.abs(angle)+"\n"));
 		
-		System.out.println("--------- WITH ABS ---------");
-		System.out.println("ANGLE: "+ Math.abs(angle));
-		System.out.println("ANGLE2: "+ (360 - Math.abs(angle)+"\n"));
+		// If angle > 0: Turn right, else if angle < 0: Turn left
 		
-		double dist = calc_Dist(destRow, destCol, posCol, posRow);
+		double dist = calc_Dist(posPoint, destPoint);
 		dir[1] = "\"" + dist + "\"";
-		//System.out.println("Distance: " + dist);
+		System.out.println("Distance: " + dist);
 		
 		return dir;
 	}

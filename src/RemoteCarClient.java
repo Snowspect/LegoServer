@@ -64,7 +64,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		
 		String[] dir;
 		
-		dir = rc.getDir(new PointInGrid(5,9), new PointInGrid(2,7), new PointInGrid(5,3));
+		dir = rc.getDir(new PointInGrid(3,5), new PointInGrid(5,6), new PointInGrid(4,7));
 		
 		for (int i = 0; i < dir.length; i++) {
 //			COMMAND += dir[i] + ", ";
