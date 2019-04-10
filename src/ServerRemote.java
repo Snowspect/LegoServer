@@ -189,7 +189,7 @@ public class ServerRemote {
 				{
 					String commandString = dIn.readUTF();
 					
-					String splitter = "0F:2;0G:200;0S:300;LR:40;RR:50;0B:true";
+					String splitter = "0F:2;0G:200;0S:300;LR:50;RR:50;0B:true";
 					parser(splitter); //sets values og global variables. 
 					
 					//currently not using the Interrupter method, but it is simply implemented
@@ -204,8 +204,10 @@ public class ServerRemote {
 						System.exit(0);
 					}
 					else 
-					{
-						carAction(command);
+					{	parser("0F:3;0G:200;0S:300;LR:40;RR:50;0B:true");
+						carMovement();
+					
+						//carAction(command);
 					}
 				}
 		} catch (IOException e) 
