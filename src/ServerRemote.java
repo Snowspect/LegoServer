@@ -26,7 +26,7 @@ public class ServerRemote {
 				///old motors end ///
 	
 	int functionInt;
-	double grades, speed, leftRotation, rightRotation;
+	Float grades, speed, leftRotation, rightRotation;
 	public static final int port = 12345;
 	private Socket client;
 	private static boolean looping = true;
@@ -129,6 +129,39 @@ public class ServerRemote {
 	}
 }
 
+	
+	public void carMovement() {
+		switch(functionInt){
+			case 1:	//forward
+				break;
+			case 2: //backward
+				break;
+			case 3: //left
+				break;
+			case 4: //right
+				break;
+			case 5: //stop
+				break;
+			case 6: //arm up
+				break;
+			case 7: //arm down
+				break;
+			case 8: //wheel up
+				break;
+			case 9: //wheel down
+				break;
+			case 10: //wheel stop
+				break;
+			case 11: //grappleFunction
+				break;
+			case 12: //unloadFunction
+				break;
+			
+		}
+	}
+	
+	
+	
 	/**
 	 * Reads the UTF (String) send by the client, parse it and sends it to carAction
 	 * can also close server
@@ -201,9 +234,7 @@ public void driveForward(int speed, int wheelrotation, boolean override) { // w 
 	motorRight.forward();
 	motorLeft.forward();
 	int counter = 0;
-//	while(counter != wheelrotation) {
-//		counter = motorRight.getTachoCount();
-//	}
+
 }
 	
 /**
@@ -449,19 +480,19 @@ public void Interrupter(String clientString) //takes format :
 		}
 		if(value.contains("0G"))
 		{
-			grades = Double.parseDouble(value.substring(3));
+			grades = Float.parseFloat(value.substring(3));
 		}
 		if(value.contains("0S"))
 		{
-			speed = Double.parseDouble(value.substring(3));
+			speed = Float.parseFloat(value.substring(3));
 		}
 		if(value.contains("LR"))
 		{
-			leftRotation = Double.parseDouble(value.substring(3));
+			leftRotation = Float.parseFloat(value.substring(3));
 		}
 		if(value.contains("RR"))
 		{
-			rightRotation = Double.parseDouble(value.substring(3));
+			rightRotation = Float.parseFloat(value.substring(3));
 		}
 		if(value.contains("0B"))
 		{
