@@ -87,11 +87,11 @@ public class ServerRemote {
 			unload();
 			break;
 		case RemoteCarClient.TURNLEFT: //f4
-			turnRight(200, 180, true);
+			turnRight(200, 10, true);
 			//gyroSensor.reset();
 			break;
 		case RemoteCarClient.TURNRIGHT: // f5
-			turnLeft(200, 180, true);
+			turnLeft(200, 10, true);
 			//gyroSensor.reset();
 			break;
 		case RemoteCarClient.PRINTGYRO:
@@ -159,10 +159,7 @@ public void driveForward(int speed, int wheelrotation, boolean override) { // w 
 	motorRight.setSpeed(speed);
 	motorRight.forward();
 	motorLeft.forward();
-	int counter = 0;
-//	while(counter != wheelrotation) {
-//		counter = motorRight.getTachoCount();
-//	}
+
 }
 	
 public void driveBackwards(int speed, int wheelrotation, boolean override) { // w for activate
@@ -174,11 +171,7 @@ public void driveBackwards(int speed, int wheelrotation, boolean override) { // 
 //		
 }
 
-public void fullStop() { // q for activate
-	motorRight.setSpeed(0);
-	motorLeft.setSpeed(0);
-	
-}
+
 
 private void driveReverse() { // x for activate
 	motorLeft.setSpeed(500);
@@ -256,25 +249,16 @@ private void unload(){
 }
 
 
-
-
-public void printGyro() {
-	
-	final SampleProvider sp = gyroSensor.getAngleMode();
-	int value = 0;
-	float [] sample = new float[sp.sampleSize()];
-    sp.fetchSample(sample, 0);
-    value = (int)sample[0];
-	System.out.println("Iteration: " + value);
-	System.out.println("Gyro angle: " + value);
-	gyroSensor.reset();
-}
-
-
+//Skulle defineres, men ikke implementeres
 public void rotateForward() {
 
 }
 
+public void lockCarWhilePickup() {
+	
+}
+
+//Gyro metoder
 private void turnRightGyroImplementation(int angle) {
 
 	final SampleProvider sp = gyroSensor.getAngleMode();
@@ -347,8 +331,16 @@ public void turnleftGyroImplementation(int angle) {
 		}
 	}
 
-public void lockCarWhilePickup() {
+public void printGyro() {
 	
+	final SampleProvider sp = gyroSensor.getAngleMode();
+	int value = 0;
+	float [] sample = new float[sp.sampleSize()];
+    sp.fetchSample(sample, 0);
+    value = (int)sample[0];
+	System.out.println("Iteration: " + value);
+	System.out.println("Gyro angle: " + value);
+	gyroSensor.reset();
 }
 
 
