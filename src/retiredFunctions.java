@@ -88,4 +88,25 @@ public class retiredFunctions {
 	//
 	//}
 	
+	
+	
+	
+	
+	///**
+	// * Prints the gyro sensor value to console
+	// */
+	//public void printGyro() {
+	//	
+//		final SampleProvider sp = gyroSensor.getAngleMode();
+//		int value = 0;
+//		float [] sample = new float[sp.sampleSize()];
+//	    sp.fetchSample(sample, 0);
+//	    value = (int)sample[0];
+//		System.out.println("Iteration: " + value);
+//		System.out.println("Gyro angle: " + value);
+//		gyroSensor.reset();
+	//}
+	//
+
+	
 }

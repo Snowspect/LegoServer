@@ -80,11 +80,11 @@ public class ServerRemote {
 			break;
 		case RemoteCarClient.ARMUP:
 			//For activate : F1
-			GrappleArm.rotate(500,true);
+			GrappleArm.rotate(30,true);
 			break;
 		case RemoteCarClient.ARMDOWN:
 			//For activate : F2
-			GrappleArm.rotate(-500,true);
+			GrappleArm.rotate(-30,true);
 			break;
 		case RemoteCarClient.WHEELUP:
 			//For activate : 1
@@ -192,11 +192,11 @@ public class ServerRemote {
 						looping = false;
 						System.exit(0);
 					}
-					else 
-					{	parser("0F:3;0G:200;0S:300;LR:40;RR:50;0B:true");
-						carMovement();
+					else {	
+//						parser("0F:3;0G:200;0S:300;LR:40;RR:50;0B:true");
+//						carMovement();
 					
-						//carAction(command);
+						carAction(command);
 					}
 				}
 		} catch (IOException e) 

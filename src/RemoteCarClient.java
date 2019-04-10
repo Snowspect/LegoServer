@@ -8,20 +8,20 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	/// VARIABLES START ///
 	public static final int PORT = ServerRemote.port;
 	public static final int CLOSE = 27; //escape = luk program
-	
-	public static final int FORWARD = 40, //W = main up
+	public static final int 
+	FORWARD = 40, //Pil op
+	BACKWARD = 38, //pil ned
+	TURNLEFT = 37, //pil left
+	TURNRIGHT = 39, //pil right 
 	STOP = 81, //Q = Stops motors
-	BACKWARD = 38, //X = main down
 	ARMUP = 66, //B = Arm goes UP
 	ARMDOWN = 78, //N = arm goes down
-	WHEELUP = 49, //1
-	WHEELDOWN = 50, //2
-	WHEELSTOP = 51, //3
-	UNLOAD = 80, //P for unload
-	GRAPPLEARMFUNCTION = 86,// V = grappleFunction
-	TURNLEFT = 37, //F4
-	TURNRIGHT = 39, //F5
-	PRINTGYRO = 117; 
+	WHEELUP = 49, //num 1
+	WHEELDOWN = 50, //num 2
+	WHEELSTOP = 51, //num 3
+	UNLOAD = 80, //p
+	GRAPPLEARMFUNCTION = 86;// V = grappleFunction
+
 	
 	Button btnConnect;
 	TextField txtIpAddress;
