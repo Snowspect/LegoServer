@@ -25,7 +25,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	TURNRIGHT = 116, //F5
 	PRINTGYRO = 117; 
 	public static int [] [] GRID = new int [20][20];
-	
+
 	Button btnConnect;
 	TextField txtIpAddress;
 	TextArea messages;
@@ -51,19 +51,27 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	
 	public static void main(String args[])
 	{
-		
+		String COMMAND = "";
 		String ip = "192.168.43.199";
 		//String ip = "10.0.1.1";
 		if(args.length > 0) {
 			ip = args[0];
 		}
 		System.out.println("Starting Client...");
-		//new RemoteCarClient("R/C Client", ip);
-		RemoteCarClient car = new RemoteCarClient("ghjklæ", ip);
+		new RemoteCarClient("R/C Client", ip);
 		
 		RouteCalculator rc = new RouteCalculator();
-		rc.getDir(new PointInGrid(12, 19), new PointInGrid(3, 12), new PointInGrid(10, 10));
 		
+		String[] dir;
+		
+		dir = rc.getDir(new PointInGrid(5,9), new PointInGrid(2,7), new PointInGrid(5,3));
+		
+		for (int i = 0; i < dir.length; i++) {
+//			COMMAND += dir[i] + ", ";
+		}
+		
+		COMMAND = dir[0] + " " + dir[1];
+		//System.out.println("\nmega String: " + COMMAND);
 		
 	}
 	
@@ -97,13 +105,13 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		this.add(mainPanel);
 	}	
 	
-	public void SendCommand(int command)
+	public void SendCommand(String command)
 	{
 		//Send coordinates to the server
 		//messages.setText("Status: sending command");
 		System.out.println("Sending command: " + command);
 		/*try {
-			outStream.writeInt(command);
+			outStream.writeUTF(command);
 		} catch (IOException io) {
 			System.out.println("Status: Error problems occurred sending data");
 		}
@@ -138,7 +146,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	public void disconnect()
 	{
 		try {
-			SendCommand(CLOSE);
+			//SendCommand(CLOSE);
 			socket.close();
 			
 			btnConnect.setLabel("Connect");
@@ -152,7 +160,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		SendCommand(e.getKeyCode());
+		//SendCommand(e.getKeyCode());
 		System.out.println("Pressed " + e.getKeyCode());
 	}
 
