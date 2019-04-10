@@ -55,7 +55,6 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	
 	public static void main(String args[])
 	{
-		String COMMAND = "";
 		String ip = "192.168.43.199";
 		//String ip = "10.0.1.1";
 		if(args.length > 0) {
@@ -64,18 +63,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		System.out.println("Starting Client...");
 		new RemoteCarClient("R/C Client", ip);
 		
-		
-		
-		String[] dir;
-		
-		dir = rc.getDir(new PointInGrid(202,398), new PointInGrid(200,400), new PointInGrid(400,1000));
-		
-		for (int i = 0; i < dir.length; i++) {
-//			COMMAND += dir[i] + ", ";
-		}
-		
-		COMMAND = dir[0] + " " + dir[1];
-		//System.out.println("\nmega String: " + COMMAND);
+		//Method contains the same code as roadTrip(). Use for testing
+		rc.getDir(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(625,713));
 		
 	}
 	
@@ -97,8 +86,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		System.out.println("ANGLE2: "+ (360 - angle)+"\n");
 		
 		System.out.println("--------- WITH ABS ---------");
-		System.out.println("ANGLE: "+ Math.abs(angle));
-		System.out.println("ANGLE2: "+ (360 - Math.abs(angle)+"\n"));
+		System.out.printf("ANGLE: %.2f\n", Math.abs(angle));
+		System.out.printf("ANGLE2: %.2f\n", (360 - Math.abs(angle)));
 		
 		// If angle > 0: Turn right, else if angle < 0: Turn left
 		
@@ -107,10 +96,10 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		
 		if (angle > 0) {
 			OF = "0F:4;";
-			RR = "RR:"+angle+";";
+			RR = "RR:"+Math.round(angle)+";";
 		} else if (angle < 0) {
 			OF = "0F:3;";
-			LR = "LR:"+Math.abs(angle)+";";
+			LR = "LR:"+Math.round(Math.abs(angle))+";";
 		} else if (angle == 0) {
 			OF = "0F:1;";
 			if (dist > 300)

@@ -34,6 +34,6 @@ public interface RouteCalculatorInterface {
 		RR = RightRotation(grader)
 		0B = boolean
 	 */
-	public String[] getDir(PointInGrid conPoint, PointInGrid pospoint, PointInGrid destPoint); //pos: current position, dest: destnation
+	public void getDir(PointInGrid conPoint, PointInGrid pospoint, PointInGrid destPoint); //pos: current position, dest: destnation
 
 }

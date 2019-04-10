@@ -28,29 +28,56 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	}
 
 	@Override
-	public String[] getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
-		String[] dir = new String[2];
+	public void getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+		StringBuilder str = new StringBuilder();
 		int destRow = destPoint.getX(), destCol = destPoint.getY();
 		int posRow = posPoint.getX(), posCol = posPoint.getY();
 		int conRow = conPoint.getX(), conCol = conPoint.getY();
 		
+		String OF = "0F:0;";
+		String OG = "0G:0;";
+		String OS = "0S:0;";
+		String LR = "LR:0;";
+		String RR = "RR:0;";
+		String OB = "0B:false";
+		
 		double angle = calc_Angle(conRow, conCol, destRow, destCol, posRow, posCol);
-		dir[0] = "\"" + angle + "\"";
 		System.out.println("--------- NOT ABS ----------");
 		System.out.println("ANGLE: "+ angle);
 		System.out.println("ANGLE2: "+ (360 - angle)+"\n");
 		
 		System.out.println("--------- WITH ABS ---------");
-		System.out.println("ANGLE: "+ Math.abs(angle));
-		System.out.println("ANGLE2: "+ (360 - Math.abs(angle)+"\n"));
+		System.out.printf("ANGLE: %.2f\n", Math.abs(angle));
+		System.out.printf("ANGLE2: %.2f\n", (360 - Math.abs(angle)));
 		
 		// If angle > 0: Turn right, else if angle < 0: Turn left
 		
 		double dist = calc_Dist(posPoint, destPoint);
-		dir[1] = "\"" + dist + "\"";
-		System.out.printf("Distance: %.2f", dist);
+		System.out.printf("Distance: %.2f\n\n", dist);
 		
-		return dir;
+		if (angle > 0) {
+			OF = "0F:4;";
+			RR = "RR:"+Math.round(angle)+";";
+		} else if (angle < 0) {
+			OF = "0F:3;";
+			LR = "LR:"+Math.round(Math.abs(angle))+";";
+		} else if (angle == 0) {
+			OF = "0F:1;";
+			if (dist > 300)
+				OS = "0S:150;";
+			else OS = "0S:50;";
+		}
+		
+		str.append(OF);
+		str.append(OG);
+		str.append(OS);
+		str.append(LR);
+		str.append(RR);
+		str.append(OB);
+		
+		String COMMAND = str.toString();
+		
+		System.out.println("COMMAND: "+COMMAND);
 	}
 	
 	
