@@ -32,6 +32,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	
 	private Socket socket;
 	private DataOutputStream outStream;
+	static RouteCalculator rc;
+	StringBuilder str;
 	
 	public RemoteCarClient(String title, String ip)
 	{
@@ -47,6 +49,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		//buildGUI(ip);
 		//this.setVisible(true);
 		//btnConnect.addKeyListener(this);
+		rc = new RouteCalculator();
+		str = new StringBuilder();
 	}
 	
 	public static void main(String args[])
@@ -60,11 +64,11 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		System.out.println("Starting Client...");
 		new RemoteCarClient("R/C Client", ip);
 		
-		RouteCalculator rc = new RouteCalculator();
+		
 		
 		String[] dir;
 		
-		dir = rc.getDir(new PointInGrid(3,5), new PointInGrid(5,6), new PointInGrid(4,7));
+		dir = rc.getDir(new PointInGrid(202,398), new PointInGrid(200,400), new PointInGrid(400,1000));
 		
 		for (int i = 0; i < dir.length; i++) {
 //			COMMAND += dir[i] + ", ";
@@ -72,6 +76,58 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		
 		COMMAND = dir[0] + " " + dir[1];
 		//System.out.println("\nmega String: " + COMMAND);
+		
+	}
+	
+	public void roadtrip(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+		int destRow = destPoint.getX(), destCol = destPoint.getY();
+		int posRow = posPoint.getX(), posCol = posPoint.getY();
+		int conRow = conPoint.getX(), conCol = conPoint.getY();
+		String OF = "0F:0;";
+		String OG = "0G:0;";
+		String OS = "0S:0;";
+		String LR = "LR:0;";
+		String RR = "RR:0;";
+		String OB = "0B:false";
+		
+		
+		double angle = rc.calc_Angle(conRow, conCol, destRow, destCol, posRow, posCol);
+		System.out.println("--------- NOT ABS ----------");
+		System.out.println("ANGLE: "+ angle);
+		System.out.println("ANGLE2: "+ (360 - angle)+"\n");
+		
+		System.out.println("--------- WITH ABS ---------");
+		System.out.println("ANGLE: "+ Math.abs(angle));
+		System.out.println("ANGLE2: "+ (360 - Math.abs(angle)+"\n"));
+		
+		// If angle > 0: Turn right, else if angle < 0: Turn left
+		
+		double dist = rc.calc_Dist(posPoint, destPoint);
+		System.out.printf("Distance: %.2f", dist);
+		
+		if (angle > 0) {
+			OF = "0F:4;";
+			RR = "RR:"+angle+";";
+		} else if (angle < 0) {
+			OF = "0F:3;";
+			LR = "LR:"+Math.abs(angle)+";";
+		} else if (angle == 0) {
+			OF = "0F:1;";
+			if (dist > 300)
+				OS = "0S:150;";
+			else OS = "0S:50;";
+		}
+		
+		str.append(OF);
+		str.append(OG);
+		str.append(OS);
+		str.append(LR);
+		str.append(RR);
+		str.append(OB);
+		
+		String COMMAND = str.toString();
+		
+		System.out.println(COMMAND);
 		
 	}
 	
