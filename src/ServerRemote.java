@@ -107,21 +107,11 @@ public class ServerRemote {
 			unload();
 			break;
 		case RemoteCarClient.TURNLEFT: //f4
-<<<<<<< HEAD
 			turnRight(400, 10, true);
 			//gyroSensor.reset();
 			break;
 		case RemoteCarClient.TURNRIGHT: // f5
 			turnLeft(400, 10, true);
-=======
-			turnRight(200, 10, true);
-			//gyroSensor.reset();
-			break;
-		case RemoteCarClient.TURNRIGHT: // f5
-			turnLeft(200, 10, true);
->>>>>>> RotationDev
-			//gyroSensor.reset();
-			break;
 	}
 }
 
@@ -243,11 +233,8 @@ public void driveForward(int speed, float wheelrotation, boolean override) { // 
 	motorRight.setSpeed(speed);
 	motorRight.forward();
 	motorLeft.forward();
-<<<<<<< HEAD
-	int counter = 0;
-=======
->>>>>>> RotationDev
 
+	//int counter = 0;
 }
 	
 /**
@@ -261,11 +248,10 @@ public void driveBackwards(int speed, float wheelrotation, boolean override) { /
 	motorRight.setSpeed(speed);
 	motorRight.backward();
 	motorLeft.backward();
-	int counter = 0;
-//		
+	
+	//int counter = 0;
 }
 
-<<<<<<< HEAD
 /**
  * Stops the car
  */
@@ -274,10 +260,6 @@ public void fullStop() { // q for activate
 	motorLeft.setSpeed(0);
 	
 }
-=======
-
->>>>>>> RotationDev
-
 
 
 /**
@@ -370,61 +352,17 @@ private void unload(){
 
 
 //Skulle defineres, men ikke implementeres
-public void rotateForward() {
-
-<<<<<<< HEAD
+public void rotateForward() {}
 
 
 /**
  * Not implemented yet
  */
-public void lockCarWhilePickup() {
-=======
-}
 
 public void lockCarWhilePickup() {
 	
 }
 
-//Gyro metoder
-private void turnRightGyroImplementation(int angle) {
-
-	final SampleProvider sp = gyroSensor.getAngleMode();
-	int value = 0;
-	
-	motorLeft.setSpeed(300);
-	motorRight.setSpeed(300);
-	motorLeft.forward();
-	motorRight.backward();
-
-
-
-	while(true) {
-    	float [] sample = new float[sp.sampleSize()];
-        sp.fetchSample(sample, 0);
-        value = (int)sample[0];
-
-		if(value >= angle) {
-			motorLeft.setSpeed(0);
-			motorRight.setSpeed(0);
-			motorLeft.stop();
-			motorRight.stop();
-			System.out.println("Iteration: " + value);
-			System.out.println("Gyro angle: " + value);
-
-	        
-			if(value != 360) {
-				turnleftGyroImplementation(360-value);
-			}
-			
-			System.out.println("Resetting");
-			gyroSensor.reset();
-			break;
-		}
-	}
->>>>>>> RotationDev
-	
-}
 
 /**
  * Splits the client string into substrings for the functions to use
@@ -438,7 +376,6 @@ public void parser(String clientString) //takes format :
 		{
 			functionInt = Integer.parseInt(value.substring(3));
 		}
-<<<<<<< HEAD
 		if(value.contains("0G"))
 		{
 			grades = Integer.parseInt(value.substring(3));
@@ -459,11 +396,10 @@ public void parser(String clientString) //takes format :
 		{
 			interrupt = Boolean.parseBoolean(value.substring(3));
 		}
-	}	
-=======
 	}
-
-public void printGyro() {
+}
+}	
+/**public void printGyro() {
 	
 	final SampleProvider sp = gyroSensor.getAngleMode();
 	int value = 0;
@@ -474,8 +410,7 @@ public void printGyro() {
 	System.out.println("Gyro angle: " + value);
 	gyroSensor.reset();
 >>>>>>> RotationDev
-}
+}*/
 
-}
 
 
