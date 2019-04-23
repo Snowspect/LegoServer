@@ -23,10 +23,10 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	WHEELDOWN = 50, //num 2
 	WHEELSTOP = 51, //num 3
 	UNLOAD = 80, //p
-	GRAPPLEARMFUNCTION = 86;// V = grappleFunction
+	GRAPPLEARMFUNCTION = 86,// V = grappleFunction
+	PRINTGYRO = 117; //Deprecated
 	public static int [] [] GRID = new int [20][20];
-	PRINTGYRO = 117;
-
+	
 	Button btnConnect;
 	TextField txtIpAddress;
 	TextArea messages;
@@ -43,18 +43,19 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	 */
 	public RemoteCarClient(String title, String ip)
 	{
-		//super(title);
-		/*this.setSize(400, 300);
+		super(title);
+		this.setSize(400, 300);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				System.out.println("Ending  Warbird Client");
 				disconnect();
 				System.exit(0);
 			}
-		});*/
-		//buildGUI(ip);
-		//this.setVisible(true);
-		//btnConnect.addKeyListener(this);
+		});
+		buildGUI(ip);
+		this.setVisible(true);
+		btnConnect.addKeyListener(this);
+		
 		rc = new RouteCalculator();
 		str = new StringBuilder();
 	}
