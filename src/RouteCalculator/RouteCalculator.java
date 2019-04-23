@@ -2,6 +2,10 @@ package RouteCalculator;
 
 public class RouteCalculator implements RouteCalculatorInterface  {
 	
+	/**
+	 * calculates the distance between two points.
+	 * Currently the distance is returned as: xxx
+	 */
 	@Override
 	public double calc_Dist(PointInGrid posPoint, PointInGrid destPoint) {
 		int colDist = destPoint.getX()-posPoint.getX();
@@ -15,6 +19,10 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		return hypDist;
 	}
 
+	/**
+	 * Calculates angle between two points
+	 * The angle is returned on a 360 degree scale.
+	 */
 	@Override
 	public double calc_Angle(int conX, int conY, int endX, int endY, int startX, int startY) {
 		double angle1 = Math.atan2((conX - startX), (conY - startY)) * 180/Math.PI;
@@ -27,6 +35,9 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 	}
 
+	/**
+	 * This is deprecated : Delete this or adjust this block if it is still relevant.
+	 */
 	@Override
 	public void getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
 		StringBuilder str = new StringBuilder();

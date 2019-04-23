@@ -5,7 +5,7 @@ public interface RouteCalculatorInterface {
 	/**
 	 * @param posPoint the position of rotation center
 	 * @param destPoint the position of target
-	 * @return: The distance between start and and
+	 * @return: The distance between start and end (how is it represented in numbers based on the grid scale?)
 	 */
 	public double calc_Dist(PointInGrid posPoint, PointInGrid destPoint);
 	

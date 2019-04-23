@@ -68,10 +68,17 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		
 	}
 	
+	/**
+	 * Calculates a path from one point to another in a grid
+	 * @param conPoint : one of four points around the corners of the grid???
+	 * @param posPoint : where we are located.
+	 * @param destPoint : Where we are going ultimately.
+	 */
 	public void roadtrip(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
 		int destRow = destPoint.getX(), destCol = destPoint.getY();
 		int posRow = posPoint.getX(), posCol = posPoint.getY();
 		int conRow = conPoint.getX(), conCol = conPoint.getY();
+		// These strings tells us which function we call on the robot
 		String OF = "0F:0;";
 		String OG = "0G:0;";
 		String OS = "0S:0;";
@@ -79,7 +86,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		String RR = "RR:0;";
 		String OB = "0B:false";
 		
-		
+		//Calculates the angle from one point to another.
 		double angle = rc.calc_Angle(conRow, conCol, destRow, destCol, posRow, posCol);
 		System.out.println("--------- NOT ABS ----------");
 		System.out.println("ANGLE: "+ angle);
@@ -91,6 +98,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		
 		// If angle > 0: Turn right, else if angle < 0: Turn left
 		
+		//calculates the distance from one point to another 
 		double dist = rc.calc_Dist(posPoint, destPoint);
 		System.out.printf("Distance: %.2f", dist);
 		
@@ -107,6 +115,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 			else OS = "0S:50;";
 		}
 		
+		//creates the string to send for the robot to interpret
 		str.append(OF);
 		str.append(OG);
 		str.append(OS);
