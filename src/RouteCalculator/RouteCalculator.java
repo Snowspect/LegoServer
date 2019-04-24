@@ -5,6 +5,12 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	private static int TrackLenght = 1920;
 	private static int TrackWidth = 1080;
 	
+	PointInGrid [] checkPoints = {	new PointInGrid(TrackWidth/4, TrackLenght/4),
+			new PointInGrid(TrackWidth/4, 3*(TrackLenght/4)),
+			new PointInGrid(3*(TrackWidth/4), TrackLenght/4),
+			new PointInGrid(3*(TrackWidth/4), 3*(TrackLenght/4)) };
+	
+	
 	/**
 	 * calculates the distance between two points.
 	 * Currently the distance is returned as: xxx
@@ -96,26 +102,109 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 	@Override
 	public String goToNearestCheckpoint(PointInGrid conPoint, PointInGrid posPoint) {
-		PointInGrid [] checkPoints = {	new PointInGrid(TrackWidth/4, TrackLenght/4),
-										new PointInGrid(TrackWidth/4, 3*(TrackLenght/4)),
-										new PointInGrid(3*(TrackWidth/4), TrackLenght/4),
-										new PointInGrid(3*(TrackWidth/4), 3*(TrackLenght/4)) };
 		
+		int QUAD = setQuadrant(posPoint);
 		String Command = null;
 		
-		if (posPoint.getX() <= TrackWidth/2 && posPoint.getY() <= TrackLenght/2)
+		if (QUAD == 1)
 			Command = getDir(conPoint, posPoint, checkPoints[0]);
 		
-		else if (posPoint.getX() <= TrackWidth/2 && posPoint.getY() > TrackLenght/2)
+		else if (QUAD == 2)
 			Command = getDir(conPoint, posPoint, checkPoints[1]);
 		
-		else if (posPoint.getX() > TrackWidth/2 && posPoint.getY() <= TrackLenght/2)
+		else if (QUAD == 3)
 			Command = getDir(conPoint, posPoint, checkPoints[2]);
 		
-		else if (posPoint.getX() > TrackWidth/2 && posPoint.getY() > TrackLenght/2)
+		else if (QUAD == 4)
 			Command = getDir(conPoint, posPoint, checkPoints[3]);
 		
 		return Command;
+	}
+
+	@Override
+	public String goToNextCheckpoint(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+		
+		int QUAD_car = setQuadrant(posPoint);
+		int QUAD_ball = setQuadrant(destPoint);
+		String Command = null;
+		
+		if (QUAD_car == 1) {
+			
+			if (QUAD_ball == 1)
+				Command = getDir(conPoint, posPoint, destPoint);
+			
+			else if (QUAD_ball == 2)
+				Command = getDir(conPoint, posPoint, checkPoints[1]);
+			
+			else if (QUAD_ball == 3)
+				Command = getDir(conPoint, posPoint, checkPoints[2]);
+			
+			else if (QUAD_ball == 4)
+				Command = getDir(conPoint, posPoint, checkPoints[3]);
+			
+		}
+		
+		else if (QUAD_car == 2) {
+			if (QUAD_ball == 1)
+				Command = getDir(conPoint, posPoint, checkPoints[0]);
+			
+			else if (QUAD_ball == 2)
+				Command = getDir(conPoint, posPoint, checkPoints[1]);
+			
+			else if (QUAD_ball == 3)
+				Command = getDir(conPoint, posPoint, checkPoints[2]);
+			
+			else if (QUAD_ball == 4)
+				Command = getDir(conPoint, posPoint, checkPoints[3]);
+		}
+		
+		else if (QUAD_car == 3) {
+			if (QUAD_ball == 1)
+				Command = getDir(conPoint, posPoint, checkPoints[0]);
+			
+			else if (QUAD_ball == 2)
+				Command = getDir(conPoint, posPoint, checkPoints[1]);
+			
+			else if (QUAD_ball == 3)
+				Command = getDir(conPoint, posPoint, checkPoints[2]);
+			
+			else if (QUAD_ball == 4)
+				Command = getDir(conPoint, posPoint, checkPoints[3]);
+		}
+		
+		else if (QUAD_car == 4) {
+			if (QUAD_ball == 1)
+				Command = getDir(conPoint, posPoint, checkPoints[0]);
+			
+			else if (QUAD_ball == 2)
+				Command = getDir(conPoint, posPoint, checkPoints[1]);
+			
+			else if (QUAD_ball == 3)
+				Command = getDir(conPoint, posPoint, checkPoints[2]);
+			
+			else if (QUAD_ball == 4)
+				Command = getDir(conPoint, posPoint, checkPoints[3]);
+		}
+		
+		return Command;
+	}
+
+	@Override
+	public int setQuadrant(PointInGrid point) {
+		
+		
+		int QUAD = 1;
+		
+		if (point.getX() <= TrackWidth/2 && point.getY() <= TrackLenght/2)
+			QUAD = 1;
+		else if (point.getX() <= TrackWidth/2 && point.getY() > TrackLenght/2)
+			QUAD = 2;
+		else if (point.getX() > TrackWidth/2 && point.getY() <= TrackLenght/2)
+			QUAD = 3;
+		else if (point.getX() > TrackWidth/2 && point.getY() > TrackLenght/2)
+			QUAD = 4;
+		
+		return QUAD;
 	}
 	
 	

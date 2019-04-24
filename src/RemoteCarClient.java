@@ -33,7 +33,6 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	private Socket socket;
 	private DataOutputStream outStream;
 	static RouteCalculator rc;
-	StringBuilder str;
 	
 	public RemoteCarClient(String title, String ip)
 	{
@@ -50,7 +49,6 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		//this.setVisible(true);
 		//btnConnect.addKeyListener(this);
 		rc = new RouteCalculator();
-		str = new StringBuilder();
 	}
 	
 	public static void main(String args[])
