@@ -2,6 +2,9 @@ package RouteCalculator;
 
 public class RouteCalculator implements RouteCalculatorInterface  {
 	
+	private static int TrackLenght = 1920;
+	private static int TrackWidth = 1080;
+	
 	/**
 	 * calculates the distance between two points.
 	 * Currently the distance is returned as: xxx
@@ -35,11 +38,9 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 	}
 
-	/**
-	 * This is deprecated : Delete this or adjust this block if it is still relevant.
-	 */
+	
 	@Override
-	public void getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+	public String getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
 		StringBuilder str = new StringBuilder();
 		int destRow = destPoint.getX(), destCol = destPoint.getY();
 		int posRow = posPoint.getX(), posCol = posPoint.getY();
@@ -89,6 +90,32 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		String COMMAND = str.toString();
 		
 		System.out.println("COMMAND: "+COMMAND);
+		
+		return COMMAND;
+	}
+
+	@Override
+	public String goToNearestCheckpoint(PointInGrid conPoint, PointInGrid posPoint) {
+		PointInGrid [] checkPoints = {	new PointInGrid(TrackWidth/4, TrackLenght/4),
+										new PointInGrid(TrackWidth/4, 3*(TrackLenght/4)),
+										new PointInGrid(3*(TrackWidth/4), TrackLenght/4),
+										new PointInGrid(3*(TrackWidth/4), 3*(TrackLenght/4)) };
+		
+		String Command = null;
+		
+		if (posPoint.getX() <= TrackWidth/2 && posPoint.getY() <= TrackLenght/2)
+			Command = getDir(conPoint, posPoint, checkPoints[0]);
+		
+		else if (posPoint.getX() <= TrackWidth/2 && posPoint.getY() > TrackLenght/2)
+			Command = getDir(conPoint, posPoint, checkPoints[1]);
+		
+		else if (posPoint.getX() > TrackWidth/2 && posPoint.getY() <= TrackLenght/2)
+			Command = getDir(conPoint, posPoint, checkPoints[2]);
+		
+		else if (posPoint.getX() > TrackWidth/2 && posPoint.getY() > TrackLenght/2)
+			Command = getDir(conPoint, posPoint, checkPoints[3]);
+		
+		return Command;
 	}
 	
 	
