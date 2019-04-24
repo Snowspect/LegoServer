@@ -140,7 +140,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				Command = getDir(conPoint, posPoint, checkPoints[2]);
 			
 			else if (QUAD_ball == 4)
-				Command = getDir(conPoint, posPoint, checkPoints[3]);
+				Command = getDir(conPoint, posPoint, checkPoints[2]);
 			
 		}
 		
@@ -152,7 +152,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				Command = getDir(conPoint, posPoint, checkPoints[1]);
 			
 			else if (QUAD_ball == 3)
-				Command = getDir(conPoint, posPoint, checkPoints[2]);
+				Command = getDir(conPoint, posPoint, checkPoints[3]);
 			
 			else if (QUAD_ball == 4)
 				Command = getDir(conPoint, posPoint, checkPoints[3]);
@@ -163,7 +163,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				Command = getDir(conPoint, posPoint, checkPoints[0]);
 			
 			else if (QUAD_ball == 2)
-				Command = getDir(conPoint, posPoint, checkPoints[1]);
+				Command = getDir(conPoint, posPoint, checkPoints[0]);
 			
 			else if (QUAD_ball == 3)
 				Command = getDir(conPoint, posPoint, checkPoints[2]);
@@ -174,7 +174,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		
 		else if (QUAD_car == 4) {
 			if (QUAD_ball == 1)
-				Command = getDir(conPoint, posPoint, checkPoints[0]);
+				Command = getDir(conPoint, posPoint, checkPoints[1]);
 			
 			else if (QUAD_ball == 2)
 				Command = getDir(conPoint, posPoint, checkPoints[1]);
