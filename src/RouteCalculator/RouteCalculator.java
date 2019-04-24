@@ -2,6 +2,9 @@ package RouteCalculator;
 
 public class RouteCalculator implements RouteCalculatorInterface  {
 	
+	PointInGrid [] checkPoints = { new PointInGrid(480, 270), new PointInGrid(1440, 270),
+			new PointInGrid(480, 810), new PointInGrid(1440, 810) };
+	
 	/**
 	 * calculates the distance between two points.
 	 * Currently the distance is returned as: xxx

@@ -24,7 +24,7 @@ public interface RouteCalculatorInterface {
 	/**
 	 * @param conPoint: ControlPoint in from of robot
 	 * @param pospoint: Rotation center of robot
-	 * @param destPoin:	Position of target tabletennis ball
+	 * @param destPoin:	Position of target table tennis ball
 	 */
 	public void getDir(PointInGrid conPoint, PointInGrid pospoint, PointInGrid destPoint); //pos: current position, dest: destnation
 

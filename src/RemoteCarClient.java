@@ -25,7 +25,9 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	UNLOAD = 80, //p
 	GRAPPLEARMFUNCTION = 86,// V = grappleFunction
 	PRINTGYRO = 117; //Deprecated
-	public static int [] [] GRID = new int [20][20];
+	
+	PointInGrid [] checkPoints = { new PointInGrid(480, 270), new PointInGrid(1440, 270),
+									new PointInGrid(480, 810), new PointInGrid(1440, 810) };
 	
 	Button btnConnect;
 	TextField txtIpAddress;
@@ -82,7 +84,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 
 	/**
 	 * Calculates a path from one point to another in a grid
-	 * @param conPoint : one of four points around the corners of the grid???
+	 * @param conPoint : Fixed point a few pixels directly in front of robot
 	 * @param posPoint : where we are located.
 	 * @param destPoint : Where we are going ultimately.
 	 */
