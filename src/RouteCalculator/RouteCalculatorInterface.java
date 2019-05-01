@@ -29,6 +29,7 @@ public interface RouteCalculatorInterface {
 	 */
 	public String getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint);
 	
+	
 	/**
 	 * @param conPoint ControlPoint in from of robot
 	 * @param posPoint Rotation center of robot

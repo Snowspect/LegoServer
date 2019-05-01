@@ -33,6 +33,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	private Socket socket;
 	private DataOutputStream outStream;
 	static RouteCalculator rc;
+	static RemoteCarClient RC;
 	
 	public RemoteCarClient(String title, String ip)
 	{
@@ -49,10 +50,12 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		//this.setVisible(true);
 		//btnConnect.addKeyListener(this);
 		rc = new RouteCalculator();
+		
 	}
 	
 	public static void main(String args[])
 	{
+		
 		String ip = "192.168.43.199";
 		//String ip = "10.0.1.1";
 		if(args.length > 0) {
@@ -60,9 +63,9 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		}
 		System.out.println("Starting Client...");
 		new RemoteCarClient("R/C Client", ip);
-		
+		RC = new RemoteCarClient("R/C Client", ip);
 		//Method contains the same code as roadTrip(). Use for testing
-		rc.getDir(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(625,713));
+		RC.roadtrip(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(1,1), false);
 		
 	}
 	
@@ -72,12 +75,15 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	 * @param posPoint : where we are located.
 	 * @param destPoint : Where we are going ultimately.
 	 */
-	public void roadtrip(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+	public void roadtrip(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint, boolean goingOverNOGO) {
 		
 		String COMMAND;
 		
-		if ("bolle".length() == 5)
-			COMMAND = rc.goToNearestCheckpoint(conPoint, posPoint);
+//		if (Math.abs(posPoint.getX()-destPoint.getX()) > RouteCalculator.TrackWidth/2 
+//				&& Math.abs(posPoint.getY()-destPoint.getY()) > RouteCalculator.TrackLenght/2)
+		
+		if (goingOverNOGO)
+			COMMAND = rc.goToNextCheckpoint(conPoint, posPoint, destPoint);
 		else
 			COMMAND = rc.getDir(conPoint, posPoint, destPoint);
 		

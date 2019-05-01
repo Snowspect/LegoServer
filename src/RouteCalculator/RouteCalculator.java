@@ -2,19 +2,14 @@ package RouteCalculator;
 
 public class RouteCalculator implements RouteCalculatorInterface  {
 	
-	private static int TrackLenght = 1920;
-	private static int TrackWidth = 1080;
+	public static int TrackLenght = 1920;
+	public static int TrackWidth = 1080;
 	
 	PointInGrid [] checkPoints = {	new PointInGrid(TrackWidth/4, TrackLenght/4),
 			new PointInGrid(TrackWidth/4, 3*(TrackLenght/4)),
 			new PointInGrid(3*(TrackWidth/4), TrackLenght/4),
 			new PointInGrid(3*(TrackWidth/4), 3*(TrackLenght/4)) };
 	
-	
-	/**
-	 * calculates the distance between two points.
-	 * Currently the distance is returned as: xxx
-	 */
 	@Override
 	public double calc_Dist(PointInGrid posPoint, PointInGrid destPoint) {
 		int colDist = destPoint.getX()-posPoint.getX();
@@ -28,10 +23,6 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		return hypDist;
 	}
 
-	/**
-	 * Calculates angle between two points
-	 * The angle is returned on a 360 degree scale.
-	 */
 	@Override
 	public double calc_Angle(int conX, int conY, int endX, int endY, int startX, int startY) {
 		double angle1 = Math.atan2((conX - startX), (conY - startY)) * 180/Math.PI;
@@ -44,7 +35,6 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 	}
 
-	
 	@Override
 	public String getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
 		StringBuilder str = new StringBuilder();
@@ -123,9 +113,8 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 	@Override
 	public String goToNextCheckpoint(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
-		
-		int QUAD_car = setQuadrant(posPoint);
-		int QUAD_ball = setQuadrant(destPoint);
+		System.out.println("Going to checkpoint");
+		int QUAD_car = setQuadrant(posPoint), QUAD_ball = setQuadrant(destPoint);
 		String Command = null;
 		
 		if (QUAD_car == 1) {
@@ -149,7 +138,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				Command = getDir(conPoint, posPoint, checkPoints[0]);
 			
 			else if (QUAD_ball == 2)
-				Command = getDir(conPoint, posPoint, checkPoints[1]);
+				Command = getDir(conPoint, posPoint, destPoint);
 			
 			else if (QUAD_ball == 3)
 				Command = getDir(conPoint, posPoint, checkPoints[3]);
@@ -166,7 +155,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				Command = getDir(conPoint, posPoint, checkPoints[0]);
 			
 			else if (QUAD_ball == 3)
-				Command = getDir(conPoint, posPoint, checkPoints[2]);
+				Command = getDir(conPoint, posPoint, destPoint);
 			
 			else if (QUAD_ball == 4)
 				Command = getDir(conPoint, posPoint, checkPoints[3]);
@@ -183,7 +172,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				Command = getDir(conPoint, posPoint, checkPoints[2]);
 			
 			else if (QUAD_ball == 4)
-				Command = getDir(conPoint, posPoint, checkPoints[3]);
+				Command = getDir(conPoint, posPoint, destPoint);
 		}
 		
 		return Command;
@@ -206,8 +195,6 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		
 		return QUAD;
 	}
-	
-	
 
 	
 }
