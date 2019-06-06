@@ -17,11 +17,12 @@
     </plugins>
   </build>
   <dependencies>
-  	<dependency>
+<!--	<dependency>
   	 	<groupId>org.bytedeco.javacpp-presets</groupId>
-    	<!-- <artifactId>opencv</artifactId>-->
+    	<artifactId>opencv</artifactId>
     	<artifactId>opencv-platform</artifactId>
     	<version>4.0.1-1.4.4</version>
   	</dependency>
+  	-->
   </dependencies>
 </project>
