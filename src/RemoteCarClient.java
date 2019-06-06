@@ -88,7 +88,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 				COMMAND  = rc.goToNearestCheckpoint(conPoint, posPoint);
 		}
 		else
-			COMMAND = rc.getDir(conPoint, posPoint, destPoint);
+			COMMAND = rc.goToBall(conPoint, posPoint, destPoint);
 		
 		
 		System.out.println(COMMAND);
