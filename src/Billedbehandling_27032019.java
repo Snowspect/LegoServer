@@ -199,11 +199,11 @@ public class Billedbehandling_27032019
         Mat circles = new Mat();
  
         // Detecting circles from the grayscale image and saving it in the circles matrix
-        Imgproc.HoughCircles(gray, circles, Imgproc.HOUGH_GRADIENT, 1.0,
+        Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT, 1.0, // Imgproc.HOUGH_GRADIENT
                 (double) gray.rows() / 25,                              // change this value to detect circles with different distances to each other (orig: 8)
                 25.0, 14.0, 8, 15);           // change the last two parameters (orig: 1 , 10)
                                                                                 // (min_radius & max_radius) to detect larger circles
-        for (int x = 0; x < circles.cols(); x++)
+        /*for (int x = 0; x < circles.cols(); x++)
         {
             double[] c = circles.get(0, x);
             Point center = new Point(Math.round(c[0]), Math.round(c[1]));
@@ -215,7 +215,7 @@ public class Billedbehandling_27032019
                     3,
                     8,
                     0);
- 
+             
             int radius = (int) Math.round(c[2]);
             Imgproc.circle(src,                     // Circle outline
                     center,
@@ -251,6 +251,7 @@ public class Billedbehandling_27032019
         // Opening GUI window to illustrate the detected circles.
         //HighGui.imshow("detected circles", src);
         //HighGui.waitKey();
+         */
     }
  
     /**

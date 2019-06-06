@@ -310,14 +310,14 @@ private void pickUpBall() {
 	ArmWheelMoter.forward();
 	grappleArmDown();
 	try {
-		Thread.sleep(3000);
+		Thread.sleep(250);
 	} catch (InterruptedException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 	grappleArmUp();
 	try {
-		Thread.sleep(3000);
+		Thread.sleep(250);
 	} catch (InterruptedException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
