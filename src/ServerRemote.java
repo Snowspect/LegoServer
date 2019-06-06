@@ -18,13 +18,13 @@ import lejos.robotics.SampleProvider;
 public class ServerRemote {
 
 	/// VARIABLES START ///
-	
+
 				///old motors///
 	//private static UnregulatedMotor left = new UnregulatedMotor(MotorPort.A);
 	//private static RegulatedMotor A = new EV3LargeRegulatedMotor(MotorPort.A);
-	//private static EV3MediumRegulatedMotor A = new 
+	//private static EV3MediumRegulatedMotor A = new
 				///old motors end ///
-	
+
 	int functionInt, speed, grades, wheelRotation;
 	public static final int port = 12345;
 	private Socket client;
@@ -37,17 +37,17 @@ public class ServerRemote {
 	private static RegulatedMotor ArmWheelMoter = new EV3MediumRegulatedMotor(MotorPort.D);
 	private static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
 	/// VARIABLES END ///
-	
+
 	/**
 	 * sets global client to remote requesting client
 	 * @param client : the client which we recieved a connection request from.
 	 */
 	public ServerRemote(Socket client) {
 		this.client = client;
-		
+
 		Button.ESCAPE.addKeyListener(new EscapeListener());
 	}
-	
+
 	/**
 	 * starts the server and awaits client ((accepts client when it connects))
 	 */
@@ -58,10 +58,10 @@ public class ServerRemote {
 		while(looping)
 		{
 			System.out.println("Awaiting Client..");
-			new ServerRemote(server.accept()).run();	
+			new ServerRemote(server.accept()).run();
 		}
 	}
-	
+
 	/**
 	 * activates a specific method based on the passed integer
 	 * @param command : The integer that decides what function to trigger
@@ -117,7 +117,7 @@ public class ServerRemote {
 	}
 }
 
-	
+
 	public void carMovement() {
 		switch(functionInt){
 			case 1:	//forward
@@ -156,12 +156,12 @@ public class ServerRemote {
 			case 12: //unloadFunction
 				unload();
 				break;
-			
+
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Reads the UTF (String) send by the client, parse it and sends it to carAction
 	 * can also close server
@@ -172,15 +172,15 @@ public class ServerRemote {
 		try {
 			InputStream in = client.getInputStream();
 			DataInputStream dIn = new DataInputStream(in);
-			
+
 			System.out.println("Client Connected");
 			while(client != null)
 				{
 					String commandString = dIn.readUTF();
-					
+
 					String splitter = "0F:2;0G:200;0S:300;LR:50;RR:50;0B:true";
-					parser(splitter); //sets values og global variables. 
-					
+					parser(splitter); //sets values og global variables.
+
 					//currently not using the Interrupter method, but it is simply implemented
 					int command = Integer.parseInt(commandString);
 					//int command = dIn.readInt();
@@ -192,14 +192,14 @@ public class ServerRemote {
 						looping = false;
 						System.exit(0);
 					}
-					else {	
+					else {
 //						parser("0F:3;0G:200;0S:300;LR:40;RR:50;0B:true");
 //						carMovement();
-					
+
 						carAction(command);
 					}
 				}
-		} catch (IOException e) 
+		} catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -238,7 +238,7 @@ public void driveForward(int speed, float wheelrotation, boolean override) { // 
 	int counter = 0;
 
 }
-	
+
 /**
  * Drives backwards
  * @param speed : the speed in which we drive backwards
@@ -251,7 +251,7 @@ public void driveBackwards(int speed, float wheelrotation, boolean override) { /
 	motorRight.backward();
 	motorLeft.backward();
 	int counter = 0;
-//		
+//
 }
 
 /**
@@ -260,7 +260,7 @@ public void driveBackwards(int speed, float wheelrotation, boolean override) { /
 public void fullStop() { // q for activate
 	motorRight.setSpeed(0);
 	motorLeft.setSpeed(0);
-	
+
 }
 
 
@@ -270,13 +270,13 @@ public void fullStop() { // q for activate
  * @param speed : the speed in which we turn
  * @param angle : the angle we rotate for the wheels
  * @param override : if we want to stop the turning
- */	
+ */
 public void turnLeft(int speed, int angle, boolean override){
 	motorRight.setSpeed(speed);
 	motorLeft.setSpeed(speed);
 	motorRight.rotate(-angle, true);
 	motorLeft.rotate(angle, true);
-	
+
 }
 
 
@@ -298,7 +298,7 @@ void turnRight(int speed, int angle, boolean override){
  */
 public void stopWheels() {
 	motorRight.stop(true);
-	motorLeft.stop(true);	
+	motorLeft.stop(true);
 }
 
 
@@ -354,6 +354,8 @@ private void unload(){
 }
 
 
+//Skulle defineres, men ikke implementeres
+public void rotateForward() {
 
 
 
@@ -361,14 +363,14 @@ private void unload(){
  * Not implemented yet
  */
 public void lockCarWhilePickup() {
-	
+
 }
 
 /**
  * Splits the client string into substrings for the functions to use
  * @param clientString : The string that gets splitted
  */
-public void parser(String clientString) //takes format : 
+public void parser(String clientString) //takes format :
 {
 	String[] Values = clientString.split(";");
 	for (String value : Values) {
@@ -396,9 +398,7 @@ public void parser(String clientString) //takes format :
 		{
 			interrupt = Boolean.parseBoolean(value.substring(3));
 		}
-	}	
+	}
 }
 
 }
-
-
