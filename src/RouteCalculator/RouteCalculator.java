@@ -5,6 +5,8 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	public static int TrackLenght = 1920;
 	public static int TrackWidth = 1080;
 	
+	private PointInGrid returnPoint;
+	
 	PointInGrid [] checkPoints = {	new PointInGrid(TrackWidth/4, TrackLenght/4),
 			new PointInGrid(TrackWidth/4, 3*(TrackLenght/4)),
 			new PointInGrid(3*(TrackWidth/4), TrackLenght/4),
@@ -12,8 +14,8 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	
 	@Override
 	public double calc_Dist(PointInGrid posPoint, PointInGrid destPoint) {
-		int colDist = destPoint.getX()-posPoint.getX();
-		int rowDist = destPoint.getY()-posPoint.getY();
+		double colDist = destPoint.getX()-posPoint.getX();
+		double rowDist = destPoint.getY()-posPoint.getY();
 		
 		double SqHyp = Math.pow(colDist, 2) + Math.pow(rowDist, 2);
 		double hypDist = Math.sqrt(SqHyp);
@@ -24,9 +26,9 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	}
 
 	@Override
-	public double calc_Angle(int conX, int conY, int endX, int endY, int startX, int startY) {
-		double angle1 = Math.atan2((conX - startX), (conY - startY)) * 180/Math.PI;
-		double angle2 = Math.atan2(endX - startX, endY - startY) * 180/Math.PI;
+	public double calc_Angle(double conRow, double conCol, double destRow, double destCol, double posRow, double posCol) {
+		double angle1 = Math.atan2((conRow - posRow), (conCol - posCol)) * 180/Math.PI;
+		double angle2 = Math.atan2((destRow - posRow), (destCol - posCol)) * 180/Math.PI;
 		System.out.println("ControlAngle: " + angle1);
 		System.out.println("DestAngle: " + angle2);
 		//System.out.println("angle3: " + (angle2 - angle1) + "\n");
@@ -38,9 +40,9 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	@Override
 	public String getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
 		StringBuilder str = new StringBuilder();
-		int destRow = destPoint.getX(), destCol = destPoint.getY();
-		int posRow = posPoint.getX(), posCol = posPoint.getY();
-		int conRow = conPoint.getX(), conCol = conPoint.getY();
+		double destRow = destPoint.getX(), destCol = destPoint.getY();
+		double posRow = posPoint.getX(), posCol = posPoint.getY();
+		double conRow = conPoint.getX(), conCol = conPoint.getY();
 		
 		String OF = "0F:0;";
 		String OG = "0G:0;";
@@ -90,6 +92,17 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		return COMMAND;
 	}
 
+	@Override
+	public String goToBall(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+		this.returnPoint = posPoint;
+		return getDir(conPoint, posPoint, destPoint);
+	}
+	
+	@Override
+	public String returnToFix(PointInGrid conPoint, PointInGrid posPoint) {
+		return getDir(conPoint, posPoint, this.returnPoint);
+	}
+	
 	@Override
 	public String goToNearestCheckpoint(PointInGrid conPoint, PointInGrid posPoint) {
 		

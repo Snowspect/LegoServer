@@ -19,7 +19,7 @@ public interface RouteCalculatorInterface {
 	 * @param startY Col coordinate for rotation center
 	 * @return The angle the robot shall turn (in degrees)
 	 */
-	public double calc_Angle(int x1, int y1, int x2, int y2, int startX, int startY);
+	public double calc_Angle(double x1, double y1, double x2, double y2, double startX, double startY);
 	
 	/**
 	 * @param conPoint ControlPoint in from of robot
@@ -40,14 +40,33 @@ public interface RouteCalculatorInterface {
 	/**
 	 * @param conPoint ControlPoint in from of robot
 	 * @param pospoint Rotation center of robot
-	 * @param destPoint	Position of target table tennis ball
+	 * @param destPoint	Position of target point
 	 * @return String containing the command for  the robot
 	 */
 	public String goToNextCheckpoint(PointInGrid conPoint, PointInGrid pospoint, PointInGrid destPoint);
 	
 	/**
-	 * @param point The point to determine quadrant
+	 * 
+	 * @param point A given point somewhere on the track
+	 * @return Integer referring to a specific part of the track
 	 */
 	public int setQuadrant(PointInGrid point);
+	
+	/**
+	 * 
+	 * @param conPoint ControlPoint in from of robot
+	 * @param pospoint Rotation center of robot
+	 * @param destPoint	Position of target point
+	 * @return String containing the command for  the robot
+	 */
+	public String goToBall(PointInGrid conPoint, PointInGrid pospoint, PointInGrid destPoint);
+	
+	/**
+	 * 
+	 * @param conPoint ControlPoint in from of robot
+	 * @param pospoint Rotation center of robot
+	 * @return String containing the command for  the robot
+	 */
+	public String returnToFix(PointInGrid conPoint, PointInGrid posPoint);
 	
 }

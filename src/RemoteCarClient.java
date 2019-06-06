@@ -82,8 +82,11 @@ public class RemoteCarClient extends Frame implements KeyListener {
 //		if (Math.abs(posPoint.getX()-destPoint.getX()) > RouteCalculator.TrackWidth/2 
 //				&& Math.abs(posPoint.getY()-destPoint.getY()) > RouteCalculator.TrackLenght/2)
 		
-		if (goingOverNOGO)
+		if (goingOverNOGO) {
 			COMMAND = rc.goToNextCheckpoint(conPoint, posPoint, destPoint);
+			if (goingOverNOGO)
+				COMMAND  = rc.goToNearestCheckpoint(conPoint, posPoint);
+		}
 		else
 			COMMAND = rc.getDir(conPoint, posPoint, destPoint);
 		
