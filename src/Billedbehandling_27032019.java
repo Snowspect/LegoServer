@@ -1,6 +1,5 @@
 import org.opencv.core.*;
 import org.opencv.core.Point;
-import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
@@ -15,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
  
 import static org.opencv.core.Core.inRange;
- 
+
 public class Billedbehandling_27032019
 {
     // The camera has a maximum resolution of 1920x1080
@@ -23,11 +22,11 @@ public class Billedbehandling_27032019
     public static int imageHight = 1080;                // Image hight
  
     // Color range for detecting RED
-    //static Scalar min = new Scalar(0, 0, 130, 0);       // BGR-A (NOT RGB!) (Original)
-    //static Scalar max = new Scalar(140, 110, 255, 0);   // BGR-A (NOT RGB!)
+    //static Scalar min = new Scalar(0, 0, 130, 0);    	// BGR-A (NOT RGB!) (Original)
+    //static Scalar max = new Scalar(140, 110, 255, 0);	// BGR-A (NOT RGB!)
  
-    static Scalar min = new Scalar(0, 0, 150, 0);       // BGR-A (NOT RGB!) (Better than original)
-    static Scalar max = new Scalar(80, 100, 255, 0);     // BGR-A (NOT RGB!)
+    static Scalar min = new Scalar(0, 0, 150, 0);      	// BGR-A (NOT RGB!) (Better than original)
+    static Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!)
  
     // Instantiating the imgcodecs class
     static Imgcodecs imageCodecs = new Imgcodecs();
@@ -80,7 +79,7 @@ public class Billedbehandling_27032019
             System.out.println("Running edge detection : saved as test1_edges.png");
             String edgeFile = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
             //String default_file = "C:\\Users\\benja\\Desktop\\test1.png";
-            runEdgeDetection(frameColor, edgeFile);
+            //runEdgeDetection(frameColor, edgeFile);
  
             // Defining default file along with file name
             String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
@@ -116,6 +115,12 @@ public class Billedbehandling_27032019
         return frame;
     }
  
+    /**
+     * Takes the image with the color detected edges and
+     * isolates the edges of the red parts of the trakc.
+     * @param frame
+     * @param file
+     */
     private static void runEdgeDetection(Mat frame, String file)
     {
         //Mat temp_mat = Imgcodecs.imread(default_file, 1);
@@ -159,15 +164,11 @@ public class Billedbehandling_27032019
  
         // Saving the calculated matrix to the given path name (file)
         Imgcodecs.imwrite(file, draw);
- 
-        // Opening GUI window to illustrate the detected edges.
-        //HighGui.imshow("detected circles", draw);
-        //HighGui.waitKey(1);
     }
  
     /**
      * The function runOpenCV takes a file for the original image.
-     * a file that specifies where to save the new image and a matrix
+     * A file that specifies where to save the new image and a matrix
      * containing the output from the color detection function.
      * @param filename
      * @param default_file
@@ -197,19 +198,39 @@ public class Billedbehandling_27032019
  
         // Creating new matrix to hold the detected circles
         Mat circles = new Mat();
+        Mat circles2 = new Mat();
  
         // Detecting circles from the grayscale image and saving it in the circles matrix
-        Imgproc.HoughCircles(gray, circles, Imgproc.HOUGH_GRADIENT, 1.0, // Imgproc.HOUGH_GRADIENT
+        Imgproc.HoughCircles(gray, 
+        		circles, 
+        		Imgproc.HOUGH_GRADIENT, 
+        		1.0,
                 (double) gray.rows() / 25,  	// change this value to detect circles with different distances to each other (orig: 8)
-                25.0, 14.0, 10, 15);           	// change the last two parameters (orig: 1 , 10)
-        										// Latest "cal" 8, 15)
-                                             	// (min_radius & max_radius) to detect larger circles
+                25.0, 
+                14.0, 
+                9, 								// Minimum radius
+                11);           					// Maximum radius
+        										// change the last two parameters (orig: 1 , 10)
+        										// Latest calibration : 8, 15)
+        										// Eclipse calibration : 9, 11)
+        
+        // Detecting circles from the grayscale image and saving it in the circles matrix
+        Imgproc.HoughCircles(gray, 
+        		circles2, 
+        		Imgproc.HOUGH_GRADIENT, 
+        		1.0,
+                (double) gray.rows() / 25,  	// change this value to detect circles with different distances to each other (orig: 8)
+                25.0, 
+                14.0, 
+                17, 							// Minimum radius
+                20);           					// Maximum radius
+  
         for (int x = 0; x < circles.cols(); x++)
         {
             double[] c = circles.get(0, x);
             Point center = new Point(Math.round(c[0]), Math.round(c[1]));
  
-            Imgproc.circle(src,                     // Circle center
+            Imgproc.circle(src,            		// Circle center
                     center,
                     1,
                     new Scalar(0, 100, 100),
@@ -218,7 +239,7 @@ public class Billedbehandling_27032019
                     0);
              
             int radius = (int) Math.round(c[2]);
-            Imgproc.circle(src,                     // Circle outline
+            Imgproc.circle(src,              	// Circle outline
                     center,
                     radius,
                     new Scalar(255, 0, 255),
@@ -227,15 +248,15 @@ public class Billedbehandling_27032019
                     0);
  
             // ---------------------------------------------------------------------------------------------------------
-            // Used to write information to the image already containing information about the barriers color
-            Imgproc.circle(frameColor,                // Circle center
+            // Used to write information to the image already containing information about the colored barriers
+            Imgproc.circle(frameColor,       	// Circle center
                     center, 1,
                     new Scalar(255, 255, 255),
                     0,
                     0,
                     0);
  
-            Imgproc.circle(frameColor,                // Circle outline
+            Imgproc.circle(frameColor,      	// Circle outline
                     center,
                     radius,
                     new Scalar(255, 255, 255),
@@ -248,11 +269,55 @@ public class Billedbehandling_27032019
             imageCodecs.imwrite(file, frameColor);
             // ---------------------------------------------------------------------------------------------------------
         } // End of for loop for each detected circle
+        
+        // ############################################### TEST ###############################################
+        for (int x = 0; x < circles2.cols(); x++)
+        {
+            double[] c = circles2.get(0, x);
+            Point center = new Point(Math.round(c[0]), Math.round(c[1]));
  
-        // Opening GUI window to illustrate the detected circles.
-        //HighGui.imshow("detected circles", src);
-        //HighGui.waitKey();
-    }
+            Imgproc.circle(src,            		// Circle center
+                    center,
+                    1,
+                    new Scalar(0, 100, 100),
+                    3,
+                    8,
+                    0);
+             
+            int radius = (int) Math.round(c[2]);
+            Imgproc.circle(src,              	// Circle outline
+                    center,
+                    radius,
+                    new Scalar(255, 0, 255),
+                    3,
+                    8,
+                    0);
+            
+            // ---------------------------------------------------------------------------------------------------------
+            // Used to write information to the image already containing information about the colored barriers
+            Imgproc.circle(frameColor,       	// Circle center
+                    center, 
+                    1,
+                    new Scalar(255, 255, 255),
+                    1,
+                    0,
+                    0);
+ 
+            Imgproc.circle(frameColor,      	// Circle outline
+                    center,
+                    radius,
+                    new Scalar(255, 255, 255),
+                    1,
+                    8,
+                    0);
+            // Saving the image path and writing the new image
+            String file = "C:\\Users\\benja\\Desktop\\test2.png";
+            imageCodecs.imwrite(file, frameColor);
+            // ---------------------------------------------------------------------------------------------------------
+        } // End of for loop for each detected circle
+        // ############################################### END OF TEST ###############################################
+        
+    } // End of private static void runOpenCV(...)
  
     /**
      * Creates a matrix from the image containing both color and circular detection
@@ -260,7 +325,7 @@ public class Billedbehandling_27032019
      */
     private static void create_matrix()
     {
-        Mat imgMat = new Mat( imageHight, imageWidth, CvType.CV_8U );   // CvType.CV_8U : Unsigned 8bit (the same as a img pixel)
+        Mat imgMat = new Mat( imageHight, imageWidth, CvType.CV_8U );   // CvType.CV_8U : Unsigned 8bit (the same as an image pixel)
         BufferedImage bi = null;
  
         try {
@@ -280,12 +345,16 @@ public class Billedbehandling_27032019
                 if (pixel[0] == 255) {
                     //System.out.println(pixel[0] + " - " + pixel[1] + " - " + pixel[2] + " - " + (bi.getWidth() * y + x));
                     //System.out.println(x + ", " + y);
-                    matrix[col][row] = 1;               // An edge
-                    imgMat.put(row, col, 255);    // Prints a white spot on the Mat to check that the two-dimensional array is correct
+                    matrix[col][row] = 1;        	// An edge
+                    imgMat.put(row, col, 255);    	// Prints a white spot on the Mat to check that the two-dimensional array is correct
                 }
                 if (pixel[0] == 0 && pixel[1] == 255 && pixel[2] == 0) {
-                    matrix[col][row] = 2;               // A ball
-                    imgMat.put(row, col, 255);    // Prints a white spot on the Mat to check that the two-dimensional array is correct
+                    matrix[col][row] = 2;        	// A ball
+                    imgMat.put(row, col, 255);    	// Prints a white spot on the Mat to check that the two-dimensional array is correct
+                }
+                if (pixel[0] == 0 && pixel[1] == 255 && pixel[2] == 255 && pixel[3] == 0) {
+                    matrix[col][row] = 5;        	// The robot
+                    imgMat.put(row, col, 255);    	// Prints a white spot on the Mat to check that the two-dimensional array is correct
                 }
             }
         }
@@ -298,4 +367,5 @@ public class Billedbehandling_27032019
         System.out.println("        ------ Press 1 to capture new image ------        ");
  
     } // End of create_matrix()
+    
 } // End of public class Billedbehandling

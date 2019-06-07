@@ -1,5 +1,6 @@
 package UnitTests;
 
+/*
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -40,4 +41,4 @@ public class CommandLineTest {
 		
 	}
 
-}
+} */
