@@ -65,13 +65,13 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		double dist = calc_Dist(posPoint, destPoint);
 		System.out.printf("Distance: %.2f\n\n", dist);
 
-		if (angle > 0) {
+		if (angle > 10) {
 			OF = "0F:4;";
 			RR = "RR:"+Math.round(angle)+";";
-		} else if (angle < 0) {
+		} else if (angle < -10) {
 			OF = "0F:3;";
 			LR = "LR:"+Math.round(Math.abs(angle))+";";
-		} else if (angle == 0) {
+		} else if (angle >= -10 && angle <= 10) {
 			OF = "0F:1;";
 			if (dist > 300)
 				OS = "0S:150;";
