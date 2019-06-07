@@ -43,6 +43,11 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		GRAPPLEARMFUNCTION = 86;// V = grappleFunction
 		*/
 
+
+
+		PointInGrid [] checkPoints = { new PointInGrid(480, 270), new PointInGrid(1440, 270),
+										new PointInGrid(480, 810), new PointInGrid(1440, 810) };
+
 	Button btnConnect;
 	TextField txtIpAddress;
 	TextArea messages;
@@ -51,6 +56,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	private DataOutputStream outStream;
 	static RouteCalculator rc;
 	static RemoteCarClient RC;
+		StringBuilder str;
 
 	/**
 	 * @param title : unsure, suspect it sets the title of the GUI
@@ -58,18 +64,19 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	 */
 	public RemoteCarClient(String title, String ip)
 	{
-		//super(title);
-		/*this.setSize(400, 300);
+		super(title);
+		this.setSize(400, 300);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				System.out.println("Ending  Warbird Client");
 				disconnect();
 				System.exit(0);
 			}
-		});*/
-		//buildGUI(ip);
-		//this.setVisible(true);
-		//btnConnect.addKeyListener(this);
+		});
+		buildGUI(ip);
+		this.setVisible(true);
+		btnConnect.addKeyListener(this);
+
 		rc = new RouteCalculator();
 
 	}
@@ -92,12 +99,14 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		RC = new RemoteCarClient("R/C Client", ip);
 		//Method contains the same code as roadTrip(). Use for testing
 		RC.roadtrip(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(1,1), false);
+		//Method contains the same code as roadTrip(). Use for testing
+		rc.getDir(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(625,713));
 
 	}
 
 	/**
 	 * Calculates a path from one point to another in a grid
-	 * @param conPoint : one of four points around the corners of the grid???
+	 * @param conPoint : Fixed point a few pixels directly in front of robot
 	 * @param posPoint : where we are located.
 	 * @param destPoint : Where we are going ultimately.
 	 */
