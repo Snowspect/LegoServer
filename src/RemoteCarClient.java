@@ -3,30 +3,27 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
 
-import RouteCalculator.PointInGrid;
-import RouteCalculator.RouteCalculator;
+//import RouteCalculator.PointInGrid;
+//import RouteCalculator.RouteCalculator;
 
 public class RemoteCarClient extends Frame implements KeyListener {
 
 	/// VARIABLES START ///
 	public static final int PORT = ServerRemote.port;
 	public static final int CLOSE = 27; //escape = luk program
-	public static final int FORWARD = 87, //W = main up
+	public static final int FORWARD = 40, //ArrowUp = main up
 			STOP = 81, //Q = Stops motors
-	LEFT = 65, // A = LEFT
-	RIGHT = 68, //D = RIGHT
-	BACKWARD = 88, //X = main down
-	ARMUP = 112, //pil op = Arm goes UP
-	ARMDOWN = 113, // pil ned = arm goes down
-	WHEELUP = 49,
-	WHEELDOWN = 50,
+	BACKWARD = 38, //DownArrow = main down
+	ARMUP = 78, //B = Arm goes UP
+	ARMDOWN = 66, // N = arm goes down
+	WHEELUP = 50,
+	WHEELDOWN = 49,
 	WHEELSTOP = 51,
 	UNLOAD = 80, //P = unload
 	GRAPPLEARMFUNCTION = 86,// V = grappleFunction
-	TURNLEFT = 115, //F4
-	TURNRIGHT = 116, //F5
-	PRINTGYRO = 117;
-	public static int [] [] GRID = new int [20][20];
+	TURNLEFT = 37, // Leftarrow = LEFT
+	TURNRIGHT = 39; //RightArrow = RIGHT
+	//public static int [] [] GRID = new int [20][20];
 
 	/*	public static final int
 		FORWARD = 40, //Pil op
@@ -45,8 +42,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 
 
 
-		PointInGrid [] checkPoints = { new PointInGrid(480, 270), new PointInGrid(1440, 270),
-										new PointInGrid(480, 810), new PointInGrid(1440, 810) };
+		//PointInGrid [] checkPoints = { new PointInGrid(480, 270), new PointInGrid(1440, 270),new PointInGrid(480, 810), new PointInGrid(1440, 810) };
 
 	Button btnConnect;
 	TextField txtIpAddress;
@@ -54,13 +50,13 @@ public class RemoteCarClient extends Frame implements KeyListener {
 
 	private Socket socket;
 	private DataOutputStream outStream;
-	static RouteCalculator rc;
+	//static RouteCalculator rc;
 	static RemoteCarClient RC;
 		StringBuilder str;
 
 	/**
 	 * @param title : unsure, suspect it sets the title of the GUI
-	 * @param ip : the ip address in which we want to show in the GUI.
+	 * @param pip : the ip address in which we want to show in the GUI.
 	 */
 	public RemoteCarClient(String title, String ip)
 	{
@@ -77,7 +73,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		this.setVisible(true);
 		btnConnect.addKeyListener(this);
 
-		rc = new RouteCalculator();
+		//rc = new RouteCalculator();
 
 	}
 
@@ -96,11 +92,11 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		}
 		System.out.println("Starting Client...");
 		new RemoteCarClient("R/C Client", ip);
-		RC = new RemoteCarClient("R/C Client", ip);
+		//RC = new RemoteCarClient("R/C Client", ip);
 		//Method contains the same code as roadTrip(). Use for testing
-		RC.roadtrip(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(1,1), false);
+		//RC.roadtrip(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(1,1), false);
 		//Method contains the same code as roadTrip(). Use for testing
-		rc.getDir(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(625,713));
+		//rc.getDir(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(625,713));
 
 	}
 
@@ -110,25 +106,25 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	 * @param posPoint : where we are located.
 	 * @param destPoint : Where we are going ultimately.
 	 */
-	public void roadtrip(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint, boolean goingOverNOGO) {
-
-		String COMMAND;
-
-//		if (Math.abs(posPoint.getX()-destPoint.getX()) > RouteCalculator.TrackWidth/2
-//				&& Math.abs(posPoint.getY()-destPoint.getY()) > RouteCalculator.TrackLenght/2)
-
-		if (goingOverNOGO) {
-			COMMAND = rc.goToNextCheckpoint(conPoint, posPoint, destPoint);
-			if (goingOverNOGO)
-				COMMAND  = rc.goToNearestCheckpoint(conPoint, posPoint);
-		}
-		else
-			COMMAND = rc.goToBall(conPoint, posPoint, destPoint);
-
-
-		System.out.println(COMMAND);
-
-	}
+//	public void roadtrip(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint, boolean goingOverNOGO) {
+//
+//		String COMMAND;
+//
+////		if (Math.abs(posPoint.getX()-destPoint.getX()) > RouteCalculator.TrackWidth/2
+////				&& Math.abs(posPoint.getY()-destPoint.getY()) > RouteCalculator.TrackLenght/2)
+//
+//		if (goingOverNOGO) {
+//			COMMAND = rc.goToNextCheckpoint(conPoint, posPoint, destPoint);
+//			if (goingOverNOGO)
+//				COMMAND  = rc.goToNearestCheckpoint(conPoint, posPoint);
+//		}
+//		else
+//			COMMAND = rc.goToBall(conPoint, posPoint, destPoint);
+//
+//
+//		System.out.println(COMMAND);
+//
+//	}
 
 	/**
 	 * Sends the string for the robot to interpret.

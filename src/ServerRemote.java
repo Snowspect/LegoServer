@@ -35,7 +35,7 @@ public class ServerRemote {
 	private static RegulatedMotor motorRight = new EV3LargeRegulatedMotor(MotorPort.B);
 	private static RegulatedMotor GrappleArm = new EV3MediumRegulatedMotor(MotorPort.C);
 	private static RegulatedMotor ArmWheelMoter = new EV3MediumRegulatedMotor(MotorPort.D);
-	private static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
+//	private static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
 	/// VARIABLES END ///
 	
 	/**
@@ -54,7 +54,7 @@ public class ServerRemote {
 	public static void main(String[] args) throws IOException
 	{
 		server = new ServerSocket(port);
-		gyroSensor.reset();
+		//gyroSensor.reset();
 		while(looping)
 		{
 			System.out.println("Awaiting Client..");
@@ -194,7 +194,9 @@ public class ServerRemote {
 					}
 					else {	
 //						parser("0F:3;0G:200;0S:300;LR:40;RR:50;0B:true");
-//						carMovement();
+
+						
+						//carMovement();
 					
 						carAction(command);
 					}
@@ -310,14 +312,14 @@ private void pickUpBall() {
 	ArmWheelMoter.forward();
 	grappleArmDown();
 	try {
-		Thread.sleep(3000);
+		Thread.sleep(500);
 	} catch (InterruptedException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 	grappleArmUp();
 	try {
-		Thread.sleep(3000);
+		Thread.sleep(500);
 	} catch (InterruptedException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -329,14 +331,14 @@ private void pickUpBall() {
  * moves the arm up
  */
 private void grappleArmUp(){
-	GrappleArm.rotate(500);
+	GrappleArm.rotate(-500);
 }
 
 /**
  * moves the arm down
  */
 private void grappleArmDown() {
-	GrappleArm.rotate(-500);
+	GrappleArm.rotate(500);
 }
 
 /**
