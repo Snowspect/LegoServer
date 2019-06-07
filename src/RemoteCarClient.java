@@ -257,57 +257,5 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		*/
 		//messages.setText("status: command sent");
 	}
-	*/
-
-
-	private class ControlListener implements ActionListener{
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			String command = e.getActionCommand();
-			if(command.equals("Connect")) {
-				try {
-					socket = new Socket(txtIpAddress.getText(), PORT);
-					outStream = new DataOutputStream(socket.getOutputStream());
-					messages.setText("Status: CONNECTED");
-
-					btnConnect.setLabel("disconnect");
-				} catch (Exception exc) {
-					messages.setText("status: FAILURE Error establishing connection with server.");
-					System.out.println("Error: " + exc);
-				}
-			} else if (command.equals("Disconnect"))
-			{
-				disconnect();
-			}
-		}
-	}
-	public void disconnect()
-	{
-		try {
-			//SendCommand(CLOSE);
-			socket.close();
-
-			btnConnect.setLabel("Connect");
-			messages.setText("Status: DISCONNECTED");
-		} catch (Exception exc)
-		{
-			messages.setText("status: Failure Error closing connection with server");
-			System.out.println("error: " + exc);
-		}
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		//SendCommand(e.getKeyCode());
-		System.out.println("Pressed " + e.getKeyCode());
-	}
-
-	@Override
-	public void keyReleased(KeyEvent arg0) {}
-
-	@Override
-	public void keyTyped(KeyEvent arg0) {}
-
 
 }
