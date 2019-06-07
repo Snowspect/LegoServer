@@ -30,7 +30,7 @@ public class RouteCalculatorTests {
 		PointInGrid destinationPoint = new PointInGrid(15, 4);
 		PointInGrid robotCenterPoint = new PointInGrid(17, 2);
 		
-		double angle = RouteCalc.calc_Angle(controlpoint.getX(), controlpoint.getY(), destinationPoint.getX(), destinationPoint.getY(), robotCenterPoint.getX(), robotCenterPoint.getY());
+		double angle = RouteCalc.calc_Angle(controlpoint, destinationPoint, robotCenterPoint);
 		
 		assertEquals(45, angle, 0);
 		
@@ -43,7 +43,7 @@ public class RouteCalculatorTests {
 		PointInGrid destinationPoint = new PointInGrid(5, 6);
 		PointInGrid robotCenterPoint = new PointInGrid(6, 6);
 		
-		double angle = RouteCalc.calc_Angle(controlpoint.getX(), controlpoint.getY(), destinationPoint.getX(), destinationPoint.getY(), robotCenterPoint.getX(), robotCenterPoint.getY());
+		double angle = RouteCalc.calc_Angle(controlpoint, destinationPoint, robotCenterPoint);
 		
 		assertEquals(-225, angle, 0.5);
 	}
@@ -55,7 +55,7 @@ public class RouteCalculatorTests {
 		PointInGrid destinationPoint = new PointInGrid(14, 16);
 		PointInGrid robotCenterPoint = new PointInGrid(9, 7);
 		
-		double angle = RouteCalc.calc_Angle(controlpoint.getX(), controlpoint.getY(), destinationPoint.getX(), destinationPoint.getY(), robotCenterPoint.getX(), robotCenterPoint.getY());
+		double angle = RouteCalc.calc_Angle(controlpoint, destinationPoint, robotCenterPoint);
 		
 		assertEquals(-60.5, angle, 0.5);
 	}

@@ -7,10 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import RouteCalculator.PointInGrid;
-import STUFF.RemoteCarClient;
 
 public class CommandLineTest {
-	
+	/*
 	RemoteCarClient rc;
 	boolean equal;
 
@@ -39,5 +38,5 @@ public class CommandLineTest {
 		assertTrue(equal);
 		
 	}
-
+*/
 }
