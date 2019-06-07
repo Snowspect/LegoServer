@@ -27,29 +27,6 @@ public interface RouteCalculatorInterface {
 	 */
 	public String getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint);
 
-
-	/**
-	 * @param conPoint ControlPoint in from of robot
-	 * @param posPoint Rotation center of robot
-	 * @return String containing the command for  the robot
-	 */
-	public String goToNearestCheckpoint(PointInGrid conPoint, PointInGrid posPoint);
-
-	/**
-	 * @param conPoint ControlPoint in from of robot
-	 * @param pospoint Rotation center of robot
-	 * @param destPoint	Position of target point
-	 * @return String containing the command for  the robot
-	 */
-	public String goToNextCheckpoint(PointInGrid conPoint, PointInGrid pospoint, PointInGrid destPoint);
-
-	/**
-	 *
-	 * @param point A given point somewhere on the track
-	 * @return Integer referring to a specific part of the track
-	 */
-	public int setQuadrant(PointInGrid point);
-
 	/**
 	 *
 	 * @param conPoint ControlPoint in from of robot
