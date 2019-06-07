@@ -91,7 +91,14 @@ public class RouteLogic implements IRouteLogic {
 	
 	@Override
 	public void Drive(PointInGrid conPoint, PointInGrid Robot, PointInGrid nextCornor, PointInGrid nearestBall) {
-		// TODO Auto-generated method stub
+		
+		
+		
+		if (EvalRoute(Robot, nextCornor, nearestBall) == null)
+			Calculator.getDir(conPoint, Robot, nextCornor);
+		
+		else
+			Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, nearestBall));
 		
 	}
 	
