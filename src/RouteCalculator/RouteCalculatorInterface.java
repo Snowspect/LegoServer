@@ -11,15 +11,13 @@ public interface RouteCalculatorInterface {
 
 
 	/**
-	 * @param x1 Row coordinate for controlPoint
-	 * @param y1 Col coordinate for controlPoint
-	 * @param x2 Row coordinate for target
-	 * @param y2 Col coordinate for target
-	 * @param startX Row coordinate for rotation center
-	 * @param startY Col coordinate for rotation center
+	 * 
+	 * @param conPoint ControlPoint in from of robot
+	 * @param posPoint Rotation center of robot
+	 * @param destPoin	Position of target table tennis ball
 	 * @return The angle the robot shall turn (in degrees)
 	 */
-	public double calc_Angle(double x1, double y1, double x2, double y2, double startX, double startY);
+	public double calc_Angle(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint);
 
 	/**
 	 * @param conPoint ControlPoint in from of robot

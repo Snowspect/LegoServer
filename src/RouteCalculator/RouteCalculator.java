@@ -26,7 +26,10 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	}
 
 	@Override
-	public double calc_Angle(double conRow, double conCol, double destRow, double destCol, double posRow, double posCol) {
+	public double calc_Angle(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+		double destRow = destPoint.getX(), destCol = destPoint.getY();
+		double posRow = posPoint.getX(), posCol = posPoint.getY();
+		double conRow = conPoint.getX(), conCol = conPoint.getY();
 		double angle1 = Math.atan2((conRow - posRow), (conCol - posCol)) * 180/Math.PI;
 		double angle2 = Math.atan2((destRow - posRow), (destCol - posCol)) * 180/Math.PI;
 		System.out.println("ControlAngle: " + angle1);
@@ -40,9 +43,6 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	@Override
 	public String getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
 		StringBuilder str = new StringBuilder();
-		double destRow = destPoint.getX(), destCol = destPoint.getY();
-		double posRow = posPoint.getX(), posCol = posPoint.getY();
-		double conRow = conPoint.getX(), conCol = conPoint.getY();
 
 		String OF = "0F:0;";
 		String OG = "0G:0;";
@@ -51,7 +51,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		String RR = "RR:0;";
 		String OB = "0B:false";
 
-		double angle = calc_Angle(conRow, conCol, destRow, destCol, posRow, posCol);
+		double angle = calc_Angle(conPoint, posPoint, destPoint);
 		System.out.println("--------- NOT ABS ----------");
 		System.out.println("ANGLE: "+ angle);
 		System.out.println("ANGLE2: "+ (360 - angle)+"\n");
