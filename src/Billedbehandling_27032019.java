@@ -7,8 +7,11 @@ import org.opencv.videoio.Videoio;
  
 import java.io.*;
 import java.util.Scanner;
+import java.math.*;
  
 import javax.imageio.ImageIO;
+
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,8 +21,8 @@ import static org.opencv.core.Core.inRange;
 public class Billedbehandling_27032019
 {
     // The camera has a maximum resolution of 1920x1080
-    public static int imageWidth = 1920;                // Image width
-    public static int imageHeight = 1080;                // Image height
+    static int imageWidth = 1920;                		// Image width
+    static int imageHeight = 1080;             			// Image height
  
     // Color range for detecting RED
     //static Scalar min = new Scalar(0, 0, 130, 0);    	// BGR-A (NOT RGB!) (Original)
@@ -29,14 +32,21 @@ public class Billedbehandling_27032019
     static Scalar min = new Scalar(0, 0, 150, 0);      	// BGR-A (NOT RGB!) (Better than original)
     static Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!)
     
-    // Color range for detecting BLUE
-    static Scalar minBlue = new Scalar(70, 25, 20, 0);  // BGR-A (NOT RGB!)
-    static Scalar maxBlue = new Scalar(120, 50, 40, 0); // BGR-A (NOT RGB!)
+    // Color range for detecting BLUE circle on robot
+    static Scalar minBlue = new Scalar(90, 0, 0, 0);  	// BGR-A (NOT RGB!)
+    static Scalar maxBlue = new Scalar(255, 70, 65, 0); // BGR-A (NOT RGB!)
     
-    // Color range for detecting GREEN
-    static Scalar minGreen = new Scalar(40, 70, 40, 0);	// BGR-A (NOT RGB!)
-    static Scalar maxGreen = new Scalar(60, 100, 60, 0);// BGR-A (NOT RGB!)
+    // Color range for detecting GREEN circle on robot
+    static Scalar minGreen = new Scalar(0, 100, 0, 0);	// BGR-A (NOT RGB!)
+    static Scalar maxGreen = new Scalar(90, 255, 90, 0);// BGR-A (NOT RGB!)
  
+    // Measurements (camera, robot, ball and obstacles)
+	static double cameraHeight = 2000; 					// 2000mm = 200cm
+	static double robotHeight = 280; 					// 280mm = 28cm
+	static double ballHeight = 40;						// 40mm = 4cm
+	static double courseEdgeHeight = 70;				// 70mm = 7cm
+	static double crossHeight = 30;						// 30mm = 3cm
+    
     // Instantiating the imgcodecs class
     static Imgcodecs imageCodecs = new Imgcodecs();
  
@@ -46,15 +56,18 @@ public class Billedbehandling_27032019
     public static void main(String[] args)
     {
     	// Creating a two-dimensional array
-        int[][] arrayMap = new int[imageWidth][imageHeight];
+        int[][] arrayMap = new int[imageHeight][imageWidth];
+        
+        // Creating an array of points
+        Point[] robotCameraPoints = new Point[2];
         
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
         System.out.println("| --------------- Video Capture activated -------------- |");
- 
-        VideoCapture capture = new VideoCapture(1);
-        capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
-        capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
- 
+        
+        //VideoCapture capture = new VideoCapture(1);
+        //capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
+        //capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
+                
         // Adjusting autofocus - no guarantee that the camera can do it
         //capture.set(Videoio.CAP_PROP_AUTOFOCUS, 1);   // Autofocus on
         //capture.set(Videoio.CAP_PROP_AUTOFOCUS, 0);   // Autofocus off
@@ -70,9 +83,9 @@ public class Billedbehandling_27032019
  
         // The detection program only runs when the user has pressed 1
         while(keyboard.nextInt() == 1)
-        {
+        {        	
             // Saving the input from the camera capture to the new matrix
-            capture.read(matrix);
+    		//capture.read(matrix);
  
             // Specifying path for where to save image
             System.out.println("Creating file : test_orig.png");
@@ -80,10 +93,23 @@ public class Billedbehandling_27032019
  
             // Saving the original RGB image without any modifications
             System.out.println("Saving RGB image to : test_orig.png");
-            imageCodecs.imwrite(file, matrix);
+            //imageCodecs.imwrite(file, matrix);
 
-            // Estimating Robot Coordinates
-            //findRobotCoordinates(matrix);
+            // Defining default file along with file name
+            String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+            String filename = ((args.length > 0) ? args[0] : default_file);
+            
+            // Estimating Robot Coordinates based on image from webcam
+            robotCameraPoints = robotCircleCenter(matrix, filename, default_file);
+            
+            // Calculating the actual coordinates of the first robot marker
+            calculateRobotCoordinates(robotCameraPoints[0]);
+            
+            // Calculating the actual coordinates of the second robot marker
+            //calculateActualCoordinates(robotCameraPoints[1]);
+            
+            
+            /*
             
             // Run color detection
             System.out.println("Running color detection : saved as test1.png");
@@ -97,42 +123,72 @@ public class Billedbehandling_27032019
             //runEdgeDetection(frameColor, edgeFile);
  
             // Defining default file along with file name
-            String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
-            String filename = ((args.length > 0) ? args[0] : default_file);
+            //String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+            //String filename = ((args.length > 0) ? args[0] : default_file);
  
             // Running detection function.
             System.out.println("Running circel detection : saved as test2.png");
-            runOpenCV(filename, default_file, frameColor, arrayMap);
+            //runOpenCV(filename, default_file, frameColor, arrayMap);
  
             // Create a matrix similar to the modified picture
             System.out.println("Accessing create_matrix() - example image saved as test3.png");
-            arrayMap = create_matrix(arrayMap);
+            //arrayMap = create_matrix(arrayMap);
+            
+            */
             
         } // End of while
     } // End of main
  
-    private static void findRobotCoordinates(Mat localColorFrame) 
+    /**
+     * Takes the original image and isolates the colors 
+     * blue and green. The center of these colored circles is
+     * then determined and returned as two points.
+     * @param localColorFrame
+     * @param filename
+     * @param default_file
+     * @return
+     */
+    private static Point[] robotCircleCenter(Mat localColorFrame, String filename, String default_file) 
     {    	
+    	
+    	// Load an image
+        Mat src = Imgcodecs.imread(filename, Imgcodecs.IMREAD_COLOR);
+ 
+        // Check if image is loaded correctly
+        if (src.empty()) {
+            System.out.println("Error opening image!");
+            System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
+            System.exit(-1);
+        }
+ 
+    	// Cloning the original color image into two individual 2D arrays.
+    	Mat frameBlue = src.clone();
+    	Mat frameGreen = src.clone();
+    	
+    	/*
     	// Cloning the original color image into two individual 2D arrays.
     	Mat frameBlue = localColorFrame.clone();
     	Mat frameGreen = localColorFrame.clone();
-
+    	*/
+    	
         // Initializing color range
         inRange(frameBlue, minBlue, maxBlue, frameBlue);
         inRange(frameGreen, minGreen, maxGreen, frameGreen);
-
+        
         // Adding some blur to the image, so that "mistakes" is washed out
         Imgproc.blur(frameBlue, frameBlue, new Size(3,3), new Point(-1,-1));	
         Imgproc.blur(frameGreen, frameGreen, new Size(3,3), new Point(-1,-1));
-
-        // Converting the original image (src) into an grayscale image and saving it as gray
-        //Imgproc.cvtColor(frameBlue, frameBlue, Imgproc.COLOR_BGR2GRAY);
-        //Imgproc.cvtColor(frameGreen, frameGreen, Imgproc.COLOR_BGR2GRAY);
  
         // Adding some blur to the image to smooth out edges
-        //Imgproc.medianBlur(frameBlue, frameBlue, 5);
-        //Imgproc.medianBlur(frameGreen, frameGreen, 5);
+        Imgproc.medianBlur(frameBlue, frameBlue, 7);
+        Imgproc.medianBlur(frameGreen, frameGreen, 7);
  
+        // Saving the image path and writing the new image
+        String fileTestB = "C:\\Users\\benja\\Desktop\\IdentifyBlue.png";
+        imageCodecs.imwrite(fileTestB, frameBlue);
+        String fileTestG = "C:\\Users\\benja\\Desktop\\IdentifyGreen.png";
+        imageCodecs.imwrite(fileTestG, frameGreen);
+        
         // Creating new matrix to hold the detected circles
         Mat circlesBlue = new Mat();
         Mat circlesGreen = new Mat();
@@ -142,25 +198,38 @@ public class Billedbehandling_27032019
         		circlesBlue, 
         		Imgproc.HOUGH_GRADIENT, 
         		1.0,
-                (double) frameBlue.rows() / 25, // change this value to detect circles with different distances to each other (orig: 8)
+                (double) frameBlue.rows() / 1, 	// change this value to detect circles with different distances to each other (orig: 8)
                 25.0, 
                 14.0, 
-                17, 							// Minimum radius
-                20);           					// Maximum radius
+                10, 							// Minimum radius
+                15);           					// Maximum radius
         
         Imgproc.HoughCircles(frameGreen, 
         		circlesGreen, 
         		Imgproc.HOUGH_GRADIENT, 
         		1.0,
-                (double) frameGreen.rows() / 25,// change this value to detect circles with different distances to each other (orig: 8)
+                (double) frameGreen.rows() / 1,	// change this value to detect circles with different distances to each other (orig: 8)
                 25.0, 
                 14.0, 
-                17, 							// Minimum radius
-                20);           					// Maximum radius
+                10, 							// Minimum radius
+                15);           					// Maximum radius
+                
+        // Creating an array of points to hold the two circle center coordinates
+        Point[] centerPoint = new Point[2];
         
-        Mat printBlue = new Mat();
-        Mat printGreen = new Mat();
+        // Calculating the center of the blue circle
+        double[] cB = circlesBlue.get(0, 0);
+        centerPoint[0] = new Point(Math.round(cB[0]), Math.round(cB[1]));
         
+        // Calculating the center of the green circle
+        double[] cG = circlesGreen.get(0, 0);
+        centerPoint[1] = new Point(Math.round(cG[0]), Math.round(cG[1]));
+        
+        // Creating two new images/mats/arrays with the camera specifications (width/height)
+        Mat printBlue = new Mat(imageHeight, imageWidth, CvType.CV_8U);
+        Mat printGreen = new Mat(imageHeight, imageWidth, CvType.CV_8U);
+        
+        // Printing all of detected circles onto the new clean blue mat.
         for (int x = 0; x < circlesBlue.cols(); x++)
         {
             double[] c = circlesBlue.get(0, x);
@@ -175,7 +244,7 @@ public class Billedbehandling_27032019
             Imgproc.circle(printBlue,       // Circle center
                     center, 
                     1,
-                    new Scalar(100, 100, 100),
+                    new Scalar(255, 255, 255),
                     1,
                     0,
                     0);
@@ -184,14 +253,15 @@ public class Billedbehandling_27032019
                     center,
                     radius,
                     new Scalar(255, 255, 255),
-                    1,
+                    2,
                     8,
                     0);
             // Saving the image path and writing the new image
-            String file = "C:\\Users\\benja\\Desktop\\test_Blue.png";
-            imageCodecs.imwrite(file, printGreen);
+            String fileBlue = "C:\\Users\\benja\\Desktop\\final_Blue.png";
+            imageCodecs.imwrite(fileBlue, printBlue);
         }
         
+        // Printing all of detected circles onto the new clean green mat.
         for (int x = 0; x < circlesGreen.cols(); x++)
         {
             double[] c = circlesGreen.get(0, x);
@@ -206,7 +276,7 @@ public class Billedbehandling_27032019
             Imgproc.circle(printGreen,       	// Circle center
                     center, 
                     1,
-                    new Scalar(100, 100, 100),
+                    new Scalar(255, 255, 255),
                     1,
                     0,
                     0);
@@ -215,14 +285,48 @@ public class Billedbehandling_27032019
                     center,
                     radius,
                     new Scalar(255, 255, 255),
-                    1,
+                    2,
                     8,
                     0);
             // Saving the image path and writing the new image
-            String file = "C:\\Users\\benja\\Desktop\\test_Green.png";
-            imageCodecs.imwrite(file, printGreen);
+            //String file = "C:\\Users\\benja\\Desktop\\test_Green.png";
+            String fileGreen = "C:\\Users\\benja\\Desktop\\final_Green.png";
+            imageCodecs.imwrite(fileGreen, printGreen);
         }
+        
+        return centerPoint;
+        
     } // End of findRobotCoordinates(...)
+    
+    
+    private static Point calculateRobotCoordinates(Point localPoint) 
+    {    	
+    	Point pointToBeReturned = new Point();
+    	
+    	// Calculating how many pixels it takes to get a cm or mm.
+    	
+    	
+    	// Calculating the distance between a CirclePoint and the center of the image.
+    	double pointToCenterDistance = Point2D.distance(540, 990, localPoint.x, localPoint.y);
+    	System.out.println("Distance between circle center and image center" + pointToCenterDistance);
+    	
+    	// Calculating the direct distance between webcam and CirclePoint (Hypotenuse).
+    	double pointToWebcamDistance = Math.sqrt(cameraHeight * cameraHeight + pointToCenterDistance * pointToCenterDistance);  
+    	System.out.println("Distance between circle center and webcam : " + pointToWebcamDistance);
+    	
+    	// Calculating the angle between CirclePoint and webcam.
+    	double pointToWebcamAngle = Math.asin(cameraHeight / pointToWebcamDistance);
+    	double angleInDegrees = Math.toDegrees(pointToWebcamAngle);
+    	System.out.println("Angle between circle center and webcam : " + angleInDegrees);
+
+    	// Calculating the distance between CirclePoint and actual RobotPoint.
+    	double differenceBetweenPointAndActualValue = robotHeight * Math.tan(Math.toRadians(pointToWebcamAngle));
+    	System.out.println("Distance to correct : " + differenceBetweenPointAndActualValue);
+    	
+    	return pointToBeReturned;
+    	
+    } // End of robotCalculateCoordinates()
+    
     
     /**
      * The function runOpenCV takes a file for the original image.
@@ -255,7 +359,6 @@ public class Billedbehandling_27032019
  
         // Creating new matrix to hold the detected circles
         Mat circles = new Mat();
-        Mat circles2 = new Mat();
  
         // Detecting circles from the grayscale image and saving it in the circles matrix
         Imgproc.HoughCircles(gray, 
