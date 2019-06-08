@@ -9,7 +9,7 @@ import java.util.List;
 
 import RouteCalculator.PointInGrid;
 
-public class RouteLogic implements IRouteLogic {
+public class RouteLogic implements IRouteLogic, Runnable {
 	
 	private int checkpoint;
 	private List<PointInGrid> coordinates;
@@ -30,11 +30,7 @@ public class RouteLogic implements IRouteLogic {
 		this.ConnectionPoints = ConnectionPoints;
 		this.ImageGrid = ImageGrid;
 		this.Calculator = new RouteCalculator();
-	}
-	
-	
-	public void running() {
-		//findNearestBall(Robot, BallPoints)
+		
 		double dist = 10000;
 		PointInGrid closestPoint = null;
 
@@ -44,6 +40,13 @@ public class RouteLogic implements IRouteLogic {
 			closestPoint = connection;
 			}
 		}
+		
+	}
+	
+	
+	public void running() {
+		//findNearestBall(Robot, BallPoints)
+		
 	}
 	
 	/***
@@ -168,6 +171,11 @@ public class RouteLogic implements IRouteLogic {
 		else
 			Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, nearestBall));
 			//Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, findNearestBall(Robot, BallPoints)));
+		
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
 		
 	}
 	
