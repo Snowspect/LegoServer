@@ -72,7 +72,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	public RemoteCarClient(String title, String ip) throws UnknownHostException, IOException
 	{
 		super(title);
-
+		System.out.println("Starting Client...");
 		this.setSize(400, 300);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -89,32 +89,6 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 		//rc = new RouteCalculator();
 	}
 
-	/**
-	 * The ip is set here.
-	 * @param args
-	 * @throws IOException 
-	 * @throws UnknownHostException 
-	 */
-	public static void main(String args[]) throws UnknownHostException, IOException
-	{
-		//String ip = "192.168.0.17";
-		String ip = "192.168.43.107";
-		//String ip = "192.168.43.199";
-		//String ip = "10.0.1.1";
-		if(args.length > 0) {
-			ip = args[0];
-		}
-		System.out.println("Starting Client...");
-		//new RemoteCarClient("R/C Client", ip);
-		RC = new RemoteCarClient("R/C Client", ip);
-		Thread reader = new Thread(RC);
-		reader.start();
-		//Method contains the same code as roadTrip(). Use for testing
-		//RC.roadtrip(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(1,1), false);
-		//Method contains the same code as roadTrip(). Use for testing
-		//rc.getDir(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(625,713));
-
-	}
 
 	/**
 	 * Calculates a path from one point to another in a grid
