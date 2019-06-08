@@ -1,3 +1,4 @@
+package RobotControl;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class ServerRemote {
 	private static RegulatedMotor motorRight = new EV3LargeRegulatedMotor(MotorPort.B);
 	private static RegulatedMotor GrappleArm = new EV3MediumRegulatedMotor(MotorPort.C);
 	private static RegulatedMotor ArmWheelMoter = new EV3MediumRegulatedMotor(MotorPort.D);
-	private static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
+	//private static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
 	/// VARIABLES END ///
 	
 	/**
@@ -56,7 +57,7 @@ public class ServerRemote {
 	public static void main(String[] args) throws IOException
 	{
 		server = new ServerSocket(port);
-		gyroSensor.reset();
+		//gyroSensor.reset();
 		while(looping)
 		{
 			System.out.println("Awaiting Client..");
@@ -87,7 +88,8 @@ public class ServerRemote {
 			break;
 		case RemoteCarClient.ARMDOWN:
 			//For activate : F2
-			GrappleArm.rotate(-30,true);
+			//GrappleArm.rotate(-30,true);
+			grappleArmDown();
 			break;
 		case RemoteCarClient.WHEELUP:
 			//For activate : 1
@@ -110,7 +112,7 @@ public class ServerRemote {
 			unload();
 			break;
 		case RemoteCarClient.TURNLEFT: //f4
-			turnRight(400, 10, true);
+			turnRight(400, 500, true);
 			//gyroSensor.reset();
 			break;
 		case RemoteCarClient.TURNRIGHT: // f5
@@ -118,6 +120,7 @@ public class ServerRemote {
 			//gyroSensor.reset();
 			break;
 	}
+		robotFeedback();
 }
 
 	
@@ -179,10 +182,11 @@ public class ServerRemote {
 			System.out.println("Client Connected");
 			while(client != null)
 				{
+				    System.out.println("Ready to read");
 					String commandString = dIn.readUTF();
-					
-					String splitter = "0F:2;0G:200;0S:300;LR:50;RR:50;0B:true";
-					parser(splitter); //sets values og global variables. 
+					System.out.println("read command");
+//					String splitter = "0F:2;0G:200;0S:300;LR:50;RR:50;0B:true";
+//					parser(splitter); //sets values og global variables. 
 					
 					//currently not using the Interrupter method, but it is simply implemented
 					int command = Integer.parseInt(commandString);
@@ -293,7 +297,7 @@ void turnRight(int speed, int angle, boolean override){
 	motorRight.setSpeed(speed);
 	motorLeft.setSpeed(speed);
 	motorRight.rotate(angle, true);
-	motorLeft.rotate(-angle, true);
+	motorLeft.rotate(-angle, false);
 	}
 
 /**
@@ -341,8 +345,14 @@ private void grappleArmUp(){
  * @throws IOException 
  */
 private void grappleArmDown() throws IOException {
-	GrappleArm.rotate(-500);
-	
+	GrappleArm.rotate(-1000);
+}
+
+/**
+ * Sends feedback from robot after execution of command
+ * @throws IOException
+ */
+private void robotFeedback() throws IOException {
 	OutputStream out = client.getOutputStream();
 	DataOutputStream dOut = new DataOutputStream(out);
 	String commandString = "BOOOO";

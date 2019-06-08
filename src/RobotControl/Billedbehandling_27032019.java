@@ -1,3 +1,4 @@
+package RobotControl;
 import org.opencv.core.*;
 import org.opencv.core.Point;
 import org.opencv.highgui.HighGui;

@@ -1,3 +1,4 @@
+package RobotControl;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -18,7 +19,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	RIGHT = 68, //D = RIGHT
 	BACKWARD = 88, //X = main down
 	ARMUP = 112, //pil op = Arm goes UP
-	ARMDOWN = 113, // pil ned = arm goes down
+	ARMDOWN = 40, // pil ned = arm goes down
 	WHEELUP = 49,
 	WHEELDOWN = 50,
 	WHEELSTOP = 51,
@@ -27,6 +28,8 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	TURNLEFT = 115, //F4
 	TURNRIGHT = 116, //F5
 	PRINTGYRO = 117;
+	
+	boolean waiting;
 	public static int [] [] GRID = new int [20][20];
 
 	/*	public static final int
@@ -69,7 +72,6 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	public RemoteCarClient(String title, String ip) throws UnknownHostException, IOException
 	{
 		super(title);
-		socket = new Socket(txtIpAddress.getText(), PORT);
 
 		this.setSize(400, 300);
 		this.addWindowListener(new WindowAdapter() {
@@ -82,10 +84,9 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 		buildGUI(ip);
 		this.setVisible(true);
 		btnConnect.addKeyListener(this);
-
-		rc = new RouteCalculator();
+		socket = new Socket(txtIpAddress.getText(), PORT);
 		
-
+		//rc = new RouteCalculator();
 	}
 
 	/**
@@ -104,14 +105,14 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 			ip = args[0];
 		}
 		System.out.println("Starting Client...");
-		new RemoteCarClient("R/C Client", ip);
+		//new RemoteCarClient("R/C Client", ip);
 		RC = new RemoteCarClient("R/C Client", ip);
 		Thread reader = new Thread(RC);
 		reader.start();
 		//Method contains the same code as roadTrip(). Use for testing
-		RC.roadtrip(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(1,1), false);
+		//RC.roadtrip(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(1,1), false);
 		//Method contains the same code as roadTrip(). Use for testing
-		rc.getDir(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(625,713));
+		//rc.getDir(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(625,713));
 
 	}
 
@@ -136,21 +137,24 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 
 	}
 
-	/**
-	 * Sends the string for the robot to interpret.
+	 /* Sends the string for the robot to interpret.
 	 * @param command : currently the number which is written to the server
 	 */
 	public void SendCommandString(String command)
 	{
 		//Send coordinates to the server
+		if (!waiting) {
 		messages.setText("Status: sending command");
 		try {
 			outStream.writeUTF(command);
+			waiting = true;
+			System.out.println("Command sent");
 		} catch (IOException io)
 		{
 			messages.setText("Status: Error problems occurred sending data");
 		}
 		messages.setText("status: command sent");
+		}
 	}
 
 
@@ -266,16 +270,20 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		String hello = "something went wrong";
-		try {
-			inStream = new DataInputStream(socket.getInputStream());
-			hello = inStream.readUTF();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("hit the IO Exception");
-			e.printStackTrace();
+		boolean stillRunning = true;
+		while (stillRunning) {
+			String hello = "something went wrong";
+			try {
+				inStream = new DataInputStream(socket.getInputStream());
+				hello = inStream.readUTF();
+				waiting = false;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				System.out.println("hit the IO Exception");
+				e.printStackTrace();
+			}
+			System.out.println(hello);
 		}
-		System.out.println(hello);
 	}
 
 }
