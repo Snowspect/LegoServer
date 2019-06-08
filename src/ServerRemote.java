@@ -1,6 +1,8 @@
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -65,8 +67,9 @@ public class ServerRemote {
 	/**
 	 * activates a specific method based on the passed integer
 	 * @param command : The integer that decides what function to trigger
+	 * @throws IOException 
 	 */
-	public void carAction(int command) {
+	public void carAction(int command) throws IOException {
 		switch(command) {
 		case RemoteCarClient.BACKWARD:
 			//For activate : X
@@ -118,7 +121,7 @@ public class ServerRemote {
 }
 
 	
-	public void carMovement() {
+	public void carMovement() throws IOException {
 		switch(functionInt){
 			case 1:	//forward
 				driveForward(speed, wheelRotation, interrupt);
@@ -233,10 +236,10 @@ private class EscapeListener implements KeyListener
 public void driveForward(int speed, float wheelrotation, boolean override) { // w for activate
 	motorLeft.setSpeed(speed);
 	motorRight.setSpeed(speed);
-	motorRight.forward();
-	motorLeft.forward();
-	int counter = 0;
-
+	//motorRight.forward();
+	//motorLeft.forward();
+	motorRight.rotate(wheelRotation);
+	motorLeft.rotate(wheelRotation);
 }
 	
 /**
@@ -305,8 +308,9 @@ public void stopWheels() {
 //Arm functions
 /**
  * Activates pickup wheel, moves arm down, moves arm up.
+ * @throws IOException 
  */
-private void pickUpBall() {
+private void pickUpBall() throws IOException {
 	ArmWheelMoter.forward();
 	grappleArmDown();
 	try {
@@ -334,9 +338,15 @@ private void grappleArmUp(){
 
 /**
  * moves the arm down
+ * @throws IOException 
  */
-private void grappleArmDown() {
+private void grappleArmDown() throws IOException {
 	GrappleArm.rotate(-500);
+	
+	OutputStream out = client.getOutputStream();
+	DataOutputStream dOut = new DataOutputStream(out);
+	String commandString = "BOOOO";
+	dOut.writeUTF(commandString);
 }
 
 /**

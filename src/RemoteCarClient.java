@@ -2,11 +2,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import RouteCalculator.PointInGrid;
 import RouteCalculator.RouteCalculator;
 
-public class RemoteCarClient extends Frame implements KeyListener {
+public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 
 	/// VARIABLES START ///
 	public static final int PORT = ServerRemote.port;
@@ -54,6 +55,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 
 	private Socket socket;
 	private DataOutputStream outStream;
+	private DataInputStream inStream;
 	static RouteCalculator rc;
 	static RemoteCarClient RC;
 		StringBuilder str;
@@ -61,10 +63,14 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	/**
 	 * @param title : unsure, suspect it sets the title of the GUI
 	 * @param ip : the ip address in which we want to show in the GUI.
+	 * @throws IOException 
+	 * @throws UnknownHostException 
 	 */
-	public RemoteCarClient(String title, String ip)
+	public RemoteCarClient(String title, String ip) throws UnknownHostException, IOException
 	{
 		super(title);
+		socket = new Socket(txtIpAddress.getText(), PORT);
+
 		this.setSize(400, 300);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -78,14 +84,17 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		btnConnect.addKeyListener(this);
 
 		rc = new RouteCalculator();
+		
 
 	}
 
 	/**
 	 * The ip is set here.
 	 * @param args
+	 * @throws IOException 
+	 * @throws UnknownHostException 
 	 */
-	public static void main(String args[])
+	public static void main(String args[]) throws UnknownHostException, IOException
 	{
 		//String ip = "192.168.0.17";
 		String ip = "192.168.43.107";
@@ -97,6 +106,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		System.out.println("Starting Client...");
 		new RemoteCarClient("R/C Client", ip);
 		RC = new RemoteCarClient("R/C Client", ip);
+		Thread reader = new Thread(RC);
+		reader.start();
 		//Method contains the same code as roadTrip(). Use for testing
 		RC.roadtrip(new PointInGrid(1076,1916), new PointInGrid(1074,1915), new PointInGrid(1,1), false);
 		//Method contains the same code as roadTrip(). Use for testing
@@ -188,7 +199,6 @@ public class RemoteCarClient extends Frame implements KeyListener {
 			String command = e.getActionCommand();
 			if(command.equals("Connect")) {
 				try {
-					socket = new Socket(txtIpAddress.getText(), PORT);
 					outStream = new DataOutputStream(socket.getOutputStream());
 					messages.setText("Status: CONNECTED");
 
@@ -251,6 +261,21 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		}
 		*/
 		//messages.setText("status: command sent");
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		String hello = "something went wrong";
+		try {
+			inStream = new DataInputStream(socket.getInputStream());
+			hello = inStream.readUTF();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("hit the IO Exception");
+			e.printStackTrace();
+		}
+		System.out.println(hello);
 	}
 
 }
