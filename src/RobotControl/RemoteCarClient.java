@@ -13,21 +13,19 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	/// VARIABLES START ///
 	public static final int PORT = ServerRemote.port;
 	public static final int CLOSE = 27; //escape = luk program
-	public static final int FORWARD = 87, //W = main up
+	public static final int FORWARD = 38, //pil op
 			STOP = 81, //Q = Stops motors
-	LEFT = 65, // A = LEFT
-	RIGHT = 68, //D = RIGHT
-	BACKWARD = 88, //X = main down
-	ARMUP = 112, //pil op = Arm goes UP
-	ARMDOWN = 40, // pil ned = arm goes down
-	WHEELUP = 49,
-	WHEELDOWN = 50,
-	WHEELSTOP = 51,
+	TURNLEFT = 37, // Pil venstre
+	TURNRIGHT = 39, // Pil højre
+	BACKWARD = 40, //pil ned
+	ARMUP = 88, // X
+	ARMDOWN = 90, // Z
+	WHEELUP = 83, // S
+	WHEELDOWN = 65, // A
+	WHEELSTOP = 68, // D
 	UNLOAD = 80, //P = unload
-	GRAPPLEARMFUNCTION = 86,// V = grappleFunction
-	TURNLEFT = 115, //F4
-	TURNRIGHT = 116, //F5
-	PRINTGYRO = 117;
+	GRAPPLEARMFUNCTION = 86; // V = grappleFunction ------------ FIX
+	
 	
 	boolean waiting;
 	public static int [] [] GRID = new int [20][20];
