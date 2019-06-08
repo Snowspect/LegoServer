@@ -49,7 +49,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @param robotMiddle rotaionCenter on robot
 	 * @param ConnectionPoints Four connectionPoints posing for the robot's overall path
 	 */
-	private PointInGrid findFirstConnection(PointInGrid robotMiddle, List<PointInGrid> ConnectionPoints) {
+	private PointInGrid findFirstConnectionPoint(PointInGrid robotMiddle, List<PointInGrid> ConnectionPoints) {
 		double dist = 10000;
 		PointInGrid closestPoint = null;
 
@@ -68,11 +68,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 */
 	public void running() {
 		this.programStillRunning = true;
-		this.firstConnection = findFirstConnection(this.robotMiddle, this.ConnectionPoints);
-		Calculator.getDir(this.robotFront, this.robotMiddle, this.firstConnection);
+		this.firstConnection = findFirstConnectionPoint(this.robotMiddle, this.ConnectionPoints);
+		
 		
 		while (this.programStillRunning) {
+			if (!firstConnectionFound) {
+			Calculator.getDir(this.robotFront, this.robotMiddle, this.firstConnection);
 			
+			}
 		}
 		
 	}
