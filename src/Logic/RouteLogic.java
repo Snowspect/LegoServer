@@ -13,15 +13,26 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	
 	private int checkpoint;
 	private List<PointInGrid> coordinates;
-	private RouteCalculatorInterface Calculator;
-	private PointInGrid robotMiddle, robotFront; 
+	private PointInGrid robotMiddle, robotFront, firstConnection; 
 	private List<PointInGrid> Balls, ConnectionPoints; 
 	private int[][] ImageGrid;
-	private final int obstacle = 1;
+	private final int OBSTACLE = 1;
+	boolean firstConnectionFound, programStillRunning;
+	
+	private RouteCalculatorInterface Calculator;
 	
 	public RouteLogic() {
 		this.Calculator = new RouteCalculator();
 	}
+	
+	/**
+	 * Constructor for the class
+	 * @param robotMiddle rotaionCenter on robot
+	 * @param robotFront Point right in front of robot
+	 * @param Balls Locations of the balls on the track
+	 * @param ConnectionPoints Four connectionPoints posing for the robot's overall path
+	 * @param ImageGrid 2D array that imitates the entire track
+	 */
 	public RouteLogic(PointInGrid robotMiddle, PointInGrid robotFront, List<PointInGrid> Balls, List<PointInGrid> ConnectionPoints, int[][] ImageGrid) 
 	{
 		this.robotMiddle = robotMiddle;
@@ -29,8 +40,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		this.Balls = Balls;
 		this.ConnectionPoints = ConnectionPoints;
 		this.ImageGrid = ImageGrid;
+		this.firstConnectionFound = false;
 		this.Calculator = new RouteCalculator();
-		
+				
+	}
+	
+	/**
+	 * @param robotMiddle rotaionCenter on robot
+	 * @param ConnectionPoints Four connectionPoints posing for the robot's overall path
+	 */
+	private PointInGrid findFirstConnection(PointInGrid robotMiddle, List<PointInGrid> ConnectionPoints) {
 		double dist = 10000;
 		PointInGrid closestPoint = null;
 
@@ -41,11 +60,20 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			}
 		}
 		
+		return closestPoint;
 	}
 	
-	
+	/**
+	 * This method computes where the robot shall go
+	 */
 	public void running() {
-		//findNearestBall(Robot, BallPoints)
+		this.programStillRunning = true;
+		this.firstConnection = findFirstConnection(this.robotMiddle, this.ConnectionPoints);
+		Calculator.getDir(this.robotFront, this.robotMiddle, this.firstConnection);
+		
+		while (this.programStillRunning) {
+			
+		}
 		
 	}
 	
@@ -123,7 +151,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//check entire route for obstacles
 		for (PointInGrid p : pointsOnRoute(Point, nearestBall))
 		{
-			if(ImageGrid[(int) p.getX()][(int) p.getY()] == obstacle)
+			if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE)
 			{
 				Point = null;
 			}
@@ -173,6 +201,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			//Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, findNearestBall(Robot, BallPoints)));
 		
 	}
+	
+	/**
+	 * 
+	 */
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
