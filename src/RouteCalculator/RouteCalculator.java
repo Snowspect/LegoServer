@@ -12,6 +12,9 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 			new PointInGrid(3*(TrackWidth/4), TrackLenght/4),
 			new PointInGrid(3*(TrackWidth/4), 3*(TrackLenght/4)) };
 
+	/**
+	 * returns pixels in forms of double????
+	 */
 	@Override
 	public double calc_Dist(PointInGrid posPoint, PointInGrid destPoint) {
 		double colDist = destPoint.getX()-posPoint.getX();
@@ -25,6 +28,9 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		return hypDist;
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public double calc_Angle(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
 		double destRow = destPoint.getX(), destCol = destPoint.getY();
@@ -37,7 +43,6 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		//System.out.println("angle3: " + (angle2 - angle1) + "\n");
 		double angle = angle2 - angle1;
 			return angle;
-
 	}
 	/**
 	 * conpoint = front of robot
@@ -45,17 +50,19 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	 * destPoint = where we are going
 	 */
 	@Override
-	public String getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+	public String getDir(PointInGrid robotFront, PointInGrid robotMiddle, PointInGrid destPoint) {
 		StringBuilder str = new StringBuilder();
+		
+		//readies string parts
+		String OF = "0F:0;"; //F is Forward
+		String OG = "0G:0;"; //G is grader (degrees)
+		String OS = "0S:0;"; //S is speed
+		String LR = "LR:0;"; //LR is left rotate
+		String RR = "RR:0;"; //RR is right rotate
+		String OB = "0B:false"; // B is boolean 
 
-		String OF = "0F:0;";
-		String OG = "0G:0;";
-		String OS = "0S:0;";
-		String LR = "LR:0;";
-		String RR = "RR:0;";
-		String OB = "0B:false";
-
-		double angle = calc_Angle(conPoint, posPoint, destPoint);
+		//calculates angle for robot to turn
+		double angle = calc_Angle(robotFront, robotMiddle, destPoint);
 		System.out.println("--------- NOT ABS ----------");
 		System.out.println("ANGLE: "+ angle);
 		System.out.println("ANGLE2: "+ (360 - angle)+"\n");
@@ -66,20 +73,22 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 		// If angle > 0: Turn right, else if angle < 0: Turn left
 
-		double dist = calc_Dist(posPoint, destPoint);
+		//calculates the distance the robot needs to drive
+		double dist = calc_Dist(robotMiddle, destPoint);
 		System.out.printf("Distance: %.2f\n\n", dist);
 
+		//
 		if (angle > 10) {
-			OF = "0F:4;";
-			RR = "RR:"+Math.round(angle)+";";
+			OF = "0F:4;"; //forward 4
+			RR = "RR:"+Math.round(angle)+";"; //rotate right
 		} else if (angle < -10) {
-			OF = "0F:3;";
-			LR = "LR:"+Math.round(Math.abs(angle))+";";
-		} else if (angle >= -10 && angle <= 10) {
-			OF = "0F:1;";
+			OF = "0F:3;"; //forward 3
+			LR = "LR:"+Math.round(Math.abs(angle))+";"; //rotate left
+		} else if (angle >= -10 && angle <= 10) { 
+			OF = "0F:1;"; //forward is 1
 			if (dist > 300)
-				OS = "0S:150;";
-			else OS = "0S:50;";
+				OS = "0S:150;"; //speed is 50
+			else OS = "0S:50;"; //speed is 50
 		}
 
 		str.append(OF);

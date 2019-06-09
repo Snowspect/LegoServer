@@ -18,6 +18,7 @@ public class Main {
 			ip = args[0];
 		}
 		try {
+			//activates the connection
 			RemoteCarClient CarClient = new RemoteCarClient("R/C Client", ip);
 			new Thread(CarClient).start();
 			

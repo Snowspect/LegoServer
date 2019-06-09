@@ -2,6 +2,8 @@ package Logic;
 
 import RouteCalculator.RouteCalculator;
 import RouteCalculator.RouteCalculatorInterface;
+import lejos.hardware.sensor.NXTUltrasonicSensor.DistanceMode;
+import lejos.robotics.navigation.Ballbot;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -20,11 +22,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	private int ballvalue = 4;
 	private int checkpoint;
 	private List<PointInGrid> coordsOnPath;
-	private PointInGrid robotMiddle, robotFront, firstConnection; 
+	private PointInGrid robotMiddle, robotFront;
+	private PointInGrid firstConnection, LastTouchedConnectionPoint, newConnectionPoint, branchOffPoint;
 	private List<PointInGrid> Balls, ConnectionPoints; 
 	private int[][] ImageGrid;
 	private final int OBSTACLE = 1;
-	boolean firstConnectionFound, programStillRunning;
+	boolean firstConnectionFound,firstConnectionTouched, programStillRunning, branchOff;
 	
 	private RouteCalculatorInterface Calculator;
 	
@@ -53,25 +56,33 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	}
 	
 	/**
-	 * @param robotMiddle rotaionCenter on robot
+	 * @param robotMiddle rotationCenter on robot
 	 * @param ConnectionPoints Four connectionPoints posing for the robot's overall path
 	 */
 	private PointInGrid findFirstConnectionPoint(PointInGrid robotMiddle, List<PointInGrid> ConnectionPoints) {
 		double dist = 10000;
 		PointInGrid closestPoint = null;
-
-		for (PointInGrid connection : ConnectionPoints) {
-			if (Calculator.calc_Dist(robotMiddle, connection) < dist) {
-			dist = Calculator.calc_Dist(robotMiddle, connection);
-			closestPoint = connection;
+		
+		List<PointInGrid> connPointWithDirectPath = new ArrayList<PointInGrid>();
+		//checks if the points have a direct path
+		for (PointInGrid connPoint : ConnectionPoints) {
+			if(checkDirectPath(pointsOnRoute(robotMiddle, connPoint)) == true) {
+				connPointWithDirectPath.add(connPoint);
 			}
 		}
-		
+
+		//finds the closest of those with direct path
+		for (PointInGrid connPoint : connPointWithDirectPath) {
+			if (Calculator.calc_Dist(robotMiddle, connPoint) < dist) {
+			dist = Calculator.calc_Dist(robotMiddle, connPoint);
+			closestPoint = connPoint;
+			}
+		}
 		return closestPoint;
 	}
 	
 	/**
-	 * This method computes where the robot shall go
+	 * This method computes where the robot shall go based on several params
 	 */
 	public void running() {
 	
@@ -79,26 +90,105 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		CreateGrid(); //creates a artificial grid to use in simulation
 		findElementsInGrid(); //finds balls, robot points and connectionpoints
 		
-		this.firstConnection = findFirstConnectionPoint(this.robotMiddle, this.ConnectionPoints);
+		//take picture and get initial elements
+		
 		this.programStillRunning = true;
 		
-		System.out.println("x : " + this.firstConnection.getX() + "\n y : " + this.firstConnection.getY());
-		
-		
 		while (this.programStillRunning) {
-			//Vi skal finde den tætteste bold først før vi kører til first connection.
-			PointInGrid Nearestball = findNearestBall(robotFront, listofBallCoords);
-			//vi skal se om vi kan finde path hen til første forbindelsespunkt uden at ramme en bold
-			//hvis vi kan så kører vi derhen og starter turen
-			//hvis ikke samler vi den bold op som ligger i vejen og så tjekker vi igen og gentager
-			//indtil vi kan komme hen til forbindelsespunktet.
 			
-//			EvalRoute(robotMiddle, firstConnection, nearestBall)
+			PointInGrid nearestBall;
+			//take picture and get elements
+			//TODO 
 			
-			/*WHY???? if (!firstConnectionFound) {
-			Calculator.getDir(this.robotFront, this.robotMiddle, this.firstConnection);
+			//find all balls with a direct path
+			List<PointInGrid> ballsWithDirectPathFromRobot = BallsWithDirectPath(robotMiddle, Balls);
 			
-			}*/
+			//if the list isn't empty
+			if(ballsWithDirectPathFromRobot.size() != 0)
+			{
+				nearestBall = findNearestBall(robotMiddle, ballsWithDirectPathFromRobot);
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
+				
+				//TODO make sequence or method that can pickup ball
+				//should be room for pickup of ball here and nullifying the nearestball object
+			}
+			else //the list of direct balls is empty
+			{
+				//find nearest connection point
+				if(firstConnectionTouched == false) {
+					//finds closest connection point with direct path
+					this.newConnectionPoint = findFirstConnectionPoint(this.robotMiddle, this.ConnectionPoints);
+					//pointsOnRoute(robotMiddle, newConnectionPoint); no need to check the route as there are no balls
+					// and we are only looking at points with a direct path
+					firstConnectionTouched = true;
+					
+					//drives to first connection
+					String commandToSend = Calculator.getDir(robotFront, robotMiddle, firstConnection);
+					
+//					LastTouchedConnectionPoint = newConnectionPoint; //now we know where we we touched initially
+					
+				}
+				else { //searches through connectionPoints and sets next connectionPoint appropriately
+					if(branchOff == true) {
+						//trigger if we can't get directly back
+						if(checkDirectPath(pointsOnRoute(robotMiddle, branchOffPoint)) == false)
+						{
+							//finds the closest connection point
+							newConnectionPoint = findFirstConnectionPoint(robotMiddle, ConnectionPoints);
+							//drives to that point
+//							LastTouchedConnectionPoint = newConnectionPoint; //this is due to resetting the robots route by getting it a totally new first connection point
+							String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+							branchOff = false;
+						}
+						else {
+						//trigger if we can get directly back	
+							String commandToSend = Calculator.getDir(robotFront, robotMiddle, branchOffPoint); //branchOffPoint : point where robot left the square track to get a ball
+							branchOff = false;
+						}
+					}
+//					else if(LastTouchedConnectionPoint.equals(newConnectionPoint)){
+					else if(robotMiddle.equals(newConnectionPoint)) {
+						//all this gets triggered if the robot has reached the newConnection point
+						int connPointIndexCount = 0;
+						for (PointInGrid point : ConnectionPoints) {
+//							if(LastTouchedConnectionPoint.getX() == point.getX() && LastTouchedConnectionPoint.getY() == point.getY()){
+							if(robotMiddle.getX() == point.getX() && robotMiddle.getY() == point.getY()) {
+								if(connPointIndexCount == 0) newConnectionPoint = ConnectionPoints.get(2); //from top left to bottom left
+								if(connPointIndexCount == 1) newConnectionPoint = ConnectionPoints.get(0); //from top right to top left
+								if(connPointIndexCount == 2) newConnectionPoint = ConnectionPoints.get(3); //from bottom left to bottom right
+								if(connPointIndexCount == 3) newConnectionPoint = ConnectionPoints.get(1); //from bottom right to top right							
+							}
+							connPointIndexCount++; //increment after first if statement as we now move on to next index
+						}
+						//don't drive right away as we need to check for closest ball we can't reach.
+						//to enforce our 90 degree angle rule while on path between two connPoints.
+					}
+//					else if(!LastTouchedConnectionPoint.equals(newConnectionPoint)) {
+					else if(!robotMiddle.equals(newConnectionPoint)) {	
+						//gets triggered if the robot hasn't touched the newConnectionPoint yet.
+						//we are currently either at a point or somewhere along a line bewtween
+						//two connection points
+						
+						//since there are no direct balls we just find the nearest ball
+						nearestBall = findNearestBall(robotMiddle, Balls);
+						
+						//we find the route between the robot and the newConnectionPoint
+						// and check if we are able to hit the next ball with an angle
+						//we create a branchOffPoint (we want to return to this point incase there are no more balls to pickup directly
+						branchOffPoint = CheckPickupAngleOnRoute(robotMiddle, null, nearestBall, pointsOnRoute(robotMiddle, newConnectionPoint));
+						
+						//drives to the branch off point on the path between two locations
+						String commandToSend = Calculator.getDir(robotFront, robotMiddle, branchOffPoint);
+						
+						branchOff = true;						
+						////HERE SHOULD ALTER variable that allows for comm with robot////
+					
+						//TODO
+						//Room for pickup of ball here
+						//should set ballretrievedvariable here as well
+					}
+				}
+			}
 		}
 		////SIMULATION END////
 		/*
@@ -171,27 +261,22 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * the side within the 85-95 degree angle.
 	 * returns a null PointInGrid if there is an obstacle (barrier or cross) 
 	 * 	between the robot and the ball
+	 * Robot : RobotMiddle
+	 * nextPoint : a point on path, should be null atm
+	 * nearestBall : the closest ball
+	 * pointsOnPath : The path between two points in coords
 	 */
 	@Override
-	public PointInGrid CheckForPickupAngle(PointInGrid Robot, PointInGrid nextPoint, PointInGrid nearestBall) {
+	public PointInGrid CheckPickupAngleOnRoute(PointInGrid Robot, PointInGrid nextPoint, PointInGrid nearestBall, List<PointInGrid> pointsOnPath) {
 		
 		PointInGrid Point = null;
 		
-		for (PointInGrid p : coordsOnPath) {
+		for (PointInGrid p : pointsOnPath) {
 			double angle = Calculator.calc_Angle(nextPoint, p, nearestBall);
 			
 			if (angle >= 85 && angle <= 95) {
 				Point = p;
 				break;
-			}
-		}
-		//from point to nearestball
-		//check entire route for obstacles
-		for (PointInGrid p : pointsOnRoute(Point, nearestBall))
-		{
-			if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE)
-			{
-				Point = null;
 			}
 		}
 		return Point;
@@ -227,16 +312,20 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//this gets triggered if the EvalRoute could 
 		//not find a point in which there was
 		//an appropriate angle towards the ball without an obstacle in between
-		if (CheckForPickupAngle(Robot, nextCornor, nearestBall) == null)
+		if (CheckPickupAngleOnRoute(Robot, nextCornor, nearestBall, null) == null)
+		{
 			//will compile the string to send to the robot so that the robot can drive
 			//to the next corner
-			Calculator.getDir(conPoint, Robot, nextCornor);
-		
+			String commandToSend = Calculator.getDir(conPoint, Robot, nextCornor);
+		}
 		//if there was a succesfull point with angle then
 		//create the route 
 		else
-			Calculator.getDir(conPoint, Robot, CheckForPickupAngle(Robot, nextCornor, nearestBall));
-			//Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, findNearestBall(Robot, BallPoints)));
+		{
+			String commandToSend = Calculator.getDir(conPoint, Robot, CheckPickupAngleOnRoute(Robot, nextCornor, nearestBall,null));
+			//Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, findNearestBall(Robot, BallPoints)));	
+		}
+
 		
 	}
 	
@@ -359,5 +448,99 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			}
 		}
 		return 0;
+	}
+
+	/**
+	 * Checks all points to see if an obstacle occurs on the route.
+	 * @param directpath : List of coords on direct path computed by pointsOnRoute()
+	 * @return : true if no obstacles or false if obstacles
+	 */
+	public boolean checkDirectPath(List<PointInGrid> directpath)
+	{
+		for (PointInGrid p : directpath)
+		{
+			//checks if the simulatedGrid is initialized or if the actual grid is.
+			if(SimulatedGrid != null)
+			{
+				if(SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE)
+				{
+					p = null;
+					return false;
+				}
+			}
+			if(ImageGrid == null)
+			{
+				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE)
+				{
+					p = null;
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Checks to see if the robot can get a
+	 * 90 degree angle by rotating around itself that points towards the nearest ball
+	 * @param robotMid
+	 * @param robotFront
+	 * @param nearestBall
+	 * @return
+	 */
+	public PointInGrid CheckPickupAngleSelfRotate(PointInGrid robotMid, PointInGrid robotFront, PointInGrid nearestBall)
+	{
+		List<PointInGrid> RobotPerimeterPoints = new ArrayList<PointInGrid>();
+		
+		//gets the robot perimeter points
+		RobotPerimeterPoints = GetRobotPerimeter(robotMid.getX(), robotMid.getY(), Calculator.calc_Dist(robotMid, robotFront));
+		
+		//checks for angle where each robotPerimeterPoint is the nose of the robot in a full circle
+		for (PointInGrid robotFrontPoint : RobotPerimeterPoints) {
+			double angle = Calculator.calc_Angle(robotFrontPoint, robotMid, nearestBall);
+			if (angle >= 85 && angle <= 95) {
+				return robotFrontPoint;
+			}
+		}
+		//this will never be triggered
+		return null;
+	}
+	//x is robotmiddle.getX(), y is robotmiddle.getY().
+	//r is from dist form between robotMiddle and robotFront.
+	public static List<PointInGrid> GetRobotPerimeter(double RmidX, double RmidY, double robotRadius)
+	{
+		List<PointInGrid> CirclePoints = new ArrayList<PointInGrid>();
+		    
+		double PI = 3.1415926535;
+	    double i, angle, x1, y1;
+
+		    //iterates through all 360 angles
+		    for (i = 0; i < 360; i += 1) {
+		        angle = i;
+		        //finds coordinates on sin and cos with radius
+		        x1 = robotRadius * Math.cos(angle * PI / 180);
+		        y1 = robotRadius * Math.sin(angle * PI / 180);
+		        //
+		        int ElX = (int) (RmidX + x1);
+		        int ElY = (int) (RmidY + y1);
+		        //SimulatedGrid[ElX][ElY] = 1;
+		        //setElementColor(color);
+		        CirclePoints.add(new PointInGrid(ElX,ElY));
+		    }
+		    return CirclePoints; 
+		}
+	
+	public List<PointInGrid> BallsWithDirectPath(PointInGrid robotMiddle, List<PointInGrid> balls)
+	{
+		List<PointInGrid> ballsWithDirectPath = new ArrayList<PointInGrid>();
+		List<List<PointInGrid>> ballsdeep = new ArrayList<List<PointInGrid>>();
+		//for each ball, check its path and put it into a list if no obstacles
+		for (PointInGrid ballPoint : ballsWithDirectPath) {
+			if(checkDirectPath(pointsOnRoute(robotMiddle, ballPoint)) == true); //gets route, checks route
+			{
+				ballsWithDirectPath.add(ballPoint);
+			}
+		}
+		return ballsWithDirectPath;
 	}
 }

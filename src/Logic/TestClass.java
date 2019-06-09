@@ -4,7 +4,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import RouteCalculator.RouteCalculator;
+import RouteCalculator.RouteCalculatorInterface;
 import RouteCalculator.PointInGrid;
 
 public class TestClass {
@@ -15,11 +16,25 @@ public class TestClass {
 	private static int rows = 20;
 	private static int columns = 20;
 	private static int[][] SimulatedGrid = new int[20][20];	
+	
+	private static RouteCalculatorInterface Calculator;
+	
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		//RobotPerimeter(9, 9, 4);
 		CreateGrid();
 		findElementsInGrid();
+		Calculator = new RouteCalculator();
+		
+		robotFront = new PointInGrid(1,1);
+		robotMiddle = new PointInGrid(1,0);
+		
+		PointInGrid destPoint = new PointInGrid(15,0);
+		
+		double angle = Calculator.calc_Angle(robotFront, robotMiddle, destPoint);
+		
+		System.out.println("angle : " + angle);
 		
 		//Prints out the array in a proper format
 		for (int[] is : SimulatedGrid) {
@@ -105,4 +120,31 @@ public class TestClass {
 		SimulatedGrid[12][15] = ball;
 		SimulatedGrid[19][19] = ball;
 	}
+	
+	
+	//x is robotmiddle.getX(), y is robotmiddle.getY().
+	//r is from dist form between robotMiddle and robotFront.
+	public static List<PointInGrid> RobotPerimeter(double RmidX, double RmidY, double robotRadius)
+	{
+		List<PointInGrid> CirclePoints = new ArrayList<PointInGrid>();
+		    
+		double PI = 3.1415926535;
+	    double i, angle, x1, y1;
+
+		    //iterates through all 360 angles
+		    for (i = 0; i < 360; i += 1) {
+		        angle = i;
+		        //finds coordinates on sin and cos with radius
+		        x1 = robotRadius * Math.cos(angle * PI / 180);
+		        y1 = robotRadius * Math.sin(angle * PI / 180);
+		        //
+		        int ElX = (int) (RmidX + x1);
+		        int ElY = (int) (RmidY + y1);
+		        SimulatedGrid[ElX][ElY] = 1;
+		        //setElementColor(color);
+		        CirclePoints.add(new PointInGrid(ElX,ElY));
+		    }
+		    return CirclePoints; 
+		}
+	
 }
