@@ -13,7 +13,7 @@ public interface IRouteLogic {
 	 * @param nearestBall Location of the nearest ball
 	 * @return Location on the path that gives the robot a 90 degree turn to the nearest ball 
 	 */
-	public PointInGrid EvalRoute(PointInGrid Robot, PointInGrid nextCornor, PointInGrid nearestBall);
+	public PointInGrid CheckForPickupAngle(PointInGrid Robot, PointInGrid nextCornor, PointInGrid nearestBall);
 	
 	/**
 	 * 

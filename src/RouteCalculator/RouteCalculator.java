@@ -39,7 +39,11 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 			return angle;
 
 	}
-
+	/**
+	 * conpoint = front of robot
+	 * posPoint = middleofRobot
+	 * destPoint = where we are going
+	 */
 	@Override
 	public String getDir(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
 		StringBuilder str = new StringBuilder();

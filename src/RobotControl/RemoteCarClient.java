@@ -30,26 +30,8 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	boolean waiting;
 	public static int [] [] GRID = new int [20][20];
 
-	/*	public static final int
-		FORWARD = 40, //Pil op
-		BACKWARD = 38, //pil ned
-		TURNLEFT = 37, //pil left
-		TURNRIGHT = 39, //pil right
-		STOP = 81, //Q = Stops motors
-		ARMUP = 66, //B = Arm goes UP
-		ARMDOWN = 78, //N = arm goes down
-		WHEELUP = 49, //num 1
-		WHEELDOWN = 50, //num 2
-		WHEELSTOP = 51, //num 3
-		UNLOAD = 80, //p
-		GRAPPLEARMFUNCTION = 86;// V = grappleFunction
-		*/
-
-
-
 		PointInGrid [] checkPoints = { new PointInGrid(480, 270), new PointInGrid(1440, 270),
 										new PointInGrid(480, 810), new PointInGrid(1440, 810) };
-
 	Button btnConnect;
 	TextField txtIpAddress;
 	TextArea messages;
@@ -257,5 +239,4 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 			System.out.println(hello);
 		}
 	}
-
 }
