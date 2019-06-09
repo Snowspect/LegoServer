@@ -1,13 +1,11 @@
 package Logic;
 
-import RouteCalculator.RouteCalculator;
-import RouteCalculator.RouteCalculatorInterface;
-
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
 import RouteCalculator.PointInGrid;
+import RouteCalculator.RouteCalculator;
+import RouteCalculator.RouteCalculatorInterface;
 
 public class RouteLogic implements IRouteLogic, Runnable {
 	
@@ -45,6 +43,34 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				
 	}
 	
+
+
+	public int getCheckpoint() {
+		return checkpoint;
+	}
+	
+
+	public List<PointInGrid> getCoordinates() {
+		return coordinates;
+	}
+	
+
+	public PointInGrid getRobotMiddle() {
+		return robotMiddle;
+	}
+	
+
+	public List<PointInGrid> getBalls() {
+		return Balls;
+	}
+	
+
+	public List<PointInGrid> getConnectionPoints() {
+		return ConnectionPoints;
+	}
+
+	
+
 	/**
 	 * @param robotMiddle rotaionCenter on robot
 	 * @param ConnectionPoints Four connectionPoints posing for the robot's overall path
@@ -86,13 +112,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @param dest
 	 * @return
 	 */
-	public List<PointInGrid> pointsOnRoute(PointInGrid pos, PointInGrid dest) {
+	public List<PointInGrid> pointsOnRoute(PointInGrid pos, PointInGrid dest, int checkpoint) {
 		
 		coordinates = new ArrayList<PointInGrid>();
-		
+		PointInGrid Point;
 		double Slope = (dest.getX() - pos.getX()) / (dest.getY() - pos.getY());
 		double Intercept = pos.getX() - Slope * pos.getY();
-		
+		System.out.println("Slope: " + Slope);
+		System.out.println("Intercept " + Intercept);
 		//TODO SOMEHOW TRIGGER checkpoint case 1,2,3 and 4? What if the robot is not on one of those?
 		//ikke initialiseret nogle steder, så altid ende i default?
 		switch(checkpoint) {
@@ -126,7 +153,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				}
 				break;
 			default: //purpose? will it ever get triggered?
-				coordinates = pointsOnRoute(pos, dest);
+//				coordinates = pointsOnRoute(pos, dest);
 		}
 		
 		return coordinates;
@@ -142,17 +169,18 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		PointInGrid Point = null;
 		
-		for (PointInGrid p : coordinates) {
+		for (PointInGrid p : pointsOnRoute(Robot, nextPoint, 2)) {
 			double angle = Calculator.calc_Angle(nextPoint, p, nearestBall);
 			
-			if (angle >= 85 && angle <= 95) {
+			if (angle >= 89 && angle <= 91) {
 				Point = p;
+				System.out.println("ANGLE" + angle);
 				break;
 			}
 		}
 		//from point to nearestball
 		//check entire route for obstacles
-		for (PointInGrid p : pointsOnRoute(Point, nearestBall))
+		for (PointInGrid p : pointsOnRoute(Point, nearestBall, 1))
 		{
 			if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE)
 			{
