@@ -1,3 +1,4 @@
+import org.jfree.chart.block.GridArrangement;
 import org.opencv.core.*;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -6,13 +7,14 @@ import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
  
 import java.io.*;
-import java.util.Scanner;
 import java.math.*;
+import java.awt.geom.*;
+import java.util.Scanner;
  
 import javax.imageio.ImageIO;
 import javax.sound.sampled.Line;
 
-import java.awt.geom.Point2D;
+import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +49,7 @@ public class Billedbehandling_27032019
 	static double ballHeight = 40;						// 40mm = 4cm
 	static double courseEdgeHeight = 70;				// 70mm = 7cm
 	static double crossHeight = 30;						// 30mm = 3cm
-	static Point imageCenter = new Point(990, 540);		// X and Y coordinates of the image center
+	static Point imageCenter = new Point(imageWidth/2, imageHeight/2);
     
     // Instantiating the imgcodecs class
     static Imgcodecs imageCodecs = new Imgcodecs();
@@ -335,26 +337,22 @@ public class Billedbehandling_27032019
     	
     	// Calculating the angle between CirclePoint and webcam.
     	double pointToWebcamAngle = Math.asin(cameraHeight / pointToWebcamDistance);
-    	double angleInDegrees = Math.toDegrees(pointToWebcamAngle);
-    	System.out.println("Angle between circle center and webcam : " + angleInDegrees);
+    	System.out.println("Angle between circle center and webcam : " + (Math.toDegrees(pointToWebcamAngle)));
 
     	// Calculating the distance between CirclePoint and actual RobotPoint.
-    	double differenceBetweenPointAndActualValue = robotHeight * Math.tan(Math.toRadians(pointToWebcamAngle));
+    	double differenceBetweenPointAndActualValue = robotHeight * Math.tan(Math.toRadians(90 - Math.toDegrees(pointToWebcamAngle)));
     	System.out.println("Distance to corrected : " + differenceBetweenPointAndActualValue);
     	
-    	// Updating the RobotPoint value so that the difference is added.
-    	double distanceRatio = differenceBetweenPointAndActualValue / pointToWebcamDistance;
-    	pointToBeReturned = new Point((1-distanceRatio)*localPoint.x + distanceRatio*imageCenter.x , 
-    			(1-distanceRatio)*localPoint.y+distanceRatio*imageCenter.y );
+    	// Version 1 | Updating the RobotPoint value so that the difference is added.
+    	double distanceRatio = differenceBetweenPointAndActualValue / pointToCenterDistance;
+    	pointToBeReturned = new Point( 
+    			((1-distanceRatio)*localPoint.x + distanceRatio*imageCenter.x) , 
+    			((1-distanceRatio)*localPoint.y + distanceRatio*imageCenter.y) );
+		
     	System.out.println(" -------------------------------------- ");
     	System.out.println("Center coordinat : x = " + (int)imageCenter.x + " , y = " + (int)imageCenter.y);
-    	System.out.println("Orig coordinates : x = " + (int)localPoint.x + " , y = " + (int)localPoint.y);
-    	System.out.println("Robot coordinate : x = " + (int)pointToBeReturned.x + " , y = " + (int)pointToBeReturned.y);
-    	
-    	// Version 2 | Updating the RobotPoint value so that the difference is added.
-    	
-    	//System.out.println(" -------------------------------------- ");
-    	//System.out.println("Robot coordinates : x = " + pointToBeReturned.x + " , y = " + pointToBeReturned.y);
+    	System.out.println("Orig coordinates : x = " + localPoint.x + " , y = " + localPoint.y);
+    	System.out.println("Robot coordinate : x = " + pointToBeReturned.x + " , y = " + pointToBeReturned.y);    	
     	
     	// Returning the calculated robot coordinate
     	return pointToBeReturned;
