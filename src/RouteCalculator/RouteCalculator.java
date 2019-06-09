@@ -27,13 +27,13 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 	@Override
 	public double calc_Angle(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
-		double destRow = destPoint.getX(), destCol = destPoint.getY();
-		double posRow = posPoint.getX(), posCol = posPoint.getY();
-		double conRow = conPoint.getX(), conCol = conPoint.getY();
+		double destRow = Math.toDegrees(destPoint.getX()), destCol = Math.toDegrees(destPoint.getY());
+		double posRow = Math.toDegrees(posPoint.getX()), posCol = Math.toDegrees(posPoint.getY());
+		double conRow = Math.toDegrees(conPoint.getX()), conCol = Math.toDegrees(conPoint.getY());
 		double angle1 = Math.atan2((conRow - posRow), (conCol - posCol)) * 180/Math.PI;
 		double angle2 = Math.atan2((destRow - posRow), (destCol - posCol)) * 180/Math.PI;
-		System.out.println("ControlAngle: " + angle1);
-		System.out.println("DestAngle: " + angle2);
+		//System.out.println("ControlAngle: " + angle1);
+		//System.out.println("DestAngle: " + angle2);
 		//System.out.println("angle3: " + (angle2 - angle1) + "\n");
 		double angle = angle2 - angle1;
 			return angle;
