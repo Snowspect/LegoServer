@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import RobotControl.RemoteCarClient;
 import RouteCalculator.PointInGrid;
 
 public class RouteLogic implements IRouteLogic, Runnable {
@@ -28,11 +29,24 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	private int[][] ImageGrid;
 	private final int OBSTACLE = 1;
 	boolean firstConnectionFound,firstConnectionTouched, programStillRunning, branchOff;
-	
+	private RemoteCarClient RC;
 	private RouteCalculatorInterface Calculator;
 	
 	public RouteLogic() {
 		this.Calculator = new RouteCalculator();
+	}
+	
+	public RouteLogic(RemoteCarClient RC)
+	{
+		this.RC = RC;
+		RC.SendCommandString("0F:400;0G:0;0S:0;LR:0;RR:0;0B:false");
+//		//readies string parts
+//		String OF = "0F:0;"; //F is Forward
+//		String OG = "0G:0;"; //G is grader (degrees)
+//		String OS = "0S:0;"; //S is speed
+//		String LR = "LR:0;"; //LR is left rotate
+//		String RR = "RR:0;"; //RR is right rotate
+//		String OB = "0B:false"; // B is boolean 
 	}
 	
 	/**
@@ -51,11 +65,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		this.ConnectionPoints = ConnectionPoints;
 		this.ImageGrid = ImageGrid;
 		this.firstConnectionFound = false;
-		this.Calculator = new RouteCalculator();
-				
+		this.Calculator = new RouteCalculator();				
 	}
 	
 	/**
+	 * Finds the closest connection point that has a direct path in relation to the robot middle
 	 * @param robotMiddle rotationCenter on robot
 	 * @param ConnectionPoints Four connectionPoints posing for the robot's overall path
 	 */
@@ -109,6 +123,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				nearestBall = findNearestBall(robotMiddle, ballsWithDirectPathFromRobot);
 				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 				
+				CommunicateToServer(commandToSend);
 				//TODO make sequence or method that can pickup ball
 				//should be room for pickup of ball here and nullifying the nearestball object
 			}
@@ -206,9 +221,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	
 	/***
 	 * finds all points between to points
-	 * @param pos
-	 * @param dest
-	 * @return
+	 * @param pos : robotMiddle
+	 * @param dest : Destination point
+	 * @return : List of PointInGrid: Containing all points between two points
 	 */
 	public List<PointInGrid> pointsOnRoute(PointInGrid pos, PointInGrid dest) {
 		
@@ -260,12 +275,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * to see if there is an angle on the route towards the nearest ball from
 	 * the side within the 85-95 degree angle.
 	 * returns a null PointInGrid if there is an obstacle (barrier or cross) 
-	 * 	between the robot and the ball
-	 * Robot : RobotMiddle
-	 * nextPoint : a point on path, should be null atm
-	 * nearestBall : the closest ball
-	 * pointsOnPath : The path between two points in coords
+	 * between the robot and the ball
+	 * @param Robot : RobotMiddle
+	 * @param nextPoint : a point on path, should be null atm
+	 * @param nearestBall : the closest ball
+	 * @param pointsOnPath : The path between two points in coords
 	 */
+	//TODO FIX IMPLEMENTATION (remove nextPoint and use the correct list in actual impl)
 	@Override
 	public PointInGrid CheckPickupAngleOnRoute(PointInGrid Robot, PointInGrid nextPoint, PointInGrid nearestBall, List<PointInGrid> pointsOnPath) {
 		
@@ -284,7 +300,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 	/**
 	 * searches through all balls in list and reevalutes if one is closer than the other
-	 * return: the point of the closest ball (nomatter its position)
+	 * @return PointInGrid: point of the closest ball (no matter its position)
+	 * @param Robot : middle of robot 
 	 */
 	@Override
 	public PointInGrid findNearestBall(PointInGrid Robot, List<PointInGrid> BallPoints) {
@@ -302,10 +319,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	}
 
 	/**
-	 * compiles a string for the robot to execute
-	 * Robot: The middle of the robot
-	 * conPoint: the front of the robot
+	 * Should be method for sending a string to robot
+	 * @param Robot: The middle of the robot
+	 * @param conPoint: the front of the robot
+	 * @param nextCornor : ??
+	 * @param nearestBall : a ball to consider in the method
 	 */
+	//TODO CHANGE IMPLEMENTATION
 	@Override
 	public void Drive(PointInGrid conPoint, PointInGrid Robot, PointInGrid nextCornor, PointInGrid nearestBall) {		
 		
@@ -325,8 +345,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			String commandToSend = Calculator.getDir(conPoint, Robot, CheckPickupAngleOnRoute(Robot, nextCornor, nearestBall,null));
 			//Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, findNearestBall(Robot, BallPoints)));	
 		}
-
-		
 	}
 	
 	/**
@@ -342,6 +360,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * This creates a simulated grid
 	 * it contains, barriers, balls, robot and connection points
 	 */
+	///////////USED FOR SIMULATION GRID///////////
 	public void CreateGrid()
 	{	
 		int rows = 20;
@@ -391,10 +410,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		SimulatedGrid[12][15] = ball;
 		SimulatedGrid[19][19] = ball;
 	}
+
+	
 	/**
 	 * Finds elements in grid (used for simulation) 
 	 * In the actual implementation, the image recog will send the grid info in lists
 	 */
+	/////////USED FOR SIMULATION GRID/////////
 	public void findElementsInGrid()
 	{
 		int rows = 20;
@@ -423,6 +445,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @param coordsOnPathLocal : all points between two points
 	 * @return whether or not the path is clear
 	 */
+	////////CURRENTLY NOT USED//////////
 	public int SearchBroaderPath(List<PointInGrid> coordsOnPathLocal)
 	{
 		for (PointInGrid point : coordsOnPathLocal) {
@@ -480,14 +503,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		return true;
 	}
 
+ 
 	/**
-	 * Checks to see if the robot can get a
+	 * Checks to see if the robot can get a 
 	 * 90 degree angle by rotating around itself that points towards the nearest ball
 	 * @param robotMid
 	 * @param robotFront
 	 * @param nearestBall
 	 * @return
 	 */
+	//////////CURRENTLY NOT USED//////////
 	public PointInGrid CheckPickupAngleSelfRotate(PointInGrid robotMid, PointInGrid robotFront, PointInGrid nearestBall)
 	{
 		List<PointInGrid> RobotPerimeterPoints = new ArrayList<PointInGrid>();
@@ -505,8 +530,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//this will never be triggered
 		return null;
 	}
+	
 	//x is robotmiddle.getX(), y is robotmiddle.getY().
 	//r is from dist form between robotMiddle and robotFront.
+	/**
+	 * finds the robots circumference were it to do a 360 rotation
+	 * @param RmidX : the robot middle x coord
+	 * @param RmidY : the robot middle y coord
+	 * @param robotRadius : the distance between robot middle and robot front
+	 * @return
+	 */
 	public static List<PointInGrid> GetRobotPerimeter(double RmidX, double RmidY, double robotRadius)
 	{
 		List<PointInGrid> CirclePoints = new ArrayList<PointInGrid>();
@@ -530,6 +563,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		    return CirclePoints; 
 		}
 	
+	/**
+	 * Finds balls with direct path (no obstacles inbetween)
+	 * @param robotMiddle
+	 * @param balls
+	 * @return a list of PointInGrid
+	 */
 	public List<PointInGrid> BallsWithDirectPath(PointInGrid robotMiddle, List<PointInGrid> balls)
 	{
 		List<PointInGrid> ballsWithDirectPath = new ArrayList<PointInGrid>();
@@ -542,5 +581,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			}
 		}
 		return ballsWithDirectPath;
+	}
+
+	public void CommunicateToServer(String command)
+	{
+		
 	}
 }

@@ -100,7 +100,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 		String COMMAND = str.toString();
 
-		System.out.println("COMMAND: "+COMMAND);
+		System.out.println("COMMAND: "+ COMMAND);
 
 		return COMMAND;
 	}

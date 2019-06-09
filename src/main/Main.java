@@ -22,7 +22,7 @@ public class Main {
 			RemoteCarClient CarClient = new RemoteCarClient("R/C Client", ip);
 			new Thread(CarClient).start();
 			
-			new RouteLogic().running();
+			new RouteLogic(CarClient).running();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

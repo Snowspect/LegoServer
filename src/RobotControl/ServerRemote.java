@@ -184,8 +184,12 @@ public class ServerRemote {
 				String commandString = dIn.readUTF();
 				System.out.println("read command");
 				// String splitter = "0F:2;0G:200;0S:300;LR:50;RR:50;0B:true";
-				// parser(splitter); //sets values og global variables.
-
+				
+				//TEST PART
+				String splitter = commandString;
+				parser(splitter); //sets values og global variables.
+				
+				
 				// currently not using the Interrupter method, but it is simply implemented
 				int command = Integer.parseInt(commandString);
 				// int command = dIn.readInt();
@@ -198,9 +202,9 @@ public class ServerRemote {
 					System.exit(0);
 				} else {
 					// parser("0F:3;0G:200;0S:300;LR:40;RR:50;0B:true");
-					// carMovement();
+					carMovement();
 
-					carAction(command);
+					//carAction(command);
 				}
 			}
 		} catch (IOException e) {
