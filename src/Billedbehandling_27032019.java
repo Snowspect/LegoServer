@@ -10,6 +10,7 @@ import java.util.Scanner;
 import java.math.*;
  
 import javax.imageio.ImageIO;
+import javax.sound.sampled.Line;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -46,6 +47,7 @@ public class Billedbehandling_27032019
 	static double ballHeight = 40;						// 40mm = 4cm
 	static double courseEdgeHeight = 70;				// 70mm = 7cm
 	static double crossHeight = 30;						// 30mm = 3cm
+	static Point imageCenter = new Point(990, 540);		// X and Y coordinates of the image center
     
     // Instantiating the imgcodecs class
     static Imgcodecs imageCodecs = new Imgcodecs();
@@ -106,7 +108,7 @@ public class Billedbehandling_27032019
             calculateRobotCoordinates(robotCameraPoints[0]);
             
             // Calculating the actual coordinates of the second robot marker
-            //calculateActualCoordinates(robotCameraPoints[1]);
+            //calculateRobotCoordinates(robotCameraPoints[1]);
             
             
             /*
@@ -203,7 +205,7 @@ public class Billedbehandling_27032019
                 14.0, 
                 10, 							// Minimum radius
                 15);           					// Maximum radius
-        
+                
         Imgproc.HoughCircles(frameGreen, 
         		circlesGreen, 
         		Imgproc.HOUGH_GRADIENT, 
@@ -256,6 +258,23 @@ public class Billedbehandling_27032019
                     2,
                     8,
                     0);
+            
+            // ################# TESTING THE CONSQUENCE OF CHANGING COORDINATE VALUES #################
+            // This test prints a big white dot at the coordinates specified by the testCenter point.
+            // I have used this test to observe how the x- and y-coordinates work in a grid.
+            
+            Point testCenter = new Point(990,540);
+            Imgproc.circle(printBlue,       // Circle center
+                    testCenter, 
+                    1,
+                    new Scalar(255, 255, 255),
+                    5,
+                    0,
+                    0);
+            
+            // ################# END OF TESTING #################
+
+            
             // Saving the image path and writing the new image
             String fileBlue = "C:\\Users\\benja\\Desktop\\final_Blue.png";
             imageCodecs.imwrite(fileBlue, printBlue);
@@ -307,11 +326,11 @@ public class Billedbehandling_27032019
     	
     	
     	// Calculating the distance between a CirclePoint and the center of the image.
-    	double pointToCenterDistance = Point2D.distance(540, 990, localPoint.x, localPoint.y);
-    	System.out.println("Distance between circle center and image center" + pointToCenterDistance);
-    	
+    	double pointToCenterDistance = Point2D.distance(imageCenter.x, imageCenter.y, localPoint.x, localPoint.y);
+    	System.out.println("Distance between circle center and image center : " + pointToCenterDistance);
+    	    	
     	// Calculating the direct distance between webcam and CirclePoint (Hypotenuse).
-    	double pointToWebcamDistance = Math.sqrt(cameraHeight * cameraHeight + pointToCenterDistance * pointToCenterDistance);  
+    	double pointToWebcamDistance = Math.hypot(cameraHeight, pointToCenterDistance);
     	System.out.println("Distance between circle center and webcam : " + pointToWebcamDistance);
     	
     	// Calculating the angle between CirclePoint and webcam.
@@ -321,8 +340,23 @@ public class Billedbehandling_27032019
 
     	// Calculating the distance between CirclePoint and actual RobotPoint.
     	double differenceBetweenPointAndActualValue = robotHeight * Math.tan(Math.toRadians(pointToWebcamAngle));
-    	System.out.println("Distance to correct : " + differenceBetweenPointAndActualValue);
+    	System.out.println("Distance to corrected : " + differenceBetweenPointAndActualValue);
     	
+    	// Updating the RobotPoint value so that the difference is added.
+    	double distanceRatio = differenceBetweenPointAndActualValue / pointToWebcamDistance;
+    	pointToBeReturned = new Point((1-distanceRatio)*localPoint.x + distanceRatio*imageCenter.x , 
+    			(1-distanceRatio)*localPoint.y+distanceRatio*imageCenter.y );
+    	System.out.println(" -------------------------------------- ");
+    	System.out.println("Center coordinat : x = " + (int)imageCenter.x + " , y = " + (int)imageCenter.y);
+    	System.out.println("Orig coordinates : x = " + (int)localPoint.x + " , y = " + (int)localPoint.y);
+    	System.out.println("Robot coordinate : x = " + (int)pointToBeReturned.x + " , y = " + (int)pointToBeReturned.y);
+    	
+    	// Version 2 | Updating the RobotPoint value so that the difference is added.
+    	
+    	//System.out.println(" -------------------------------------- ");
+    	//System.out.println("Robot coordinates : x = " + pointToBeReturned.x + " , y = " + pointToBeReturned.y);
+    	
+    	// Returning the calculated robot coordinate
     	return pointToBeReturned;
     	
     } // End of robotCalculateCoordinates()
