@@ -26,14 +26,10 @@ public class Billedbehandling_27032019
     // The camera has a maximum resolution of 1920x1080
     static int imageWidth = 1920;                		// Image width
     static int imageHeight = 1080;             			// Image height
- 
-    // Color range for detecting RED
-    //static Scalar min = new Scalar(0, 0, 130, 0);    	// BGR-A (NOT RGB!) (Original)
-    //static Scalar max = new Scalar(140, 110, 255, 0);	// BGR-A (NOT RGB!)
     
     // Color range for detecting RED
-    static Scalar min = new Scalar(0, 0, 150, 0);      	// BGR-A (NOT RGB!) (Better than original)
-    static Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!)
+    static Scalar min = new Scalar(0, 0, 150, 0);      	// BGR-A (NOT RGB!) (Better than original : (0, 0, 130, 0))
+    static Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!) (Better than original : (140, 110, 255, 0))
     
     // Color range for detecting BLUE circle on robot
     static Scalar minBlue = new Scalar(90, 0, 0, 0);  	// BGR-A (NOT RGB!)
@@ -86,15 +82,33 @@ public class Billedbehandling_27032019
         // Control guide - must be the same as the condition in while
         System.out.println("        ------ Press 1 to capture new image ------        ");
  
-        // Boolean to enable console comments
+        // Boolean to enable console comments and camera
     	Boolean enableComments = false;
+    	Boolean enableCamera = false;
+    	
+        // Defining default file along with file name
+        String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+        String filename = ((args.length > 0) ? args[0] : default_file);
         
         // The detection program only runs when the user has pressed 1
         while(keyboard.nextInt() == 1)
         {        	
-            // Saving the input from the camera capture to the new matrix
-    		//capture.read(matrix);
+        	if(enableCamera) {
+	            // Saving the input from the camera capture to the new matrix
+	    		//capture.read(matrix);
+        	}
  
+        	if (!enableCamera) {
+    	    	// Load an image
+    	        matrix = Imgcodecs.imread(filename, Imgcodecs.IMREAD_COLOR);
+    	        // Check if image is loaded correctly
+    	        if (matrix.empty()) {
+    	            System.out.println("Error opening image!");
+    	            System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
+    	            System.exit(-1);
+    	        }
+        	}
+        	
             // Specifying path for where to save image
         	if(enableComments) System.out.println("Creating file : test_orig.png");
             String file = "C:\\Users\\benja\\Desktop\\test_orig.png";
@@ -102,47 +116,33 @@ public class Billedbehandling_27032019
             // Saving the original RGB image without any modifications
             if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
             //imageCodecs.imwrite(file, matrix);
-
-            // Defining default file along with file name
-            String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
-            String filename = ((args.length > 0) ? args[0] : default_file);
             
             // Estimating Robot Coordinates based on image from webcam
-            robotCameraPoints = robotCircleCenter(matrix, filename, default_file);
+            robotCameraPoints = robotCircleCenter(matrix, default_file);
             
             // Calculating the actual coordinates of the first robot marker
-            robotActualPoints[0] = calculateRobotCoordinates(robotCameraPoints[0]);
+            robotActualPoints[0] = calculateRobotCoordinates(robotCameraPoints[0], "robot");
             
             // Calculating the actual coordinates of the second robot marker
-            robotActualPoints[1] = calculateRobotCoordinates(robotCameraPoints[1]);
-            
+            robotActualPoints[1] = calculateRobotCoordinates(robotCameraPoints[1], "robot");
             
             // Run color detection
             if(enableComments) System.out.println("Running color detection : saved as test1.png");
             Mat isolatedRedColor = new Mat();
             isolatedRedColor = runColorDetection(matrix);
  
- 			/*
- 
             // Edge detection
             if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
             String edgeFile = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
-            //String default_file = "C:\\Users\\benja\\Desktop\\test1.png";
             //runEdgeDetection(isolatedRedColor, edgeFile);
- 
-            // Defining default file along with file name
-            //String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
-            //String filename = ((args.length > 0) ? args[0] : default_file);
- 
+ 			
             // Running detection function.
             if(enableComments) System.out.println("Running circel detection : saved as test2.png");
-            //runOpenCV(filename, default_file, isolatedRedColor, arrayMap);
+            runOpenCV(filename, default_file, isolatedRedColor, arrayMap);
  
             // Create a matrix similar to the modified picture
             if(enableComments) System.out.println("Accessing create_matrix() - example image saved as test3.png");
             //arrayMap = create_matrix(arrayMap);
-            
-            */
             
             System.out.println("| ------------------------ Done ------------------------ |");
             System.out.println("        ------ Press 1 to capture new image ------        ");
@@ -161,7 +161,7 @@ public class Billedbehandling_27032019
      * @param default_file
      * @return circleCenter[]
      */
-    private static Point[] robotCircleCenter(Mat localColorFrame, String filename, String default_file) 
+    private static Point[] robotCircleCenter(Mat localColorFrame, String default_file) 
     {    	
     	// Read from camera or filename
     	Boolean readFromCamera = false;
@@ -174,7 +174,12 @@ public class Billedbehandling_27032019
         Mat circlesBlue = new Mat();
         Mat circlesGreen = new Mat();
     	
-    	if (readFromCamera) 
+    	// Cloning the original color image into two individual 2D arrays.
+    	frameBlue = localColorFrame.clone();
+    	frameGreen = localColorFrame.clone();
+    	
+    	/*
+    	if (!readFromCamera) 
     	{
 	    	// Load an image
 	        Mat src = Imgcodecs.imread(filename, Imgcodecs.IMREAD_COLOR);
@@ -190,12 +195,7 @@ public class Billedbehandling_27032019
 	    	frameBlue = src.clone();
 	    	frameGreen = src.clone();
     	}
-    	
-    	if (!readFromCamera) {
-        	// Cloning the original color image into two individual 2D arrays.
-        	frameBlue = localColorFrame.clone();
-        	frameGreen = localColorFrame.clone();
-    	}
+    	*/
     	
         // Initializing color range
         inRange(frameBlue, minBlue, maxBlue, frameBlue);
@@ -343,12 +343,31 @@ public class Billedbehandling_27032019
      * Taken into account, that the height of the robot and angel from the camera 
      * can have an effect on the points location on the grid.
      * @param localPoint
+     * @param objectType
      * @return point
      */
-    private static Point calculateRobotCoordinates(Point localPoint) 
+    private static Point calculateRobotCoordinates(Point localPoint, String objectType) 
     {    	
     	// Boolean to enable console comments
-    	Boolean enableComments = false;
+    	Boolean enableComments = true;
+    	
+    	// To load the height of the given object
+    	double objectHeight = 0;
+    	
+    	switch (objectType) {
+		case "robot": 	
+			objectHeight = robotHeight;
+			break;
+		case "ball": 	
+			objectHeight = ballHeight;
+			break;
+		case "edge":	
+			objectHeight = courseEdgeHeight;
+			break;
+		default:		objectHeight = robotHeight;
+			System.out.println("No object type recognized");
+			break;
+		}
     	
     	// Calculating how many pixels it takes to get a cm or mm.
     	
@@ -366,7 +385,7 @@ public class Billedbehandling_27032019
     	if(enableComments)System.out.println("Angle between circle center and webcam : " + (Math.toDegrees(pointToWebcamAngle)));
 
     	// Calculating the distance between CirclePoint and actual RobotPoint.
-    	double differenceBetweenPointAndActualValue = robotHeight * Math.tan(Math.toRadians(90 - Math.toDegrees(pointToWebcamAngle)));
+    	double differenceBetweenPointAndActualValue = objectHeight * Math.tan(Math.toRadians(90 - Math.toDegrees(pointToWebcamAngle)));
     	if(enableComments)System.out.println("Distance to corrected : " + differenceBetweenPointAndActualValue);
     	
     	// Version 1 | Updating the RobotPoint value so that the difference is added.
@@ -379,12 +398,13 @@ public class Billedbehandling_27032019
     	System.out.println(" -------------------------------------- ");
     	System.out.println("Center coordinat : x = " + (int)imageCenter.x + " , y = " + (int)imageCenter.y);
     	System.out.println("Orig coordinates : x = " + localPoint.x + " , y = " + localPoint.y);
-    	System.out.println("Robot coordinate : x = " + pointToBeReturned.x + " , y = " + pointToBeReturned.y);   
+    	System.out.println("Robot coordinate : x = " + pointToBeReturned.x + " , y = " + pointToBeReturned.y);  
+    	System.out.println(" -------------------------------------- ");
+    	System.out.println(" -------------------------------------- ");
     	}
     	
     	// Returning the calculated robot coordinate
     	return pointToBeReturned;
-    	
     } // End of robotCalculateCoordinates()
     
     
@@ -491,9 +511,9 @@ public class Billedbehandling_27032019
 
     } // End of private static void runOpenCV(...)
     
-    
+
     /**
-     * Takes a frame as input and updates the output picture
+     * Takes a frame as input and returns an matrix with only the red color highlighted
      * @param frame
      */
     private static Mat runColorDetection(Mat frame)
