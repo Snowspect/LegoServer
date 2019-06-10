@@ -456,10 +456,7 @@ public class Billedbehandling_27032019
         
         Mat copy = src.clone();
         
-        int VT = 0;
-        int VB = 1;
-        int HB = 2;
-        int HT = 3;
+        int VT = 0;		int VB = 1;		int HB = 2;		int HT = 3;
     	
         Imgproc.line(copy, localPoints.get(VT), localPoints.get(HT), new Scalar(200, 200, 0, 255), 1);
         Imgproc.line(copy, localPoints.get(HT), localPoints.get(HB), new Scalar(200, 200, 0, 255), 1);
