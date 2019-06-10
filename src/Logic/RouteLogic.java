@@ -474,9 +474,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			int ball = 4;
 			//SimulatedGrid[12][5] = ball;
 			SimulatedGrid[10][10] = ball;
-			SimulatedGrid[12][16] = ball;
-			SimulatedGrid[3][6] = ball;
-			SimulatedGrid[7][15] = ball;
+//			SimulatedGrid[12][16] = ball;
+//			SimulatedGrid[3][6] = ball;
+//			SimulatedGrid[7][15] = ball;
 			SimulatedGrid[19][19] = ball;
 	}
 
