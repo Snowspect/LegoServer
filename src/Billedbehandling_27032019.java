@@ -1,6 +1,7 @@
 import org.jfree.chart.block.GridArrangement;
 import org.opencv.core.*;
 import org.opencv.core.Point;
+import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
@@ -9,13 +10,25 @@ import org.opencv.videoio.Videoio;
 import java.io.*;
 import java.math.*;
 import java.awt.geom.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
  
 import javax.imageio.ImageIO;
 import javax.sound.sampled.Line;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
  
@@ -47,6 +60,16 @@ public class Billedbehandling_27032019
 	static double crossHeight = 30;						// 30mm = 3cm
 	static Point imageCenter = new Point(imageWidth/2, imageHeight/2);
     
+	// Niklas
+	
+    private Mat src = new Mat();
+    private Mat srcGray = new Mat();
+    private JFrame frame;
+    private JLabel imgLabel;
+    private static final int MAX_THRESHOLD = 100;
+    private int maxCorners = 36;
+    private Random rng = new Random(12345);
+	
     // Instantiating the imgcodecs class
     static Imgcodecs imageCodecs = new Imgcodecs();
  
@@ -698,5 +721,149 @@ public class Billedbehandling_27032019
         return localMap;
         
     } // End of create_matrix()
+    
+    public void RunUpdate(String[] args) 
+    {
+        String filename = args.length > 0 ? args[0] : "C:\\Users\\Niklas\\Desktop\\test_1_edges.png";
+        src = Imgcodecs.imread(filename);
+        if (src.empty()) {
+            System.err.println("Cannot read image: " + filename);
+            System.exit(0);
+        }
+        Imgproc.cvtColor(src, srcGray, Imgproc.COLOR_BGR2GRAY);
+        // Create and set up the window.
+        frame = new JFrame("Shi-Tomasi corner detector demo");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Set up the content pane.
+        Image img = HighGui.toBufferedImage(src);
+        addComponentsToPane(frame.getContentPane(), img);
+        // Use the content pane's default BorderLayout. No need for
+        // setLayout(new BorderLayout());
+        // Display the window.
+        frame.pack();
+        frame.setVisible(true);
+        update();
+    }
+    
+    private void update() {
+        Mat videoframe = new Mat();
+        //0; default video device id
+        VideoCapture camera = new VideoCapture(0);
+
+        /*
+        while (true) {
+            if (camera.read(videoframe)) {
+
+                ImageIcon image = new ImageIcon(Mat2bufferedImage(frame));
+
+
+            }
+        }
+        */
+
+        maxCorners = Math.max(maxCorners, 1);
+        MatOfPoint corners = new MatOfPoint();
+        double qualityLevel = 0.01;
+        double minDistance = 10;
+        int blockSize = 3, gradientSize = 3;
+        boolean useHarrisDetector = false;
+        double k = 0.04;
+        Mat copy = src.clone();
+        Imgproc.goodFeaturesToTrack(srcGray, corners, maxCorners, qualityLevel, minDistance, new Mat(),
+                blockSize, gradientSize, useHarrisDetector, k);
+        System.out.println("** Number of corners detected: " + corners.rows());
+        int[] cornersData = new int[(int) (corners.total() * corners.channels())];
+        corners.get(0, 0, cornersData);
+        int radius = 4;
+        double distance_vt = 5000;
+        double distance_vb = 5000;
+        double distance_ht = 5000;
+        double distance_hb = 5000;
+        Point distancepoint_vt = null;
+        Point distancepoint_vb = null;
+        Point distancepoint_ht = null;
+        Point distancepoint_hb = null;
+        for (int i = 0; i < corners.rows(); i++) {
+
+            // Tilføjer points til listen
+            List<Point> PointLIST = new ArrayList<>();
+            PointLIST.add(distancepoint_vt);
+            PointLIST.add(distancepoint_vb);
+            PointLIST.add(distancepoint_ht);
+            PointLIST.add(distancepoint_hb);
+
+
+            double temp_vt = Math.hypot(500-cornersData[i * 2], 275-cornersData[i * 2 + 1]);
+            double temp_vb = Math.hypot(485-cornersData[i * 2], 850-cornersData[i * 2 + 1]);
+            double temp_ht = Math.hypot(1360-cornersData[i * 2], 238-cornersData[i * 2 + 1]);
+            double temp_hb = Math.hypot(1360-cornersData[i * 2], 850-cornersData[i * 2 + 1]);
+
+            if (checkDistance(temp_vt, distance_vt))
+            {
+                distance_vt = temp_vt;
+                distancepoint_vt = new Point(cornersData[i * 2], cornersData[i * 2 + 1]);
+                PointLIST.set(0, distancepoint_vt);
+            }
+
+            if (checkDistance(temp_vb, distance_vb))
+            {
+                distance_vb = temp_vb;
+                distancepoint_vb = new Point(cornersData[i * 2], cornersData[i * 2 + 1]);
+                PointLIST.set(1, distancepoint_vb);
+            }
+
+            if (checkDistance(temp_ht, distance_ht))
+            {
+                distance_ht = temp_ht;
+                distancepoint_ht = new Point(cornersData[i * 2], cornersData[i * 2 + 1]);
+                PointLIST.set(2, distancepoint_ht);
+            }
+
+            if (checkDistance(temp_hb, distance_hb))
+            {
+                distance_hb = temp_hb;
+                distancepoint_hb = new Point(cornersData[i * 2], cornersData[i * 2 + 1]);
+                PointLIST.set(3, distancepoint_hb);
+            }
+
+        }
+        Imgproc.circle(copy, distancepoint_vt, radius,
+                new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
+        Imgproc.circle(copy, distancepoint_ht, radius,
+                new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
+        Imgproc.circle(copy, distancepoint_vb, radius,
+                new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
+        Imgproc.circle(copy, distancepoint_hb, radius,
+                new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
+
+        imgLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(copy)));
+        frame.repaint();
+    }
+
+    private boolean checkDistance(double temp_vt, double distance_vt) {
+        if (temp_vt < distance_vt)
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    private void addComponentsToPane(Container pane, Image img) {
+        if (!(pane.getLayout() instanceof BorderLayout)) {
+            pane.add(new JLabel("Container doesn't use BorderLayout!"));
+            return;
+        }
+        JPanel sliderPanel = new JPanel();
+        sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.PAGE_AXIS));
+        sliderPanel.add(new JLabel("Max  corners:"));
+        JSlider slider = new JSlider(0, MAX_THRESHOLD, maxCorners);
+        slider.setMajorTickSpacing(20);
+        slider.setMinorTickSpacing(10);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        pane.add(sliderPanel, BorderLayout.PAGE_START);
+        imgLabel = new JLabel(new ImageIcon(img));
+        pane.add(imgLabel, BorderLayout.CENTER);
+    }
     
 } // End of public class Billedbehandling
