@@ -59,9 +59,14 @@ public class Billedbehandling_27032019
 	static double courseEdgeHeight = 70;				// 70mm = 7cm
 	static double crossHeight = 30;						// 30mm = 3cm
 	static Point imageCenter = new Point(imageWidth/2, imageHeight/2);
-    
-	// Niklas
 	
+    // Instantiating the imgcodecs class
+    static Imgcodecs imageCodecs = new Imgcodecs();
+ 
+    // Compulsory
+    static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
+    
+	// Niklas #####################################
     static Mat src = new Mat();
     static Mat srcGray = new Mat();
     static JFrame frame;
@@ -69,12 +74,7 @@ public class Billedbehandling_27032019
     static final int MAX_THRESHOLD = 100;
     static int maxCorners = 36;
     static Random rng = new Random(12345);
-	
-    // Instantiating the imgcodecs class
-    static Imgcodecs imageCodecs = new Imgcodecs();
- 
-    // Compulsory
-    static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
+    // ############################################
  
     public static void main(String[] args)
     {
@@ -84,13 +84,14 @@ public class Billedbehandling_27032019
         // Creating an array of points
         Point[] robotCameraPoints = new Point[2];
         Point[] robotActualPoints = new Point[2];
+        List<Point> squareCorners = new ArrayList<>();
         
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
         System.out.println("| --------------- Video Capture activated -------------- |");
         
-        VideoCapture capture = new VideoCapture(1);
-        capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
-        capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
+        //VideoCapture capture = new VideoCapture(1);
+        //capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
+        //capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
                 
         // Adjusting autofocus - no guarantee that the camera can do it
         //capture.set(Videoio.CAP_PROP_AUTOFOCUS, 1);   // Autofocus on
@@ -118,7 +119,7 @@ public class Billedbehandling_27032019
         {        	
         	if(enableCamera.equals(true)) {
 	            // Saving the input from the camera capture to the new matrix
-	    		capture.read(matrix);
+	    		//capture.read(matrix);
         	}
  
         	if (enableCamera.equals(false)) {
@@ -145,10 +146,10 @@ public class Billedbehandling_27032019
             robotCameraPoints = robotCircleCenter(matrix, default_file);
             
             // Calculating the actual coordinates of the first robot marker
-            robotActualPoints[0] = calculateRobotCoordinates(robotCameraPoints[0], "robot");
+            robotActualPoints[0] = calculateActualCoordinates(robotCameraPoints[0], "robot");
             
             // Calculating the actual coordinates of the second robot marker
-            robotActualPoints[1] = calculateRobotCoordinates(robotCameraPoints[1], "robot");
+            robotActualPoints[1] = calculateActualCoordinates(robotCameraPoints[1], "robot");
             */
                         
             // Run color detection
@@ -162,7 +163,18 @@ public class Billedbehandling_27032019
             runEdgeDetection(isolatedRedColor, edgeFile);
             
             // Estimating corners
-            RunUpdate();
+            squareCorners = RunUpdate();
+                        
+            // Neutralisering af perspektiv forvrængning (kør igennem metoden : calculateActualCoordinates();
+            squareCorners.set(0, calculateActualCoordinates(squareCorners.get(0), "edge"));
+            squareCorners.set(1, calculateActualCoordinates(squareCorners.get(1), "edge"));
+            squareCorners.set(2, calculateActualCoordinates(squareCorners.get(2), "edge"));
+            squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));
+            
+            // Create a new outline for the obstacle course
+            printOutlineToOrigImg(squareCorners);
+            
+            // Extend the cross
             
             // Running ball detection function.
             if(enableComments) System.out.println("Running circel detection : saved as test2.png");
@@ -374,7 +386,7 @@ public class Billedbehandling_27032019
      * @param objectType
      * @return point
      */
-    private static Point calculateRobotCoordinates(Point localPoint, String objectType) 
+    private static Point calculateActualCoordinates(Point localPoint, String objectType) 
     {    	
     	// Boolean to enable console comments
     	Boolean enableComments = true;
@@ -435,6 +447,27 @@ public class Billedbehandling_27032019
     	// Returning the calculated robot coordinate
     	return pointToBeReturned;
     } // End of robotCalculateCoordinates()
+    
+    private static void printOutlineToOrigImg(List<Point> localPoints) 
+    {
+    	// Load an image
+    	String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+        Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
+        
+        Mat copy = src.clone();
+        
+        int VT = 0;
+        int VB = 1;
+        int HB = 2;
+        int HT = 3;
+    	
+        Imgproc.line(copy, localPoints.get(VT), localPoints.get(HT), new Scalar(200, 200, 0, 255), 1);
+        Imgproc.line(copy, localPoints.get(HT), localPoints.get(HB), new Scalar(200, 200, 0, 255), 1);
+        Imgproc.line(copy, localPoints.get(HB), localPoints.get(VB), new Scalar(200, 200, 0, 255), 1);
+        Imgproc.line(copy, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 1);
+        
+        imageCodecs.imwrite(default_file, copy);
+    }
     
     /**
      * Takes filename of picture as input.
@@ -723,7 +756,7 @@ public class Billedbehandling_27032019
         
     } // End of create_matrix()
     
-    private static void RunUpdate() 
+    private static List<Point> RunUpdate() 
     {
         String filename = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
         src = Imgcodecs.imread(filename);
@@ -743,10 +776,10 @@ public class Billedbehandling_27032019
         // Display the window.
         frame.pack();
         frame.setVisible(true);
-        update();
+        return update();
     }
     
-    private static void update() 
+    private static List<Point> update() 
     {
         maxCorners = Math.max(maxCorners, 1);
         MatOfPoint corners = new MatOfPoint();
@@ -773,48 +806,60 @@ public class Billedbehandling_27032019
         Point distancepoint_ht = null;
         Point distancepoint_hb = null;
         
+        int[] venstreTop = {525, 230};
+        int[] venstreBund = {525, 830};
+        int[] hoejreBund = {1375, 830};
+        int[] hoejreTop = {1375, 230};
+        
+        List<Point> PointList = new ArrayList<>();
+        
         for (int i = 0; i < corners.rows(); i++) {
             // Tilføjer points til listen
-            List<Point> PointLIST = new ArrayList<>();
-            PointLIST.add(distancepoint_vt);
-            PointLIST.add(distancepoint_vb);
-            PointLIST.add(distancepoint_ht);
-            PointLIST.add(distancepoint_hb);
+            PointList.add(distancepoint_vt);
+            PointList.add(distancepoint_vb);
+            PointList.add(distancepoint_ht);
+            PointList.add(distancepoint_hb);
 
-
-            double temp_vt = Math.hypot(500-cornersData[i * 2], 275-cornersData[i * 2 + 1]);
-            double temp_vb = Math.hypot(485-cornersData[i * 2], 850-cornersData[i * 2 + 1]);
-            double temp_ht = Math.hypot(1360-cornersData[i * 2], 238-cornersData[i * 2 + 1]);
-            double temp_hb = Math.hypot(1360-cornersData[i * 2], 850-cornersData[i * 2 + 1]);
-
+            double temp_vt = Math.hypot( venstreTop[0]-cornersData[i * 2], 	venstreTop[1]-cornersData[i * 2 + 1]);
+            double temp_vb = Math.hypot( venstreBund[0]-cornersData[i * 2], venstreBund[1]-cornersData[i * 2 + 1]);
+            double temp_ht = Math.hypot( hoejreBund[0]-cornersData[i * 2], 	hoejreBund[1]-cornersData[i * 2 + 1]);
+            double temp_hb = Math.hypot( hoejreTop[0]-cornersData[i * 2], 	hoejreTop[1]-cornersData[i * 2 + 1]);
+            
+            Imgproc.circle(copy, new Point(cornersData[i * 2],cornersData[i * 2 + 1]), 3, new Scalar(215, 120, 0), Core.FILLED);
+            
             if (checkDistance(temp_vt, distance_vt))
             {
                 distance_vt = temp_vt;
                 distancepoint_vt = new Point(cornersData[i * 2], cornersData[i * 2 + 1]);
-                PointLIST.set(0, distancepoint_vt);
+                PointList.set(0, distancepoint_vt);
             }
 
             if (checkDistance(temp_vb, distance_vb))
             {
                 distance_vb = temp_vb;
                 distancepoint_vb = new Point(cornersData[i * 2], cornersData[i * 2 + 1]);
-                PointLIST.set(1, distancepoint_vb);
+                PointList.set(1, distancepoint_vb);
             }
 
             if (checkDistance(temp_ht, distance_ht))
             {
                 distance_ht = temp_ht;
                 distancepoint_ht = new Point(cornersData[i * 2], cornersData[i * 2 + 1]);
-                PointLIST.set(2, distancepoint_ht);
+                PointList.set(2, distancepoint_ht);
             }
 
             if (checkDistance(temp_hb, distance_hb))
             {
                 distance_hb = temp_hb;
                 distancepoint_hb = new Point(cornersData[i * 2], cornersData[i * 2 + 1]);
-                PointLIST.set(3, distancepoint_hb);
+                PointList.set(3, distancepoint_hb);
             }
         }
+        
+        Imgproc.circle(copy, new Point(venstreTop[0],venstreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
+        Imgproc.circle(copy, new Point(venstreBund[0],venstreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
+        Imgproc.circle(copy, new Point(hoejreBund[0],hoejreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
+        Imgproc.circle(copy, new Point(hoejreTop[0],hoejreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
         
         Imgproc.circle(copy, distancepoint_vt, radius,
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
@@ -827,6 +872,8 @@ public class Billedbehandling_27032019
 
         imgLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(copy)));
         frame.repaint();
+        
+        return PointList;
     }
 
     private static boolean checkDistance(double temp_vt, double distance_vt) {
