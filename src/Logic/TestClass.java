@@ -116,7 +116,7 @@ public class TestClass {
 		//SimulatedGrid[12][5] = ball;
 		SimulatedGrid[10][10] = ball;
 		//SimulatedGrid[5][14] = ball;
-		//SimulatedGrid[3][6] = ball;
+		SimulatedGrid[3][6] = ball;
 		//SimulatedGrid[12][15] = ball;
 		SimulatedGrid[19][19] = ball;
 	}

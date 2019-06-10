@@ -280,17 +280,18 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 */
 	public List<PointInGrid> pointsOnRoute(PointInGrid robotMiddle, PointInGrid dest) {
 		
-		
-		
 		coordsOnPath = new ArrayList<PointInGrid>();
 		
 		double Slope = (dest.getX() - robotMiddle.getX()) / (dest.getY() - robotMiddle.getY());
 		double Intercept = robotMiddle.getX() - Slope * robotMiddle.getY();
 		
-		if(robotMiddle.getX() < dest.getX()) checkpoint = 4;
-		else if (robotMiddle.getX() >= dest.getX()) checkpoint = 2;
-		else if (robotMiddle.getY() < dest.getY()) checkpoint = 1;
-		else if (robotMiddle.getY() >= dest.getY()) checkpoint = 3;
+		
+		//Needs fixing
+		if(robotMiddle.getX() < dest.getX() && Math.abs(robotMiddle.getY()-dest.getY()) < Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 4;
+		if (robotMiddle.getY() >= dest.getY() && Math.abs(robotMiddle.getY()-dest.getY()) >= Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 3;
+		if (robotMiddle.getX() >= dest.getX() && Math.abs(robotMiddle.getY()-dest.getY()) < Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 2;
+		if (robotMiddle.getY() < dest.getY() && Math.abs(robotMiddle.getY()-dest.getY()) >= Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 1;
+
 		
 		//TODO SOMEHOW TRIGGER checkpoint case 1,2,3 and 4? What if the robot is not on one of those?
 		//ikke initialiseret nogle steder, så altid ende i default?
@@ -473,9 +474,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			int ball = 4;
 			//SimulatedGrid[12][5] = ball;
 			SimulatedGrid[10][10] = ball;
-			//SimulatedGrid[5][14] = ball;
-			//SimulatedGrid[3][6] = ball;
-			//SimulatedGrid[12][15] = ball;
+			SimulatedGrid[12][16] = ball;
+			SimulatedGrid[3][6] = ball;
+			SimulatedGrid[7][15] = ball;
 			SimulatedGrid[19][19] = ball;
 	}
 
@@ -643,10 +644,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		List<PointInGrid> ballsWithDirectPath = new ArrayList<PointInGrid>();
 		//for each ball, check its path and put it into a list if no obstacles
 		for (PointInGrid ballPoint : balls) {
-			if(checkDirectPath(pointsOnRoute(robotMiddle, ballPoint)) == true); //gets route, checks route
+			if(checkDirectPath(pointsOnRoute(robotMiddle, ballPoint))) //gets route, checks route
 			{
 				for (PointInGrid p : coordsOnPath)
 					System.out.println("GETX: " + p.getX() + ", GETY: " + p.getY() + ", ALL: " + SimulatedGrid[(int) p.getX()][(int) p.getY()]);
+				System.out.println("BOOL: " + checkDirectPath(pointsOnRoute(robotMiddle, ballPoint)));
 				keyb.next();
 				ballsWithDirectPath.add(ballPoint);
 			}
