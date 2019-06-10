@@ -287,10 +287,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		
 		//Needs fixing
-		if(robotMiddle.getX() < dest.getX() && Math.abs(robotMiddle.getY()-dest.getY()) < Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 4;
+		if(robotMiddle.getX() <= dest.getX() && Math.abs(robotMiddle.getY()-dest.getY()) < Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 4;
 		if (robotMiddle.getY() >= dest.getY() && Math.abs(robotMiddle.getY()-dest.getY()) >= Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 3;
 		if (robotMiddle.getX() >= dest.getX() && Math.abs(robotMiddle.getY()-dest.getY()) < Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 2;
-		if (robotMiddle.getY() < dest.getY() && Math.abs(robotMiddle.getY()-dest.getY()) >= Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 1;
+		if (robotMiddle.getY() <= dest.getY() && Math.abs(robotMiddle.getY()-dest.getY()) >= Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 1;
 
 		
 		//TODO SOMEHOW TRIGGER checkpoint case 1,2,3 and 4? What if the robot is not on one of those?
