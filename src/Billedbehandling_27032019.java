@@ -65,9 +65,9 @@ public class Billedbehandling_27032019
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
         System.out.println("| --------------- Video Capture activated -------------- |");
         
-        //VideoCapture capture = new VideoCapture(1);
-        //capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
-        //capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
+        VideoCapture capture = new VideoCapture(1);
+        capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
+        capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
                 
         // Adjusting autofocus - no guarantee that the camera can do it
         //capture.set(Videoio.CAP_PROP_AUTOFOCUS, 1);   // Autofocus on
@@ -93,12 +93,12 @@ public class Billedbehandling_27032019
         // The detection program only runs when the user has pressed 1
         while(keyboard.nextInt() == 1)
         {        	
-        	if(enableCamera) {
+        	if(enableCamera.equals(true)) {
 	            // Saving the input from the camera capture to the new matrix
-	    		//capture.read(matrix);
+	    		capture.read(matrix);
         	}
  
-        	if (!enableCamera) {
+        	if (enableCamera.equals(false)) {
     	    	// Load an image
     	        matrix = Imgcodecs.imread(filename, Imgcodecs.IMREAD_COLOR);
     	        // Check if image is loaded correctly
@@ -111,12 +111,13 @@ public class Billedbehandling_27032019
         	
             // Specifying path for where to save image
         	if(enableComments) System.out.println("Creating file : test_orig.png");
-            String file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+            //String file = "C:\\Users\\benja\\Desktop\\test_orig.png";
  
             // Saving the original RGB image without any modifications
             if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
-            //imageCodecs.imwrite(file, matrix);
+            imageCodecs.imwrite(default_file, matrix);
             
+            /*
             // Estimating Robot Coordinates based on image from webcam
             robotCameraPoints = robotCircleCenter(matrix, default_file);
             
@@ -125,6 +126,9 @@ public class Billedbehandling_27032019
             
             // Calculating the actual coordinates of the second robot marker
             robotActualPoints[1] = calculateRobotCoordinates(robotCameraPoints[1], "robot");
+            */
+            
+            findPixelSize(filename);
             
             // Run color detection
             if(enableComments) System.out.println("Running color detection : saved as test1.png");
@@ -134,12 +138,12 @@ public class Billedbehandling_27032019
             // Edge detection
             if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
             String edgeFile = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
-            //runEdgeDetection(isolatedRedColor, edgeFile);
- 			
+            runEdgeDetection(isolatedRedColor, edgeFile);
+            
             // Running detection function.
             if(enableComments) System.out.println("Running circel detection : saved as test2.png");
-            runOpenCV(filename, default_file, isolatedRedColor, arrayMap);
- 
+            findBalls(filename, default_file, isolatedRedColor, arrayMap);
+            
             // Create a matrix similar to the modified picture
             if(enableComments) System.out.println("Accessing create_matrix() - example image saved as test3.png");
             //arrayMap = create_matrix(arrayMap);
@@ -351,26 +355,27 @@ public class Billedbehandling_27032019
     	// Boolean to enable console comments
     	Boolean enableComments = true;
     	
+    	// Calculating how many pixels it takes to get a mm.
+    	double mmToPixel = 1.7;
+    	
     	// To load the height of the given object
     	double objectHeight = 0;
     	
     	switch (objectType) {
 		case "robot": 	
-			objectHeight = robotHeight;
+			objectHeight = robotHeight / mmToPixel;
 			break;
 		case "ball": 	
-			objectHeight = ballHeight;
+			objectHeight = ballHeight / mmToPixel;
 			break;
 		case "edge":	
-			objectHeight = courseEdgeHeight;
+			objectHeight = courseEdgeHeight / mmToPixel;
 			break;
-		default:		objectHeight = robotHeight;
+		default:		
+			objectHeight = robotHeight / mmToPixel;
 			System.out.println("No object type recognized");
 			break;
-		}
-    	
-    	// Calculating how many pixels it takes to get a cm or mm.
-    	
+		}    	
     	
     	// Calculating the distance between a CirclePoint and the center of the image.
     	double pointToCenterDistance = Point2D.distance(imageCenter.x, imageCenter.y, localPoint.x, localPoint.y);
@@ -407,6 +412,71 @@ public class Billedbehandling_27032019
     	return pointToBeReturned;
     } // End of robotCalculateCoordinates()
     
+    /**
+     * Takes filename of picture as input.
+     * Calculates the average distance between three balls.
+     * @param filename
+     */
+    private static void findPixelSize(String filename) 
+    {
+        // Load an image
+        Mat src = Imgcodecs.imread(filename, Imgcodecs.IMREAD_COLOR);
+ 
+        // Check if image is loaded correctly
+        if (src.empty()) {
+            System.out.println("Error opening image!");
+            System.exit(-1);
+        }
+ 
+        // Creating new matrix to hold grayscale image information and one for detected circles
+        Mat gray = new Mat();
+        Mat circles = new Mat();
+ 
+        // Converting the original image (src) into an grayscale image and saving it as grey
+        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+ 
+        // Adding some blur to the image to smooth out edges
+        Imgproc.medianBlur(gray, gray, 5);
+ 
+        // Detecting circles from the grayscale image and saving it in the circles matrix
+        Imgproc.HoughCircles(gray, 
+        		circles, 
+        		Imgproc.HOUGH_GRADIENT, 
+        		1.0,
+                (double) gray.rows() / 500,  	// change this value to detect circles with different distances to each other (orig: 8)
+                25.0, 
+                14.0, 
+                9, 								// Minimum radius
+                11);           					// Maximum radius
+        										// change the last two parameters (orig: 1 , 10)
+        										// Latest calibration : 8, 15)
+        										// Eclipse calibration : 9, 11)
+  
+        Point[] holdCenterPoints = new Point[100];
+        for (int x = 0; x < circles.cols(); x++)
+        {
+            double[] c = circles.get(0, x);
+            holdCenterPoints[x] = new Point(c[0], c[1]);                        
+            // Calculation center of the circle
+            Point center = new Point(Math.round(c[0]), Math.round(c[1]));
+            System.out.println("Ball center x = " +holdCenterPoints[x].x+ " y = " +holdCenterPoints[x].y);
+        } // End of for loop for each detected circle
+        
+        
+        System.out.println(Point2D.distance(holdCenterPoints[0].x, holdCenterPoints[0].y, holdCenterPoints[1].x, holdCenterPoints[1].y));
+        System.out.println(Point2D.distance(holdCenterPoints[1].x, holdCenterPoints[1].y, holdCenterPoints[2].x, holdCenterPoints[2].y));
+        System.out.println(Point2D.distance(holdCenterPoints[2].x, holdCenterPoints[2].y, holdCenterPoints[0].x, holdCenterPoints[0].y));
+        
+        double distanceSum = (Point2D.distance(holdCenterPoints[0].x, holdCenterPoints[0].y, holdCenterPoints[1].x, holdCenterPoints[1].y) +
+        		Point2D.distance(holdCenterPoints[1].x, holdCenterPoints[1].y, holdCenterPoints[2].x, holdCenterPoints[2].y) +
+        		Point2D.distance(holdCenterPoints[2].x, holdCenterPoints[2].y, holdCenterPoints[0].x, holdCenterPoints[0].y));
+        double averageDiameter = distanceSum / 3;
+        System.out.println("Diameter average : " +averageDiameter+ "pixels");
+        
+        double pixel_mm_converter = 40 / averageDiameter;
+        System.out.println("One pixel is " +pixel_mm_converter+ "mm");
+        
+    } // End of findPixelSize()
     
     /**
      * The function runOpenCV takes a file for the original image.
@@ -416,7 +486,7 @@ public class Billedbehandling_27032019
      * @param default_file
      * @param frameColor
      */
-    private static int[][] runOpenCV(String filename, String default_file, Mat frameColor, int[][] localMap)
+    private static int[][] findBalls(String filename, String default_file, Mat frameColor, int[][] localMap)
     {
         // Load an image
         Mat src = Imgcodecs.imread(filename, Imgcodecs.IMREAD_COLOR);
@@ -462,10 +532,10 @@ public class Billedbehandling_27032019
             Point center = new Point(Math.round(c[0]), Math.round(c[1]));
             
             // Calculation radius of the circle
-            int radius = (int) Math.round(c[2]);
+            double radius = Math.round(c[2]);            
             
             // Parsing a double value to an integer
-            localMap[(int)center.x][(int)center.y] = 2;
+            localMap[(int)center.y][(int)center.x] = 2;
  
             Imgproc.circle(src,            		// Circle center
                     center,
@@ -477,7 +547,7 @@ public class Billedbehandling_27032019
              
             Imgproc.circle(src,              	// Circle outline
                     center,
-                    radius,
+                    (int)radius,
                     new Scalar(255, 0, 255),
                     3,
                     8,
@@ -495,14 +565,14 @@ public class Billedbehandling_27032019
  
             Imgproc.circle(frameColor,      	// Circle outline
                     center,
-                    radius,
+                    (int)radius,
                     new Scalar(255, 255, 255),
                     1,
                     8,
                     0);
  
             // Saving the image path and writing the new image
-            String file = "C:\\Users\\benja\\Desktop\\test2.png";
+            String file = "C:\\Users\\benja\\Desktop\\test1.png";
             imageCodecs.imwrite(file, frameColor);
             // ---------------------------------------------------------------------------------------------------------
         } // End of for loop for each detected circle
