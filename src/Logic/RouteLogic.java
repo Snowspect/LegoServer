@@ -4,6 +4,7 @@ import RouteCalculator.RouteCalculator;
 import RouteCalculator.RouteCalculatorInterface;
 import lejos.hardware.sensor.NXTUltrasonicSensor.DistanceMode;
 import lejos.robotics.navigation.Ballbot;
+import main.Main;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -34,19 +35,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	
 	public RouteLogic() {
 		this.Calculator = new RouteCalculator();
-	}
-	
-	public RouteLogic(RemoteCarClient RC)
-	{
-		this.RC = RC;
-		RC.SendCommandString("0F:400;0G:0;0S:0;LR:0;RR:0;0B:false");
-//		//readies string parts
-//		String OF = "0F:0;"; //F is Forward
-//		String OG = "0G:0;"; //G is grader (degrees)
-//		String OS = "0S:0;"; //S is speed
-//		String LR = "LR:0;"; //LR is left rotate
-//		String RR = "RR:0;"; //RR is right rotate
-//		String OB = "0B:false"; // B is boolean 
+		this.RC = Main.RC;
+		
+
 	}
 	
 	/**
@@ -99,7 +90,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * This method computes where the robot shall go based on several params
 	 */
 	public void running() {
-	
+		//INITIALIZE FOR TEST DATA
+		this.ConnectionPoints = new ArrayList<PointInGrid>();
+		
+		//CommunicateToServer("0F:1;0G:0;0S:300;LR:200;RR:200;0B:true;");
+		
 		////SIMULATION START////
 		CreateGrid(); //creates a artificial grid to use in simulation
 		findElementsInGrid(); //finds balls, robot points and connectionpoints
@@ -109,7 +104,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		this.programStillRunning = true;
 		
 		while (this.programStillRunning) {
-			
+			System.out.println("waiting status : " + RC.GetSendingStatus());
+			if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
 			PointInGrid nearestBall;
 			//take picture and get elements
 			//TODO 
@@ -123,7 +119,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				nearestBall = findNearestBall(robotMiddle, ballsWithDirectPathFromRobot);
 				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 				
+				System.out.println("this is the command send to server :" + commandToSend);
 				CommunicateToServer(commandToSend);
+				//format: 0F:2;0G:200;0S:300;LR:50;RR:50;0B:true
+
 				//TODO make sequence or method that can pickup ball
 				//should be room for pickup of ball here and nullifying the nearestball object
 			}
@@ -138,8 +137,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					firstConnectionTouched = true;
 					
 					//drives to first connection
-					String commandToSend = Calculator.getDir(robotFront, robotMiddle, firstConnection);
-					
+					System.out.println(robotFront.toString() + " : " + robotMiddle + " : " + newConnectionPoint);
+					String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+					CommunicateToServer(commandToSend);
 //					LastTouchedConnectionPoint = newConnectionPoint; //now we know where we we touched initially
 					
 				}
@@ -153,11 +153,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 							//drives to that point
 //							LastTouchedConnectionPoint = newConnectionPoint; //this is due to resetting the robots route by getting it a totally new first connection point
 							String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+							CommunicateToServer(commandToSend);
 							branchOff = false;
 						}
 						else {
 						//trigger if we can get directly back	
 							String commandToSend = Calculator.getDir(robotFront, robotMiddle, branchOffPoint); //branchOffPoint : point where robot left the square track to get a ball
+							CommunicateToServer(commandToSend);
 							branchOff = false;
 						}
 					}
@@ -194,7 +196,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 						
 						//drives to the branch off point on the path between two locations
 						String commandToSend = Calculator.getDir(robotFront, robotMiddle, branchOffPoint);
-						
+						CommunicateToServer(commandToSend);
 						branchOff = true;						
 						////HERE SHOULD ALTER variable that allows for comm with robot////
 					
@@ -204,6 +206,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					}
 				}
 			}
+		}
 		}
 		////SIMULATION END////
 		/*
@@ -225,19 +228,27 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @param dest : Destination point
 	 * @return : List of PointInGrid: Containing all points between two points
 	 */
-	public List<PointInGrid> pointsOnRoute(PointInGrid pos, PointInGrid dest) {
+	public List<PointInGrid> pointsOnRoute(PointInGrid robotMiddle, PointInGrid dest) {
+		
+		
 		
 		coordsOnPath = new ArrayList<PointInGrid>();
 		
-		double Slope = (dest.getX() - pos.getX()) / (dest.getY() - pos.getY());
-		double Intercept = pos.getX() - Slope * pos.getY();
+		double Slope = (dest.getX() - robotMiddle.getX()) / (dest.getY() - robotMiddle.getY());
+		double Intercept = robotMiddle.getX() - Slope * robotMiddle.getY();
+		
+		if(robotMiddle.getX() < dest.getX()) checkpoint = 4;
+		else if (robotMiddle.getX() >= dest.getX()) checkpoint = 2;
+		else if (robotMiddle.getY() < dest.getY()) checkpoint = 1;
+		else if (robotMiddle.getY() >= dest.getY()) checkpoint = 3;
 		
 		//TODO SOMEHOW TRIGGER checkpoint case 1,2,3 and 4? What if the robot is not on one of those?
 		//ikke initialiseret nogle steder, så altid ende i default?
+		//case 1 and 2 is deliberately < and > as case 3 and 4 handles <= and >=.
 		switch(checkpoint) {
 			case 1: //runs while start y is less than end y.
 					//bottom to top (both sides)
-				for (int y = (int) pos.getY(); y <= (int) dest.getY(); y++) {
+				for (int y = (int) robotMiddle.getY(); y < (int) dest.getY(); y++) {
 					int x = (int) (Slope * y + Intercept);
 					coordsOnPath.add(new PointInGrid(x, y));
 				}
@@ -245,27 +256,28 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			case 2: //runs while start x is less than end x.
 					//right to left (both lower and upper side)
 				//was ...; x <= (int)....
-				for (int x = (int) pos.getX(); x >= (int) dest.getX(); x--) {
+				for (int x = (int) robotMiddle.getX(); x > (int) dest.getX(); x--) {
 					int y = (int) ((x-Intercept)/Slope);
 					coordsOnPath.add(new PointInGrid(x, y));
 				}
 				break;
 			case 3: //runs while start y is greater than end y
 					//top to bottom (both sides)
-				for (int y = (int) pos.getY(); y >= (int) dest.getY(); y--) {
+				for (int y = (int) robotMiddle.getY(); y >= (int) dest.getY(); y--) {
 					int x = (int) (Slope * y + Intercept);
 					coordsOnPath.add(new PointInGrid(x, y));
 				}
 				break;
 			case 4: //runs while start x is less than end x
 					//left to right (both lower and upper side)
-				for (int x = (int) pos.getX(); x <= (int) dest.getX(); x++) {
+				for (int x = (int) robotMiddle.getX(); x <= (int) dest.getX(); x++) {
 					int y = (int) ((x-Intercept)/Slope);
 					coordsOnPath.add(new PointInGrid(x, y));
 				}
 				break;
 			default: //purpose? will it ever get triggered?
-				coordsOnPath = pointsOnRoute(pos, dest);
+				coordsOnPath = pointsOnRoute(robotMiddle, dest);
+				break;
 		}		
 		return coordsOnPath;
 	}
@@ -337,12 +349,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			//will compile the string to send to the robot so that the robot can drive
 			//to the next corner
 			String commandToSend = Calculator.getDir(conPoint, Robot, nextCornor);
+			CommunicateToServer(commandToSend);
 		}
 		//if there was a succesfull point with angle then
 		//create the route 
 		else
 		{
 			String commandToSend = Calculator.getDir(conPoint, Robot, CheckPickupAngleOnRoute(Robot, nextCornor, nearestBall,null));
+			CommunicateToServer(commandToSend);
 			//Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, findNearestBall(Robot, BallPoints)));	
 		}
 	}
@@ -491,7 +505,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					return false;
 				}
 			}
-			if(ImageGrid == null)
+			if(ImageGrid != null)
 			{
 				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE)
 				{
@@ -585,6 +599,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 	public void CommunicateToServer(String command)
 	{
-		
+		RC.SendCommandString(command);
 	}
 }

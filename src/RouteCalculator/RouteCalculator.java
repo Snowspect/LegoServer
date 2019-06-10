@@ -54,11 +54,11 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		StringBuilder str = new StringBuilder();
 		
 		//readies string parts
-		String OF = "0F:0;"; //F is Forward
-		String OG = "0G:0;"; //G is grader (degrees)
+		String OF = "0F:0;"; //F is FunctionInt
 		String OS = "0S:0;"; //S is speed
-		String LR = "LR:0;"; //LR is left rotate
-		String RR = "RR:0;"; //RR is right rotate
+		String OR = "0R:0;"; //LR is left rotate
+//		String RR = "LR:0;"; //LR is left rotate
+//		String RR = "RR:0;"; //RR is right rotate
 		String OB = "0B:false"; // B is boolean 
 
 		//calculates angle for robot to turn
@@ -79,23 +79,32 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 		//
 		if (angle > 10) {
-			OF = "0F:4;"; //forward 4
-			RR = "RR:"+Math.round(angle)+";"; //rotate right
+			OF = "0F:4;"; //function 4 (right)
+			OR = "0R:"+Math.round(angle)+";"; //rotate right
+			OS = "0S:100;";
 		} else if (angle < -10) {
-			OF = "0F:3;"; //forward 3
-			LR = "LR:"+Math.round(Math.abs(angle))+";"; //rotate left
-		} else if (angle >= -10 && angle <= 10) { 
+			OF = "0F:3;"; //function 3 (left)
+			OR = "0R:"+Math.round(Math.abs(angle))+";"; //rotate left
+			OS = "0S:100;";
+		} else if (angle >= -10 && angle <= 10) {
 			OF = "0F:1;"; //forward is 1
 			if (dist > 300)
+			{
+				OR = "0R:200;"; //rotate 200 on both motors
+				OS = "0S:150;"; //speed is 150
+			}
+			else {
 				OS = "0S:150;"; //speed is 50
-			else OS = "0S:50;"; //speed is 50
+				OS = "0S:150;"; //speed is 50
+				OS = "0S:50;"; //speed is 50
+			}
 		}
 
 		str.append(OF);
-		str.append(OG);
 		str.append(OS);
-		str.append(LR);
-		str.append(RR);
+		str.append(OR);
+//		str.append(LR);
+//		str.append(RR);
 		str.append(OB);
 
 		String COMMAND = str.toString();

@@ -31,6 +31,7 @@ public class ServerRemote {
 
 	int functionInt, speed, grades, wheelRotation;
 	public static final int port = 12345;
+	private int command = 0;
 	private Socket client;
 	private static boolean looping = true;
 	private static boolean interrupt = false;
@@ -63,6 +64,7 @@ public class ServerRemote {
 		while (looping) {
 			System.out.println("Awaiting Client..");
 			new ServerRemote(server.accept()).run();
+			System.out.println("Connection was established");
 		}
 	}
 
@@ -135,10 +137,10 @@ public class ServerRemote {
 			driveBackwards(speed, wheelRotation, interrupt);
 			break;
 		case 3: // left
-			turnLeft(speed, grades, interrupt);
+			turnLeft(speed, wheelRotation, interrupt);
 			break;
 		case 4: // right
-			turnRight(speed, grades, interrupt);
+			turnRight(speed, wheelRotation, interrupt);
 			break;
 		case 5: // stop
 			stopWheels();
@@ -166,6 +168,7 @@ public class ServerRemote {
 			break;
 
 		}
+		robotFeedback();
 	}
 
 	/**
@@ -180,19 +183,13 @@ public class ServerRemote {
 
 			System.out.println("Client Connected");
 			while (client != null) {
+
 				System.out.println("Ready to read");
 				String commandString = dIn.readUTF();
 				System.out.println("read command");
-				// String splitter = "0F:2;0G:200;0S:300;LR:50;RR:50;0B:true";
 				
-				//TEST PART
-				String splitter = commandString;
-				parser(splitter); //sets values og global variables.
-				
-				
-				// currently not using the Interrupter method, but it is simply implemented
-				int command = Integer.parseInt(commandString);
-				// int command = dIn.readInt();
+				System.out.println(commandString);
+
 				System.out.println("REC: " + command);
 				if (command == RemoteCarClient.CLOSE) // escape for luk
 				{
@@ -201,10 +198,17 @@ public class ServerRemote {
 					looping = false;
 					System.exit(0);
 				} else {
-					// parser("0F:3;0G:200;0S:300;LR:40;RR:50;0B:true");
-					carMovement();
-
-					//carAction(command);
+					if(commandString.contains(":"))
+					{
+						System.out.println("in contains");
+						String splitter = commandString;
+						parser(splitter); //sets values og global variables.
+						carMovement();						
+					}
+					else {
+						command = Integer.parseInt(commandString);
+						carAction(command);
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -244,10 +248,13 @@ public class ServerRemote {
 	public void driveForward(int speed, float wheelrotation, boolean override) { // w for activate
 		motorLeft.setSpeed(speed);
 		motorRight.setSpeed(speed);
-		motorRight.forward();
-		motorLeft.forward();
-		// motorRight.rotate(wheelRotation);
-		// motorLeft.rotate(wheelRotation);
+		//motorRight.forward();
+		//motorLeft.forward();
+		
+		motorRight.rotate((int)wheelRotation,true);
+		motorLeft.rotate((int)wheelRotation,false);
+//		motorRight.rotate(50);
+//		motorLeft.rotate(50);
 	}
 
 	/**
@@ -263,8 +270,10 @@ public class ServerRemote {
 	public void driveBackwards(int speed, float wheelrotation, boolean override) { // w for activate
 		motorLeft.setSpeed(speed);
 		motorRight.setSpeed(speed);
-		motorRight.backward();
-		motorLeft.backward();
+//		motorRight.backward();
+//		motorLeft.backward();
+		motorRight.rotate(-(int)wheelRotation,true);
+		motorLeft.rotate(-(int)wheelRotation,false);
 		int counter = 0;
 		//
 	}
@@ -370,7 +379,7 @@ public class ServerRemote {
 	private void robotFeedback() throws IOException {
 		OutputStream out = client.getOutputStream();
 		DataOutputStream dOut = new DataOutputStream(out);
-		String commandString = "BOOOO";
+		String commandString = "recieved";
 		dOut.writeUTF(commandString);
 	}
 
@@ -412,18 +421,15 @@ public class ServerRemote {
 			if (value.contains("0F")) {
 				functionInt = Integer.parseInt(value.substring(3));
 			}
-			if (value.contains("0G")) {
-				grades = Integer.parseInt(value.substring(3));
-			}
 			if (value.contains("0S")) {
 				speed = Integer.parseInt(value.substring(3));
 			}
-			if (value.contains("LR")) {
-				wheelRotation = -Integer.parseInt(value.substring(3));
-			}
-			if (value.contains("RR")) {
+			if (value.contains("0R")) {
 				wheelRotation = Integer.parseInt(value.substring(3));
 			}
+//			if (value.contains("RR")) {
+//				wheelRotation = Integer.parseInt(value.substring(3));
+//			}
 			if (value.contains("0B")) {
 				interrupt = Boolean.parseBoolean(value.substring(3));
 			}

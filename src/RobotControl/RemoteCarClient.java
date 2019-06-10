@@ -27,7 +27,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	GRAPPLEARMFUNCTION = 86; // V = grappleFunction ------------ FIX
 	
 	
-	boolean waiting;
+	public static boolean waiting;
 	public static int [] [] GRID = new int [20][20];
 
 		PointInGrid [] checkPoints = { new PointInGrid(480, 270), new PointInGrid(1440, 270),
@@ -65,7 +65,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 		this.setVisible(true);
 		btnConnect.addKeyListener(this);
 		socket = new Socket(txtIpAddress.getText(), PORT);
-		
+		outStream = new DataOutputStream(socket.getOutputStream());
 		//rc = new RouteCalculator();
 	}
 
@@ -96,19 +96,20 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	 */
 	public void SendCommandString(String command)
 	{
+		waiting = true;
 		//Send coordinates to the server
-		if (!waiting) {
 		messages.setText("Status: sending command");
 		try {
+			System.out.println("This was passed to sendCommand : " + command);
+			//System.out.println(outStream);
 			outStream.writeUTF(command);
-			waiting = true;
+			//waiting = true;
 			System.out.println("Command sent");
 		} catch (IOException io)
 		{
 			messages.setText("Status: Error problems occurred sending data");
 		}
 		messages.setText("status: command sent");
-		}
 	}
 
 
@@ -157,7 +158,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 			String command = e.getActionCommand();
 			if(command.equals("Connect")) {
 				try {
-					outStream = new DataOutputStream(socket.getOutputStream());
+					//outStream = new DataOutputStream(socket.getOutputStream());
 					messages.setText("Status: CONNECTED");
 
 					btnConnect.setLabel("disconnect");
@@ -165,7 +166,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 					messages.setText("status: FAILURE Error establishing connection with server.");
 					System.out.println("Error: " + exc);
 				}
-			} else if (command.equals("Disconnect"))
+			} else if (command.equals("disconnect"))
 			{
 				disconnect();
 			}
@@ -226,17 +227,25 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 		// TODO Auto-generated method stub
 		boolean stillRunning = true;
 		while (stillRunning) {
-			String hello = "something went wrong";
+			String reading = "..";
 			try {
 				inStream = new DataInputStream(socket.getInputStream());
-				hello = inStream.readUTF();
-				waiting = false;
+				reading = inStream.readUTF();
+				if(reading.equalsIgnoreCase("recieved"))
+				{
+					System.out.println("read recieved");
+					waiting = false;
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				System.out.println("hit the IO Exception");
 				e.printStackTrace();
 			}
-			System.out.println(hello);
+			System.out.println(reading);
 		}
+	}
+	public boolean GetSendingStatus()
+	{
+		return waiting;
 	}
 }
