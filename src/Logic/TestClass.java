@@ -15,7 +15,7 @@ public class TestClass {
 	private static PointInGrid robotFront = new PointInGrid(0, 0);
 	private static int rows = 20;
 	private static int columns = 20;
-	private static int[][] SimulatedGrid = new int[20][20];	
+	private static int[][] SimulatedGrid = new int[rows][columns];	
 	
 	private static RouteCalculatorInterface Calculator;
 	
@@ -106,18 +106,18 @@ public class TestClass {
 		 */
 		int RobotFront = 3;
 		int RobotMid = 2;
-		SimulatedGrid[5][4] = RobotMid;
-		SimulatedGrid[5][5] = RobotFront;
+		SimulatedGrid[5][14] = RobotMid;
+		SimulatedGrid[6][15] = RobotFront;
 			
 		/**
 		 * This inserts 6 balls into the system, whereas one is outside the main barrier.
 		 */
 		int ball = 4;
-		SimulatedGrid[12][5] = ball;
+		//SimulatedGrid[12][5] = ball;
 		SimulatedGrid[10][10] = ball;
-		SimulatedGrid[5][14] = ball;
-		SimulatedGrid[3][6] = ball;
-		SimulatedGrid[12][15] = ball;
+		//SimulatedGrid[5][14] = ball;
+		//SimulatedGrid[3][6] = ball;
+		//SimulatedGrid[12][15] = ball;
 		SimulatedGrid[19][19] = ball;
 	}
 	

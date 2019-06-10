@@ -10,6 +10,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 import RobotControl.RemoteCarClient;
 import RouteCalculator.PointInGrid;
@@ -32,10 +33,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	boolean firstConnectionFound,firstConnectionTouched, programStillRunning, branchOff;
 	private RemoteCarClient RC;
 	private RouteCalculatorInterface Calculator;
+	Scanner keyb = new Scanner(System.in);
 	
 	public RouteLogic() {
 		this.Calculator = new RouteCalculator();
-		this.RC = Main.RC;
+		//this.RC = Main.RC;
 		
 
 	}
@@ -105,7 +107,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		int counter =  0;
 		while (this.programStillRunning) {
 			//System.out.println("waiting status : " + RC.GetSendingStatus());
-			if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
+			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
 			PointInGrid nearestBall;
 			//TODO take picture and get elements
 			/*if(counter == 0)
@@ -119,20 +121,23 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			
 			System.out.println(ballsWithDirectPathFromRobot.size());
 			//if the list isn't empty
-			if(ballsWithDirectPathFromRobot.size() != 0)
+			if(!ballsWithDirectPathFromRobot.isEmpty())
 			{
+				System.out.println("Direct path found");
 				nearestBall = findNearestBall(robotMiddle, ballsWithDirectPathFromRobot);
 				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
-				
+				keyb.next();
 				System.out.println("this is the command send to server :" + commandToSend);
 				CommunicateToServer(commandToSend);
 				if(counter == 0) {
 					robotFront = new PointInGrid(4,5);
+					findElementsInGrid();
 					counter++;
 				}
 				else if(counter == 1) { 
 					robotFront = new PointInGrid(3,6); robotMiddle = new PointInGrid(4,5); 
 					Balls.remove(Balls.lastIndexOf(nearestBall));
+					findElementsInGrid();
 					String pickup = "0F:11;0R:0;0S:0;0B:true";
 					CommunicateToServer(pickup);
 				}
@@ -150,11 +155,29 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					this.newConnectionPoint = findFirstConnectionPoint(this.robotMiddle, this.ConnectionPoints);
 					//pointsOnRoute(robotMiddle, newConnectionPoint); no need to check the route as there are no balls
 					// and we are only looking at points with a direct path
-					firstConnectionTouched = true;
+					//firstConnectionTouched = true;
 					
 					//drives to first connection
 					System.out.println(robotFront.toString() + " : " + robotMiddle + " : " + newConnectionPoint);
 					String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+					String a = keyb.next();
+					if(counter == 0) {
+						robotFront = new PointInGrid(4,15);
+						findElementsInGrid();
+						counter++;
+					}
+					else if(counter == 1) { 
+						robotFront = new PointInGrid(2, 17); robotMiddle = newConnectionPoint;
+						findElementsInGrid();
+						counter++;
+						firstConnectionTouched = true;
+//						Balls.remove(Balls.lastIndexOf(nearestBall));
+//						String pickup = "0F:11;0R:0;0S:0;0B:true";
+//						CommunicateToServer(pickup);
+						
+					}
+//					
+						
 					CommunicateToServer(commandToSend);
 //					LastTouchedConnectionPoint = newConnectionPoint; //now we know where we we touched initially
 					
@@ -213,6 +236,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 						
 						//drives to the branch off point on the path between two locations
 						String commandToSend = Calculator.getDir(robotFront, robotMiddle, branchOffPoint);
+						if (counter == 2) {
+							robotFront = new PointInGrid(10,15);
+							findElementsInGrid();
+							counter++;
+						}
+						else if (counter == 3) {
+							robotFront = newConnectionPoint; robotMiddle = new PointInGrid(3,16);
+							findElementsInGrid();
+							counter = 0;
+						}
 						CommunicateToServer(commandToSend);
 						branchOff = true;						
 						////HERE SHOULD ALTER variable that allows for comm with robot////
@@ -224,7 +257,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				}
 			}
 		}
-		}
+		//}
 		////SIMULATION END////
 		/*
 		this.programStillRunning = true;
@@ -295,7 +328,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			default: //purpose? will it ever get triggered?
 				coordsOnPath = pointsOnRoute(robotMiddle, dest);
 				break;
-		}		
+		}
+		
+		
+		
+		
 		return coordsOnPath;
 	}
 	
@@ -425,21 +462,21 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		/**
 		 * This line inserts the robot into the grid
 		 */
-		int RobotFront = 3;
-		int RobotMid = 2;
-		SimulatedGrid[5][4] = RobotMid;
-		SimulatedGrid[5][5] = RobotFront;
+			int RobotFront = 3;
+			int RobotMid = 2;
+			SimulatedGrid[5][14] = RobotMid;
+			SimulatedGrid[6][15] = RobotFront;
 			
 		/**
 		 * This inserts 6 balls into the system, whereas one is outside the main barrier.
 		 */
-		int ball = 4;
-		SimulatedGrid[12][5] = ball;
-		SimulatedGrid[10][10] = ball;
-		SimulatedGrid[5][14] = ball;
-		SimulatedGrid[3][6] = ball;
-		SimulatedGrid[12][15] = ball;
-		SimulatedGrid[19][19] = ball;
+			int ball = 4;
+			//SimulatedGrid[12][5] = ball;
+			SimulatedGrid[10][10] = ball;
+			//SimulatedGrid[5][14] = ball;
+			//SimulatedGrid[3][6] = ball;
+			//SimulatedGrid[12][15] = ball;
+			SimulatedGrid[19][19] = ball;
 	}
 
 	
@@ -511,6 +548,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 */
 	public boolean checkDirectPath(List<PointInGrid> directpath)
 	{
+		boolean bøv = true;
 		for (PointInGrid p : directpath)
 		{
 			//checks if the simulatedGrid is initialized or if the actual grid is.
@@ -518,20 +556,20 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			{
 				if(SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE)
 				{
-					p = null;
-					return false;
+					bøv = false;
 				}
 			}
+			
 			if(ImageGrid != null)
 			{
 				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE)
 				{
-					p = null;
-					return false;
+					bøv = false;
 				}
 			}
+			
 		}
-		return true;
+		return bøv;
 	}
 
  
@@ -607,6 +645,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		for (PointInGrid ballPoint : balls) {
 			if(checkDirectPath(pointsOnRoute(robotMiddle, ballPoint)) == true); //gets route, checks route
 			{
+				for (PointInGrid p : coordsOnPath)
+					System.out.println("GETX: " + p.getX() + ", GETY: " + p.getY() + ", ALL: " + SimulatedGrid[(int) p.getX()][(int) p.getY()]);
+				keyb.next();
 				ballsWithDirectPath.add(ballPoint);
 			}
 		}
@@ -615,6 +656,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 	public void CommunicateToServer(String command)
 	{
-		RC.SendCommandString(command);
+		//RC.SendCommandString(command);
 	}
 }
