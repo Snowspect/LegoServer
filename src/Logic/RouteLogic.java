@@ -159,7 +159,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		return coordinates;
 	}
 	
-	/***
+	/**
 	 * Evaluates all points in route.
 	 * to see if there is an angle on the route towards the nearest ball from
 	 * the side within the 85-95 degree angle.
@@ -217,10 +217,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	@Override
 	public void Drive(PointInGrid conPoint, PointInGrid Robot, PointInGrid nextCornor, PointInGrid nearestBall) {		
 		
-		//this gets triggered if the EvalRoute could 
-		//not find a point in which there was
-		//an appropriate angle towards the ball without an obstacle in between
-		if (EvalRoute(Robot, nextCornor, nearestBall) == null)
+		/*this gets triggered if the EvalRoute could 
+		*not find a point in which there was
+		*an appropriate angle towards the ball without an obstacle in between
+		**/
+		PointInGrid point = EvalRoute(Robot, nextCornor, nearestBall);
+		if (point == null)
 			//will compile the string to send to the robot so that the robot can drive
 			//to the next corner
 			Calculator.getDir(conPoint, Robot, nextCornor);
@@ -228,7 +230,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//if there was a succesfull point with angle then
 		//create the route 
 		else
-			Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, nearestBall));
+			Calculator.getDir(conPoint, Robot, point);
 			//Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor, findNearestBall(Robot, BallPoints)));
 		
 	}
