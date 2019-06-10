@@ -251,8 +251,8 @@ public class ServerRemote {
 		//motorRight.forward();
 		//motorLeft.forward();
 		
-		motorRight.rotate((int)wheelRotation,true);
-		motorLeft.rotate((int)wheelRotation,false);
+		motorRight.rotate(-wheelRotation,true);
+		motorLeft.rotate(-wheelRotation,false);
 //		motorRight.rotate(50);
 //		motorLeft.rotate(50);
 	}
@@ -272,8 +272,8 @@ public class ServerRemote {
 		motorRight.setSpeed(speed);
 //		motorRight.backward();
 //		motorLeft.backward();
-		motorRight.rotate(-(int)wheelRotation,true);
-		motorLeft.rotate(-(int)wheelRotation,false);
+		motorRight.rotate(wheelRotation,true);
+		motorLeft.rotate(wheelRotation,false);
 		int counter = 0;
 		//
 	}

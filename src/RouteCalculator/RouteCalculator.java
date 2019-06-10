@@ -95,8 +95,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 			}
 			else {
 				OS = "0S:150;"; //speed is 50
-				OS = "0S:150;"; //speed is 50
-				OS = "0S:50;"; //speed is 50
+				OR = "0R:200;"; //Hardcoded 200 rotations on motor
 			}
 		}
 
