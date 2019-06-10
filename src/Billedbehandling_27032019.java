@@ -62,13 +62,13 @@ public class Billedbehandling_27032019
     
 	// Niklas
 	
-    private Mat src = new Mat();
-    private Mat srcGray = new Mat();
-    private JFrame frame;
-    private JLabel imgLabel;
-    private static final int MAX_THRESHOLD = 100;
-    private int maxCorners = 36;
-    private Random rng = new Random(12345);
+    static Mat src = new Mat();
+    static Mat srcGray = new Mat();
+    static JFrame frame;
+    static JLabel imgLabel;
+    static final int MAX_THRESHOLD = 100;
+    static int maxCorners = 36;
+    static Random rng = new Random(12345);
 	
     // Instantiating the imgcodecs class
     static Imgcodecs imageCodecs = new Imgcodecs();
@@ -150,9 +150,7 @@ public class Billedbehandling_27032019
             // Calculating the actual coordinates of the second robot marker
             robotActualPoints[1] = calculateRobotCoordinates(robotCameraPoints[1], "robot");
             */
-            
-            findPixelSize(filename);
-            
+                        
             // Run color detection
             if(enableComments) System.out.println("Running color detection : saved as test1.png");
             Mat isolatedRedColor = new Mat();
@@ -163,7 +161,10 @@ public class Billedbehandling_27032019
             String edgeFile = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
             runEdgeDetection(isolatedRedColor, edgeFile);
             
-            // Running detection function.
+            // Estimating corners
+            RunUpdate();
+            
+            // Running ball detection function.
             if(enableComments) System.out.println("Running circel detection : saved as test2.png");
             findBalls(filename, default_file, isolatedRedColor, arrayMap);
             
@@ -722,9 +723,9 @@ public class Billedbehandling_27032019
         
     } // End of create_matrix()
     
-    public void RunUpdate(String[] args) 
+    private static void RunUpdate() 
     {
-        String filename = args.length > 0 ? args[0] : "C:\\Users\\Niklas\\Desktop\\test_1_edges.png";
+        String filename = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
         src = Imgcodecs.imread(filename);
         if (src.empty()) {
             System.err.println("Cannot read image: " + filename);
@@ -745,22 +746,8 @@ public class Billedbehandling_27032019
         update();
     }
     
-    private void update() {
-        Mat videoframe = new Mat();
-        //0; default video device id
-        VideoCapture camera = new VideoCapture(0);
-
-        /*
-        while (true) {
-            if (camera.read(videoframe)) {
-
-                ImageIcon image = new ImageIcon(Mat2bufferedImage(frame));
-
-
-            }
-        }
-        */
-
+    private static void update() 
+    {
         maxCorners = Math.max(maxCorners, 1);
         MatOfPoint corners = new MatOfPoint();
         double qualityLevel = 0.01;
@@ -775,16 +762,18 @@ public class Billedbehandling_27032019
         int[] cornersData = new int[(int) (corners.total() * corners.channels())];
         corners.get(0, 0, cornersData);
         int radius = 4;
+        
         double distance_vt = 5000;
         double distance_vb = 5000;
         double distance_ht = 5000;
         double distance_hb = 5000;
+        
         Point distancepoint_vt = null;
         Point distancepoint_vb = null;
         Point distancepoint_ht = null;
         Point distancepoint_hb = null;
+        
         for (int i = 0; i < corners.rows(); i++) {
-
             // Tilføjer points til listen
             List<Point> PointLIST = new ArrayList<>();
             PointLIST.add(distancepoint_vt);
@@ -825,8 +814,8 @@ public class Billedbehandling_27032019
                 distancepoint_hb = new Point(cornersData[i * 2], cornersData[i * 2 + 1]);
                 PointLIST.set(3, distancepoint_hb);
             }
-
         }
+        
         Imgproc.circle(copy, distancepoint_vt, radius,
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
         Imgproc.circle(copy, distancepoint_ht, radius,
@@ -840,7 +829,7 @@ public class Billedbehandling_27032019
         frame.repaint();
     }
 
-    private boolean checkDistance(double temp_vt, double distance_vt) {
+    private static boolean checkDistance(double temp_vt, double distance_vt) {
         if (temp_vt < distance_vt)
         {
             return true;
@@ -848,7 +837,7 @@ public class Billedbehandling_27032019
         return false;
     }
     
-    private void addComponentsToPane(Container pane, Image img) {
+    private static void addComponentsToPane(Container pane, Image img) {
         if (!(pane.getLayout() instanceof BorderLayout)) {
             pane.add(new JLabel("Container doesn't use BorderLayout!"));
             return;
