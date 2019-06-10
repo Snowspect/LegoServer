@@ -282,7 +282,7 @@ public class Billedbehandling_27032019
             // ################# TESTING THE CONSQUENCE OF CHANGING COORDINATE VALUES #################
             // This test prints a big white dot at the coordinates specified by the testCenter point.
             // I have used this test to observe how the x- and y-coordinates work in a grid.
-            
+            /*
             Point testCenter = new Point(990,540);
             Imgproc.circle(printBlue,       // Circle center
                     testCenter, 
@@ -291,7 +291,7 @@ public class Billedbehandling_27032019
                     5,
                     0,
                     0);
-            
+            */
             // ################# END OF TESTING #################
 
             
