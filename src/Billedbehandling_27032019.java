@@ -466,7 +466,7 @@ public class Billedbehandling_27032019
         Imgproc.line(copy, localPoints.get(HB), localPoints.get(VB), new Scalar(200, 200, 0, 255), 1);
         Imgproc.line(copy, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 1);
         
-        imageCodecs.imwrite(default_file, copy);
+        imageCodecs.imwrite("C:\\Users\\benja\\Desktop\\test_orig_mod.png", copy);
     }
     
     /**
