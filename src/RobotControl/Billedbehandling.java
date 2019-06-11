@@ -111,13 +111,9 @@ public class Billedbehandling
     public Billedbehandling()
     {      
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
-    	capture = new VideoCapture(1);
+    	capture = new VideoCapture(0);
         capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
         capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
-        
-        capture.
-        
-        System.out.println("too fast or too slow?");
         
         matrix = new Mat();
 

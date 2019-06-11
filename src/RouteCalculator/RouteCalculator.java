@@ -81,6 +81,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 //		double dist = calc_Dist(robotMiddle, destPoint);
 		System.out.printf("Distance: %.2f\n\n", dist);
 
+		System.out.println("Angle : " + angle);
 		//
 		if (angle > 10) {
 			OF = "0F:4;"; //function 4 (right)

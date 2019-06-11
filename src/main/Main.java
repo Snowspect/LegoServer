@@ -33,7 +33,7 @@ public class Main {
 //			
 			Billedbehandling BB = new Billedbehandling();
 			System.out.println("initiating sleep");
-			Thread.sleep(90000);
+			//Thread.sleep(90000);
 			System.out.println("past sleep");
 //          while()
 //			new RouteLogic(BB);

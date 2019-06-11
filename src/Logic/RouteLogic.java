@@ -878,6 +878,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 			//keyb.next();
 			CommunicateToServer(commandToSend);
+			ImageRec.runImageRec();
 		}
 		CommunicateToServerPickup();
 		
@@ -928,21 +929,21 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		{
 			if(ImageGrid != null)
 			{
-				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE
-				  || ImageGrid[(int) p.getX()][(int) p.getY()] == HAZARD)
+				if(ImageGrid[(int) p.getY()][(int) p.getX()] == OBSTACLE
+				  || ImageGrid[(int) p.getY()][(int) p.getX()] == HAZARD)
 				{
 					return false;
 				}
 			}
 			//checks if the simulatedGrid is initialized or if the actual grid is.
-			else if(SimulatedGrid != null)
-			{
-				if((SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE) 
-				   || SimulatedGrid[(int)p.getX()][(int)p.getY()] == HAZARD)
-				{
-					return false;
-				}
-			}
+//			else if(SimulatedGrid != null)
+//			{
+//				if((SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE) 
+//				   || SimulatedGrid[(int)p.getX()][(int)p.getY()] == HAZARD)
+//				{
+//					return false;
+//				}
+//			}
 		}
 		return true;
 	}
