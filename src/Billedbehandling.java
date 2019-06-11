@@ -11,6 +11,7 @@ import java.io.*;
 import java.math.*;
 import java.awt.geom.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -29,40 +30,66 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.awt.Image;
+import java.awt.Robot;
 import java.io.File;
 import java.io.IOException;
  
 import static org.opencv.core.Core.inRange;
 
-public class Billedbehandling_27032019
+public class Billedbehandling
 {
     // The camera has a maximum resolution of 1920x1080
-    static int imageWidth = 1920;                		// Image width
-    static int imageHeight = 1080;             			// Image height
+    private static int imageWidth = 1920;                		// Image width
+    private static int imageHeight = 1080;             			// Image height
     
     // Color range for detecting RED
-    static Scalar min = new Scalar(0, 0, 150, 0);      	// BGR-A (NOT RGB!) (Better than original : (0, 0, 130, 0))
-    static Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!) (Better than original : (140, 110, 255, 0))
+    private static Scalar min = new Scalar(0, 0, 150, 0);      	// BGR-A (NOT RGB!) (Better than original : (0, 0, 130, 0))
+    private static Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!) (Better than original : (140, 110, 255, 0))
     
     // Color range for detecting BLUE circle on robot
-    static Scalar minBlue = new Scalar(90, 0, 0, 0);  	// BGR-A (NOT RGB!)
-    static Scalar maxBlue = new Scalar(255, 70, 65, 0); // BGR-A (NOT RGB!)
+    private static Scalar minBlue = new Scalar(90, 0, 0, 0);  	// BGR-A (NOT RGB!)
+    private static Scalar maxBlue = new Scalar(255, 70, 65, 0); // BGR-A (NOT RGB!)
     
     // Color range for detecting GREEN circle on robot
-    static Scalar minGreen = new Scalar(0, 100, 0, 0);	// BGR-A (NOT RGB!)
-    static Scalar maxGreen = new Scalar(90, 255, 90, 0);// BGR-A (NOT RGB!)
+    //private static Scalar minGreen = new Scalar(0, 100, 0, 0);	// BGR-A (NOT RGB!)
+    //private static Scalar maxGreen = new Scalar(90, 255, 90, 0);// BGR-A (NOT RGB!)
+    private static Scalar minGreen = new Scalar(0, 100, 0, 0);	// BGR-A (NOT RGB!)
+    private static Scalar maxGreen = new Scalar(110, 255, 80, 0);// BGR-A (NOT RGB!)
+    
+    // Color range for dynamic GREEN & BLUE
+    private static Scalar minBlueDynamic = new Scalar(90, 0, 0, 0);  	// BGR-A (NOT RGB!)
+    private static Scalar maxBlueDynamic = new Scalar(255, 70, 65, 0); // BGR-A (NOT RGB!)
+    private static Scalar minGreenDynamic = new Scalar(0, 100, 0, 0);	// BGR-A (NOT RGB!)
+    private static Scalar maxGreenDynamic = new Scalar(90, 255, 90, 0);// BGR-A (NOT RGB!) 
  
     // Measurements (camera, robot, ball and obstacles)
-	static double cameraHeight = 2000; 					// 2000mm = 200cm
-	static double robotHeight = 280; 					// 280mm = 28cm
-	static double ballHeight = 40;						// 40mm = 4cm
-	static double courseEdgeHeight = 74;				// 70mm = 7cm
-	static double crossHeight = 30;						// 30mm = 3cm
-	static Point imageCenter = new Point(imageWidth/2, imageHeight/2);
+    private static double cameraHeight = 2000; 					// 2000mm = 200cm
+    private static double robotHeight = 400; 					// 280mm = 28cm
+    private static double ballHeight = 40;						// 40mm = 4cm
+    private static double courseEdgeHeight = 74;				// 70mm = 7cm
+    private static double crossHeight = 30;						// 30mm = 3cm
+    private static Point imageCenter = new Point(imageWidth/2, imageHeight/2);
 	
-	// Int array to be fetched by the logic
+	// Variables to be fetched by the logic
     public static int[][] arrayMap = new int[imageHeight][imageWidth];
+    public static List<Point> squareCorners = new ArrayList<>();
+    public static List<Point> listOfBallCoordinates;
+    public static Point robotBlueMarker = new Point();
+    public static Point robotGreenMarker = new Point();
 
+    // Creating an array of points
+    private static Point[] robotCameraPoints = new Point[2];
+    
+    // Boolean to enable console comments and camera
+	private static Boolean enableComments = false;
+	private static Boolean enableCamera = true;
+    
+    private static String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+    
+    private static Mat matrix;
+    
+    private VideoCapture capture;
+    
     // Instantiating the imgcodecs class
     static Imgcodecs imageCodecs = new Imgcodecs();
  
@@ -79,50 +106,24 @@ public class Billedbehandling_27032019
     static Random rng = new Random(12345);
     // ############################################
  
-    public static void main(String[] args)
-    {
-    	// Creating a two-dimensional array
-        //int[][] arrayMap = new int[imageHeight][imageWidth];
-        
-        // Creating an array of points
-        Point[] robotCameraPoints = new Point[2];
-        Point[] robotActualPoints = new Point[2];
-        List<Point> squareCorners = new ArrayList<>();
-        
-        // Initializing video capture | the image needs to be in a 1920x1080 form factor
-        System.out.println("| --------------- Video Capture activated -------------- |");
-        
-        //VideoCapture capture = new VideoCapture(1);
-        //capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
-        //capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
-                
-        // Adjusting autofocus - no guarantee that the camera can do it
-        //capture.set(Videoio.CAP_PROP_AUTOFOCUS, 1);   // Autofocus on
-        //capture.set(Videoio.CAP_PROP_AUTOFOCUS, 0);   // Autofocus off
- 
-        // Keyboard initialization
-        Scanner keyboard = new Scanner(System.in);
- 
-        // Creating new matrix to hold image information
-        Mat matrix = new Mat();
- 
-        // Control guide - must be the same as the condition in while
-        System.out.println("        ------ Press 1 to capture new image ------        ");
- 
-        // Boolean to enable console comments and camera
-    	Boolean enableComments = false;
-    	Boolean enableCamera = false;
+    public Billedbehandling()
+    {      
     	
-        // Defining default file along with file name
-        String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
-        String filename = ((args.length > 0) ? args[0] : default_file);
+        // Initializing video capture | the image needs to be in a 1920x1080 form factor
+    	capture = new VideoCapture(1);
+        capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
+        capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
         
+         
+        matrix = new Mat();
+
+        /*
         // The detection program only runs when the user has pressed 1
         while(keyboard.nextInt() == 1)
         {        	
         	if(enableCamera.equals(true)) {
 	            // Saving the input from the camera capture to the new matrix
-	    		//capture.read(matrix);
+	    		capture.read(matrix);
         	}
  
         	if (enableCamera.equals(false)) {
@@ -144,16 +145,16 @@ public class Billedbehandling_27032019
             if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
             imageCodecs.imwrite(default_file, matrix);
             
-            /*
+            
             // Estimating Robot Coordinates based on image from webcam
             robotCameraPoints = robotCircleCenter(matrix, default_file);
             
             // Calculating the actual coordinates of the first robot marker
-            robotActualPoints[0] = calculateActualCoordinates(robotCameraPoints[0], "robot");
+            robotBlueMarker = calculateActualCoordinates(robotCameraPoints[0], "robot");
             
             // Calculating the actual coordinates of the second robot marker
-            robotActualPoints[1] = calculateActualCoordinates(robotCameraPoints[1], "robot");
-            */
+            robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
+            
                         
             // Run color detection
             if(enableComments) System.out.println("Running color detection : saved as test1.png");
@@ -175,7 +176,7 @@ public class Billedbehandling_27032019
             squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));
             
             // Create a new outline for the obstacle course
-            printOutlineToOrigImg(squareCorners);
+            //printOutlineToOrigImg(squareCorners);
             
             // Extend the cross
             
@@ -183,15 +184,94 @@ public class Billedbehandling_27032019
             if(enableComments) System.out.println("Running circel detection : saved as test2.png");
             findBalls(filename, default_file, isolatedRedColor, arrayMap);
             
+            for(int i = 0; i < listOfBallCoordinates.size(); i++) {
+            	listOfBallCoordinates.set(i, calculateActualCoordinates(listOfBallCoordinates.get(i), "ball"));
+            }
+            
             // Create a matrix similar to the modified picture
             if(enableComments) System.out.println("Accessing create_matrix() - example image saved as test3.png");
             //arrayMap = create_matrix(arrayMap);
             
-            System.out.println("| ------------------------ Done ------------------------ |");
-            System.out.println("        ------ Press 1 to capture new image ------        ");
-            
+            //System.out.println("| ------------------------ Done ------------------------ |");
+            //System.out.println("        ------ Press 1 to capture new image ------        ");            
         } // End of while
+        */
     } // End of main    
+    
+	public void runImageRec() {
+		
+		//if(enableCamera.equals(true)) {
+            // Saving the input from the camera capture to the new matrix
+    		capture.read(matrix);
+    	//}
+    	
+    	/*
+    	//if (enableCamera.equals(false)) {
+	    	// Load an image
+	        matrix = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
+	        // Check if image is loaded correctly
+	        if (matrix.empty()) {
+	            System.out.println("Error opening image!");
+	            System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
+	            System.exit(-1);
+	        }
+    	//}
+    	 * 
+    	 */
+    	
+        // Specifying path for where to save image
+    	if(enableComments) System.out.println("Creating file : test_orig.png");
+        //String file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+
+        // Saving the original RGB image without any modifications
+        if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
+        imageCodecs.imwrite(default_file, matrix);
+                
+        // Run color detection
+        if(enableComments) System.out.println("Running color detection : saved as test1.png");
+        Mat isolatedRedColor = new Mat();
+        isolatedRedColor = runColorDetection(matrix);
+
+        // Edge detection
+        if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
+        String edgeFile = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
+        runEdgeDetection(isolatedRedColor, edgeFile);
+        
+        // Estimating corners
+        squareCorners = RunUpdate();
+                    
+        // Neutralisering af perspektiv forvrængning (kør igennem metoden : calculateActualCoordinates();
+        squareCorners.set(0, calculateActualCoordinates(squareCorners.get(0), "edge"));
+        squareCorners.set(1, calculateActualCoordinates(squareCorners.get(1), "edge"));
+        squareCorners.set(2, calculateActualCoordinates(squareCorners.get(2), "edge"));
+        squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));
+        
+        // Create a new outline for the obstacle course
+        //printOutlineToOrigImg(squareCorners);
+        
+        // Extend the cross
+        
+        // Running ball detection function.
+        if(enableComments) System.out.println("Running circel detection : saved as test2.png");
+        findBalls(default_file, default_file, isolatedRedColor, arrayMap);
+        
+        for(int i = 0; i < listOfBallCoordinates.size(); i++) {
+        	listOfBallCoordinates.set(i, calculateActualCoordinates(listOfBallCoordinates.get(i), "ball"));
+        }
+        
+        // Estimating Robot Coordinates based on image from webcam
+        robotCameraPoints = robotCircleCenter(matrix, default_file);
+        // Calculating the actual coordinates of the first robot marker
+        robotBlueMarker = calculateActualCoordinates(robotCameraPoints[0], "robot");
+        robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
+        
+        // Create a matrix similar to the modified picture
+        if(enableComments) System.out.println("Accessing create_matrix() - example image saved as test3.png");
+        //arrayMap = create_matrix(arrayMap);
+        
+        //System.out.println("| ------------------------ Done ------------------------ |");
+        //System.out.println("        ------ Press 1 to capture new image ------        ");  		
+	}
     
     /**
      * Takes the original image and isolates the colors blue and green. 
@@ -218,14 +298,13 @@ public class Billedbehandling_27032019
         Mat circlesGreen = new Mat();
     	
     	// Cloning the original color image into two individual 2D arrays.
-    	frameBlue = localColorFrame.clone();
-    	frameGreen = localColorFrame.clone();
+    	//frameBlue = localColorFrame.clone();
+    	//frameGreen = localColorFrame.clone();
     	
-    	/*
     	if (!readFromCamera) 
     	{
 	    	// Load an image
-	        Mat src = Imgcodecs.imread(filename, Imgcodecs.IMREAD_COLOR);
+	        Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
 	 
 	        // Check if image is loaded correctly
 	        if (src.empty()) {
@@ -238,8 +317,9 @@ public class Billedbehandling_27032019
 	    	frameBlue = src.clone();
 	    	frameGreen = src.clone();
     	}
-    	*/
     	
+        calibrateColor();
+
         // Initializing color range
         inRange(frameBlue, minBlue, maxBlue, frameBlue);
         inRange(frameGreen, minGreen, maxGreen, frameGreen);
@@ -401,19 +481,19 @@ public class Billedbehandling_27032019
     	double objectHeight = 0;
     	
     	switch (objectType) {
-		case "robot": 	
-			objectHeight = robotHeight / mmToPixel;
-			break;
-		case "ball": 	
-			objectHeight = ballHeight / mmToPixel;
-			break;
-		case "edge":	
-			objectHeight = courseEdgeHeight / mmToPixel;
-			break;
-		default:		
-			objectHeight = robotHeight / mmToPixel;
-			System.out.println("No object type recognized");
-			break;
+			case "robot": 	
+				objectHeight = robotHeight / mmToPixel;
+				break;
+			case "ball": 	
+				objectHeight = ballHeight / mmToPixel;
+				break;
+			case "edge":	
+				objectHeight = courseEdgeHeight / mmToPixel;
+				break;
+			default:		
+				objectHeight = robotHeight / mmToPixel;
+				System.out.println("No object type recognized");
+				break;
 		}    	
     	
     	// Calculating the distance between a CirclePoint and the center of the image.
@@ -581,6 +661,8 @@ public class Billedbehandling_27032019
         										// Latest calibration : 8, 15)
         										// Eclipse calibration : 9, 11)
   
+        listOfBallCoordinates = new ArrayList<>(10);
+        
         for (int x = 0; x < circles.cols(); x++)
         {
             double[] c = circles.get(0, x);
@@ -593,6 +675,7 @@ public class Billedbehandling_27032019
             
             // Parsing a double value to an integer
             localMap[(int)center.y][(int)center.x] = 2;
+            listOfBallCoordinates.add(center);
  
             Imgproc.circle(src,            		// Circle center
                     center,
@@ -905,7 +988,8 @@ public class Billedbehandling_27032019
         return PointList;
     }
 
-    private static boolean checkDistance(double temp_vt, double distance_vt) {
+    private static boolean checkDistance(double temp_vt, double distance_vt) 
+    {
         if (temp_vt < distance_vt)
         {
             return true;
@@ -913,7 +997,8 @@ public class Billedbehandling_27032019
         return false;
     }
     
-    private static void addComponentsToPane(Container pane, Image img) {
+    private static void addComponentsToPane(Container pane, Image img) 
+    {
         if (!(pane.getLayout() instanceof BorderLayout)) {
             pane.add(new JLabel("Container doesn't use BorderLayout!"));
             return;
@@ -929,6 +1014,92 @@ public class Billedbehandling_27032019
         pane.add(sliderPanel, BorderLayout.PAGE_START);
         imgLabel = new JLabel(new ImageIcon(img));
         pane.add(imgLabel, BorderLayout.CENTER);
+    }
+
+    private static void calibrateColor() 
+    {
+    	BufferedImage buffImg = null;
+    	
+    	try {
+			buffImg =  Mat2BufferedImage(matrix);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+        int VT = 0;		int VB = 1;		int HB = 2;		int HT = 3;
+
+        /*
+        Point pVT = null; 
+        Point pVB = null; 
+        Point pHT = null; 
+        Point pHB = null;
+        */
+        
+        Point pVT = new Point(squareCorners.get(VT).x - 37, squareCorners.get(VT).y - 37);
+        Point pVB = new Point(squareCorners.get(VB).x - 37, squareCorners.get(VB).y + 37);
+        //Point pHT = new Point(squareCorners.get(HT).x + 20, squareCorners.get(HT).y - 20);
+        //Point pHB = new Point(squareCorners.get(HB).x + 20, squareCorners.get(HB).y + 20);
+        
+        int[][] pixel = new int[1080][1920];
+    	int sumR = 0, 	sumG = 0, 	sumB = 0;
+    	
+    	for (int x = (int)pVT.x-5; x < (int)pVT.x+5; x++) 
+    	{
+    		for (int y = (int)pVT.y-5; y < (int)pVT.y+5; y++) 
+    		{
+    			pixel[y][x] = (buffImg.getRGB((int)pVT.x, (int)pVT.y));
+    			sumR = sumR + (pixel[y][x] >> 16) & 0xff;
+    			sumG = sumG + (pixel[y][x] >> 8) & 0xff;
+    			sumB = sumB + (pixel[y][x]) & 0xff;
+    		}
+    	}
+    	
+        minBlueDynamic = new Scalar((sumB/25)-50, (sumB/25)-20, (sumR/25)-20, 0);  	// BGR-A (NOT RGB!)
+        maxBlueDynamic = new Scalar(255, (sumG/25), (sumR/25), 0); // BGR-A (NOT RGB!)
+
+        sumR = 0; 	sumG = 0; 	sumB = 0;
+
+    	for (int x = (int)pVB.x-5; x < (int)pVB.x+5; x++) 
+    	{
+    		for (int y = (int)pVB.y-5; y < (int)pVB.y+5; y++) 
+    		{
+    			pixel[y][x] = (buffImg.getRGB((int)pVB.x, (int)pVB.y));
+    			sumR = sumR + (pixel[y][x] >> 16) & 0xff;
+    			sumG = sumG + (pixel[y][x] >> 8) & 0xff;
+    			sumB = sumB + (pixel[y][x]) & 0xff;
+    		}
+    	}
+        
+        minGreenDynamic = new Scalar((sumB/25)-20, (sumG/25)-50, (sumR/25)-20, 0);  	// BGR-A (NOT RGB!)
+        maxGreenDynamic = new Scalar((sumB/25)+20, 255, (sumR/25)+20, 0); // BGR-A (NOT RGB!)
+        
+        System.out.println(minBlueDynamic.toString());
+        System.out.println(maxBlueDynamic.toString());
+        
+        Mat cloneMat = matrix.clone();
+        
+        Imgproc.circle(cloneMat,            		// Circle center
+                pVT,
+                3,
+                new Scalar(255, 255, 255),
+                0,
+                0,
+                0);
+        Imgproc.circle(cloneMat,            		// Circle center
+                pVB,
+                3,
+                new Scalar(255, 255, 255),
+                0,
+                0,
+                0);
+        
+        imageCodecs.imwrite("C:\\Users\\benja\\Desktop\\test_dynamic_color.png", cloneMat);
+    }
+    
+    public static BufferedImage Mat2BufferedImage(Mat matrix)throws IOException {
+        MatOfByte mob=new MatOfByte();
+        Imgcodecs.imencode(".jpg", matrix, mob);
+        return ImageIO.read(new ByteArrayInputStream(mob.toArray()));
     }
     
 } // End of public class Billedbehandling
