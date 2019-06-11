@@ -792,6 +792,7 @@ public class Billedbehandling
         Imgcodecs.imwrite(file, draw);
     }
 
+    
  
     /**
      * Creates a matrix from the image containing both color and circular detection
@@ -822,9 +823,9 @@ public class Billedbehandling
         imageCodecs.imwrite(file, imgMat);
  		*/
         return localGrid;
-        
+       
     } // End of create_matrix()
-    
+
     /*
     private static void showGridAsImage(int[][] localGrid) 
     {
@@ -1101,5 +1102,10 @@ public class Billedbehandling
         Imgcodecs.imencode(".jpg", matrix, mob);
         return ImageIO.read(new ByteArrayInputStream(mob.toArray()));
     }
+
+	
+    public int[][] getGrid() {
+		return arrayMap;
+	}
     
 } // End of public class Billedbehandling
