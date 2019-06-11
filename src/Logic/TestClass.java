@@ -13,8 +13,9 @@ public class TestClass {
 	private static List<PointInGrid> listofBallCoords = new ArrayList<PointInGrid>();
 	private static PointInGrid robotMiddle = new PointInGrid(0, 0);
 	private static PointInGrid robotFront = new PointInGrid(0, 0);
-	private static int rows = 1080;
-	private static int columns = 1920;
+	private static int scale = 1;
+	private static int rows = 1080/scale;
+	private static int columns = 1920/scale;
 	private static int[][] SimulatedGrid = new int[rows][columns];	
 	
 	private static RouteCalculatorInterface Calculator;
@@ -30,16 +31,21 @@ public class TestClass {
 		robotFront = new PointInGrid(1,1);
 		robotMiddle = new PointInGrid(1,0);
 		
-		PointInGrid destPoint = new PointInGrid(15,0);
+		PointInGrid destPoint = new PointInGrid(881/scale, 62/scale);
+		Calculator.getDir(robotFront, robotMiddle, destPoint);
 		
-		double angle = Calculator.calc_Angle(robotFront, robotMiddle, destPoint);
 		
-		System.out.println("angle : " + angle);
+		
+		
+		
+		//double angle = Calculator.calc_Angle(robotFront, robotMiddle, destPoint);
+		
+		//System.out.println("angle : " + angle);
 		
 		//Prints out the array in a proper format
-		for (int[] is : SimulatedGrid) {
-			System.out.println(Arrays.toString(is));
-		}
+//		for (int[] is : SimulatedGrid) {
+//			System.out.println(Arrays.toString(is));
+//		}
 	}
 	
 	public static void findElementsInGrid()
@@ -87,10 +93,10 @@ public class TestClass {
 		//second for loop iterates to the right through columns
 		for (int a = 0; a <= rows; a++) {
 			for (int b = 0; b < columns; b++) {
-				if((a == 1 || a == 1078) && b >= 1 && b <= 1918) SimulatedGrid[a][b] = 1;
-				if((b == 1 || b == 1918) && a >= 1 && a <= 1078) SimulatedGrid[a][b] = 1;
-				if(a == 9*54 && b >= 6*96 && b <= 13*96) SimulatedGrid[a][b] = 1;
-				if(b == 9*96 && a >= 6*54 && a <= 13*54) SimulatedGrid[a][b] = 1;
+				if((a == 1 || a == 1078/scale) && b >= 1 && b <= 1918/scale) SimulatedGrid[a][b] = 1;
+				if((b == 1 || b == 1918/scale) && a >= 1 && a <= 1078/scale) SimulatedGrid[a][b] = 1;
+				if(a == 9*54/scale && b >= 6*96/scale && b <= 13*96/scale) SimulatedGrid[a][b] = 1;
+				if(b == 9*96/scale && a >= 6*54/scale && a <= 13*54/scale) SimulatedGrid[a][b] = 1;
 			}
 		}
 		
@@ -99,20 +105,22 @@ public class TestClass {
 		 */
 			for (int a = 0; a < rows; a++) {
 				for (int b = 0; b < columns; b++) {
-					if((a == 3*54 && b == 3*96)) SimulatedGrid[a][b] = 5;
-					if((b == 3*96 && a == 16*54)) SimulatedGrid[a][b] = 6;
-					if((a == 16*54 && b == 16*96)) SimulatedGrid[a][b] = 7;
-					if((b == 16*96 && a == 3*54)) SimulatedGrid[a][b] = 8;
+					if((a == 3*54/scale && b == 3*96/scale)) SimulatedGrid[a][b] = 5;
+					if((b == 3*96/scale && a == 16*54/scale)) SimulatedGrid[a][b] = 6;
+					if((a == 16*54/scale && b == 16*96/scale)) SimulatedGrid[a][b] = 7;
+					if((b == 16*96/scale && a == 3*54/scale)) SimulatedGrid[a][b] = 8;
 				}
 			}
 		
 		/**
 		 * This line inserts the robot into the grid
 		 */
+			int destPoint = 9;
 			int RobotFront = 3;
 			int RobotMid = 2;
-			SimulatedGrid[500][1400] = RobotMid;
-			SimulatedGrid[670][1400] = RobotFront;
+			SimulatedGrid[881/scale][785/scale] = destPoint;
+			SimulatedGrid[(881/scale)][50/scale] = RobotMid;
+			SimulatedGrid[1051/scale][50/scale] = RobotFront;
 			
 		/**
 		 * This inserts 6 balls into the system, whereas one is outside the main barrier.
@@ -120,11 +128,11 @@ public class TestClass {
 		 */
 			int ball = 4;
 			//SimulatedGrid[12][5] = ball;
-			SimulatedGrid[1000][1000] = ball;
+			SimulatedGrid[1000/scale][190/scale] = ball;
 //			SimulatedGrid[12][16] = ball;
 //			SimulatedGrid[3][6] = ball;
 //			SimulatedGrid[7][15] = ball;
-			SimulatedGrid[1000][1900] = ball;
+			SimulatedGrid[1030/scale][150/scale] = ball;
 	}
 	
 	
