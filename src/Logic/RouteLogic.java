@@ -44,8 +44,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	public RouteLogic() {
 		this.Calculator = new RouteCalculator();
 		this.RC = Main.RC;
-		this.ImageRec = Main.ImageRec;
+		//this.ImageRec = Main.ImageRec;
 	}
+//	public RouteLogic(BilledBehandling BB)
+//	{
+//		this.BilledBehandling = BB;
+//	}
 	
 	/**
 	 * Constructor for the class
@@ -288,6 +292,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		int counter =  0;
 		while (this.programStillRunning) {
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
+			while(RC.IsRobotExecuting() == true) {}
+	
 			Point nearestBall;
 			//TODO Get info from imageRec Thread
 			GetImageInfo();
@@ -303,6 +309,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				//finds the safest ball and communicates to the server
 				//counter = 
 				NearestSafeBallPickupAlgorithm(ballsWithDirectPathFromRobot, counter);
+				//IMPLEMENT PICKUP
 			}
 //			else if(safeBalls.isEmpty() && !dangerBalls.isEmpty())//no more safe balls and still dangerous balls
 //			{
@@ -741,7 +748,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//checks if two Points coords are equals
 	public boolean checkIfCoordsEqual(Point robotMiddle, Point dest)
 	{
-		if(robotMiddle.getX() == dest.getX() && robotMiddle.getY() == dest.getY()) return true;		
+		if(robotMiddle.getX() == dest.getX() && robotMiddle.getY() == dest.getY()) return true;				
 		
 		return false;
 	}
@@ -844,10 +851,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//if the list isn't empty
 		Point nearestBall = findNearestBall(robotFront,safeBalls);
 		//Point nearestBall = findNearestBall(robotMiddle, safeBalls);
-		String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
-		keyb.next();
-		CommunicateToServer(commandToSend);
-			
+		while(!checkIfCoordsEqual(robotFront, nearestBall))
+		{
+			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
+			//keyb.next();
+			CommunicateToServer(commandToSend);
+		}
+		CommunicateToServerPickup();
+		
 		//Scenario to get close ball
 /*		if(counter == 0) {
 			robotFront = new Point(4,5);

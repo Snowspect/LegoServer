@@ -30,11 +30,14 @@ public class Main {
 			Thread thread = new Thread(RC);
 			thread.setDaemon(true);
 			thread.start();
-			
-			ImageRec = new Billedbehandling_27032019();
-			Thread thread2 = new Thread(ImageRec);
-			thread2.setDaemon(true);
-			thread2.start();
+//			
+//			BilledBehandling BB = new BilledBehandling();
+//			new RouteLogic(BB);
+//			
+//			ImageRec = new Billedbehandling_27032019();
+//			Thread thread2 = new Thread(ImageRec);
+//			thread2.setDaemon(true);
+//			thread2.start();
 			
 			new RouteLogic().running();
 			

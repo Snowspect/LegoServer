@@ -27,7 +27,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	GRAPPLEARMFUNCTION = 86; // V = grappleFunction ------------ FIX
 	
 	
-	public static boolean waiting;
+	public static boolean robotExecuting;
 	public static int [] [] GRID = new int [20][20];
 
 		PointInGrid [] checkPoints = { new PointInGrid(480, 270), new PointInGrid(1440, 270),
@@ -96,14 +96,14 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	 */
 	public void SendCommandString(String command)
 	{
-		waiting = true;
+		robotExecuting = true;
 		//Send coordinates to the server
 		messages.setText("Status: sending command");
 		try {
 			System.out.println("This was passed to sendCommand : " + command);
 			//System.out.println(outStream);
 			outStream.writeUTF(command);
-			//waiting = true;
+			//robotExecuting = true;
 			System.out.println("Command sent");
 		} catch (IOException io)
 		{
@@ -234,7 +234,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 				if(reading.equalsIgnoreCase("recieved"))
 				{
 					System.out.println("read recieved");
-					waiting = false;
+					robotExecuting = false;
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -244,8 +244,8 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 			System.out.println(reading);
 		}
 	}
-	public boolean GetSendingStatus()
+	public boolean IsRobotExecuting()
 	{
-		return waiting;
+		return robotExecuting;
 	}
 }
