@@ -106,11 +106,11 @@ public class ServerRemote {
 			//For activate : P
 			unload();
 			break;
-		case RemoteCarClient.TURNLEFT: //f4
+		case RemoteCarClient.TURNLEFT: //left arrow
 			turnRight(150, 45, true);
 			//gyroSensor.reset();
 			break;
-		case RemoteCarClient.TURNRIGHT: // f5
+		case RemoteCarClient.TURNRIGHT: // right arrow
 			turnLeft(150, 45, true);
 			//gyroSensor.reset();
 			break;
@@ -235,8 +235,8 @@ private class EscapeListener implements KeyListener
 public void driveForward(int speed, float wheelrotation, boolean override) { // w for activate
 	motorLeft.setSpeed(speed);
 	motorRight.setSpeed(speed);
-	motorRight.rotate(-360, true);;
-	motorLeft.rotate(-360, true);
+	motorRight.rotate((int) -wheelrotation, true);;
+	motorLeft.rotate((int) -wheelrotation, true);
 	int counter = 0;
 //34,2 angle = 1 centimeter fremadrettet
 }
@@ -250,8 +250,8 @@ public void driveForward(int speed, float wheelrotation, boolean override) { // 
 public void driveBackwards(int speed, float wheelrotation, boolean override) { // w for activate
 	motorLeft.setSpeed(speed);
 	motorRight.setSpeed(speed);
-	motorRight.backward();
-	motorLeft.backward();
+	motorRight.rotate((int) wheelrotation, true);;
+	motorLeft.rotate((int) wheelrotation, true);
 	int counter = 0;
 //		
 }
@@ -276,8 +276,8 @@ public void fullStop() { // q for activate
 public void turnLeft(int speed, int angle, boolean override){
 	motorRight.setSpeed(speed);
 	motorLeft.setSpeed(speed);
-	motorRight.rotate(-angle, true);
-	motorLeft.rotate(angle, true);
+	motorRight.rotate(angle, true);
+	motorLeft.rotate(-angle, true);
 	
 }
 
@@ -291,8 +291,8 @@ public void turnLeft(int speed, int angle, boolean override){
 void turnRight(int speed, int angle, boolean override){
 	motorRight.setSpeed(speed);
 	motorLeft.setSpeed(speed);
-	motorRight.rotate(angle, true);
-	motorLeft.rotate(-angle, true);
+	motorRight.rotate(-angle, true);
+	motorLeft.rotate(angle, true);
 	}
 
 /**
