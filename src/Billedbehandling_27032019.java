@@ -56,10 +56,13 @@ public class Billedbehandling_27032019
 	static double cameraHeight = 2000; 					// 2000mm = 200cm
 	static double robotHeight = 280; 					// 280mm = 28cm
 	static double ballHeight = 40;						// 40mm = 4cm
-	static double courseEdgeHeight = 70;				// 70mm = 7cm
+	static double courseEdgeHeight = 74;				// 70mm = 7cm
 	static double crossHeight = 30;						// 30mm = 3cm
 	static Point imageCenter = new Point(imageWidth/2, imageHeight/2);
 	
+	// Int array to be fetched by the logic
+    public static int[][] arrayMap = new int[imageHeight][imageWidth];
+
     // Instantiating the imgcodecs class
     static Imgcodecs imageCodecs = new Imgcodecs();
  
@@ -79,7 +82,7 @@ public class Billedbehandling_27032019
     public static void main(String[] args)
     {
     	// Creating a two-dimensional array
-        int[][] arrayMap = new int[imageHeight][imageWidth];
+        //int[][] arrayMap = new int[imageHeight][imageWidth];
         
         // Creating an array of points
         Point[] robotCameraPoints = new Point[2];
@@ -188,8 +191,8 @@ public class Billedbehandling_27032019
             System.out.println("        ------ Press 1 to capture new image ------        ");
             
         } // End of while
-    } // End of main
- 
+    } // End of main    
+    
     /**
      * Takes the original image and isolates the colors blue and green. 
      * The center of these colored circles is then determined and returned as a list of points.
@@ -711,7 +714,36 @@ public class Billedbehandling_27032019
      * Creates a matrix from the image containing both color and circular detection
      * The function creates an image as output and saves it on the computer
      */
-    private static int[][] create_matrix(int[][] localMap)
+    private static int[][] create_matrix(int[][] localGrid)
+    {
+    	/*
+        int[] pixel;
+ 
+        for (int row = 0; row < bi.getHeight(); row++) {
+            for (int col = 0; col < bi.getWidth(); col++) {
+                pixel = bi.getRaster().getPixel(col, row, new int[3]); // Brug new int[3] hvis sort/hvid (grå)-billede. Brug int[4] hvis farve
+ 
+                if (pixel[0] == 255) {
+                	localGrid[col][row] = 1;        	// An edge
+                }
+                
+                if (pixel[0] == 0 && pixel[1] == 255 && pixel[2] == 0) {
+                	localGrid[col][row] = 2;        	// A ball
+                }
+                
+            }
+        }
+ 
+        // Saving the image path
+        String file = "C:\\Users\\benja\\Desktop\\test3-matrix-output.png";
+        imageCodecs.imwrite(file, imgMat);
+ 		*/
+        return localGrid;
+        
+    } // End of create_matrix()
+    
+    /*
+    private static void showGridAsImage(int[][] localGrid) 
     {
         Mat imgMat = new Mat( imageHeight, imageWidth, CvType.CV_8U );   // CvType.CV_8U : Unsigned 8bit (the same as an image pixel)
         BufferedImage bi = null;
@@ -733,12 +765,12 @@ public class Billedbehandling_27032019
                 if (pixel[0] == 255) {
                     //System.out.println(pixel[0] + " - " + pixel[1] + " - " + pixel[2] + " - " + (bi.getWidth() * y + x));
                     //System.out.println(x + ", " + y);
-                	localMap[col][row] = 1;        	// An edge
+                	localGrid[col][row] = 1;        	// An edge
                     imgMat.put(row, col, 255);    	// Prints a white spot on the Mat to check that the two-dimensional array is correct
                 }
                 
                 if (pixel[0] == 0 && pixel[1] == 255 && pixel[2] == 0) {
-                	localMap[col][row] = 2;        	// A ball
+                	localGrid[col][row] = 2;        	// A ball
                     imgMat.put(row, col, 255);    	// Prints a white spot on the Mat to check that the two-dimensional array is correct
                 }
                 
@@ -750,8 +782,8 @@ public class Billedbehandling_27032019
         imageCodecs.imwrite(file, imgMat);
  
         return localMap;
-        
-    } // End of create_matrix()
+    }
+    */
     
     private static List<Point> RunUpdate() 
     {
