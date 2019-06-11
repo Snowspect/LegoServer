@@ -62,7 +62,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		String OB = "0B:false"; // B is boolean 
 
 		//calculates angle for robot to turn
-		double angle = calc_Angle(robotFront, robotMiddle, destPoint);
+		double angle = calc_Angle(robotFront, robotMiddle, destPoint)*5;
 		System.out.println("--------- NOT ABS ----------");
 		System.out.println("ANGLE: "+ angle);
 		System.out.println("ANGLE2: "+ (360 - angle)+"\n");
@@ -74,7 +74,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		// If angle > 0: Turn right, else if angle < 0: Turn left
 
 		//calculates the distance the robot needs to drive
-		double dist = calc_Dist(robotMiddle, destPoint);
+		double dist = calc_Dist(robotMiddle, destPoint)*2.01;
 		System.out.printf("Distance: %.2f\n\n", dist);
 
 		//
