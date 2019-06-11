@@ -1,22 +1,24 @@
 package RouteCalculator;
 
+import java.awt.Point;
+
 public class RouteCalculator implements RouteCalculatorInterface  {
 
 	public static int TrackLenght = 1920;
 	public static int TrackWidth = 1080;
 
-	private PointInGrid returnPoint;
+	private Point returnPoint;
 
-	PointInGrid [] checkPoints = {	new PointInGrid(TrackWidth/4, TrackLenght/4),
-			new PointInGrid(TrackWidth/4, 3*(TrackLenght/4)),
-			new PointInGrid(3*(TrackWidth/4), TrackLenght/4),
-			new PointInGrid(3*(TrackWidth/4), 3*(TrackLenght/4)) };
+	Point [] checkPoints = {	new Point(TrackWidth/4, TrackLenght/4),
+			new Point(TrackWidth/4, 3*(TrackLenght/4)),
+			new Point(3*(TrackWidth/4), TrackLenght/4),
+			new Point(3*(TrackWidth/4), 3*(TrackLenght/4)) };
 
 	/**
 	 * returns pixels in forms of double????
 	 */
 	@Override
-	public double calc_Dist(PointInGrid posPoint, PointInGrid destPoint) {
+	public double calc_Dist(Point posPoint, Point destPoint) {
 		double colDist = destPoint.getX()-posPoint.getX();
 		double rowDist = destPoint.getY()-posPoint.getY();
 
@@ -32,7 +34,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	 * 
 	 */
 	@Override
-	public double calc_Angle(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+	public double calc_Angle(Point conPoint, Point posPoint, Point destPoint) {
 		double destRow = destPoint.getX(), destCol = destPoint.getY();
 		double posRow = posPoint.getX(), posCol = posPoint.getY();
 		double conRow = conPoint.getX(), conCol = conPoint.getY();
@@ -50,7 +52,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	 * destPoint = where we are going
 	 */
 	@Override
-	public String getDir(PointInGrid robotFront, PointInGrid robotMiddle, PointInGrid destPoint) {
+	public String getDir(Point robotFront, Point robotMiddle, Point destPoint) {
 		StringBuilder str = new StringBuilder();
 		
 		//readies string parts
@@ -114,13 +116,13 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	}
 
 	@Override
-	public String goToBall(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint) {
+	public String goToBall(Point conPoint, Point posPoint, Point destPoint) {
 		this.returnPoint = posPoint;
 		return getDir(conPoint, posPoint, destPoint);
 	}
 
 	@Override
-	public String returnToFix(PointInGrid conPoint, PointInGrid posPoint) {
+	public String returnToFix(Point conPoint, Point posPoint) {
 		return getDir(conPoint, posPoint, this.returnPoint);
 	}
 

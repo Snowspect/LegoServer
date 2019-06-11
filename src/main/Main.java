@@ -31,10 +31,10 @@ public class Main {
 			thread.setDaemon(true);
 			thread.start();
 			
-			/*ImageRec = new Billedbehandling_27032019();
+			ImageRec = new Billedbehandling_27032019();
 			Thread thread2 = new Thread(ImageRec);
 			thread2.setDaemon(true);
-			thread2.start();*/
+			thread2.start();
 			
 			new RouteLogic().running();
 			

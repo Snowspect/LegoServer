@@ -22,20 +22,20 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	
 	////SIMULATIONGRID AND SIMULATIONBALLS////
 	private int[][] SimulatedGrid = new int[20][20];
-	private List<PointInGrid> listofBallCoords = new ArrayList<PointInGrid>();
+	private List<Point> listofBallCoords = new ArrayList<Point>();
 	
 	//NOT SIMULATION VARIABLES//
 	private int ballvalue = 4;
 	private int checkpoint;
-	private List<PointInGrid> coordsOnPath;
-	private PointInGrid robotMiddle, robotFront;
-	private PointInGrid safeHazardPoint, smallGoalSafeSpot, smallGoal;
-	private PointInGrid firstConnection, LastTouchedConnectionPoint, newConnectionPoint, branchOffPoint;
-	private List<PointInGrid> Balls, ConnectionPoints, safeBalls, dangerBalls, dangerPickupPoints; 
+	private List<Point> coordsOnPath;
+	private Point robotMiddle, robotFront;
+	private Point safeHazardPoint, smallGoalSafeSpot, smallGoal, nextCornerToNavigateTo;
+	private Point firstConnection, LastTouchedConnectionPoint, newConnectionPoint, branchOffPoint;
+	private List<Point> Balls, ConnectionPoints, safeBalls, dangerBalls, dangerPickupPoints; 
 	private int[][] ImageGrid;
 	private final int OBSTACLE = 1, HAZARD = 20;
 	boolean firstConnectionFound,firstConnectionTouched, programStillRunning, branchOff, readyToNavigateToAHazardPoint, pickupBall;
-	private boolean returnToPrevHazardPoint, unloadBalls, SPINWIN;
+	private boolean returnToPrevHazardPoint, unloadBalls, SPINWIN, NavigateToNextConnectionPoint;
 	private RemoteCarClient RC;
 	private Billedbehandling_27032019 ImageRec;
 	private RouteCalculatorInterface Calculator;
@@ -55,7 +55,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @param ConnectionPoints Four connectionPoints posing for the robot's overall path
 	 * @param ImageGrid 2D array that imitates the entire track
 	 */
-	public RouteLogic(PointInGrid robotMiddle, PointInGrid robotFront, List<PointInGrid> Balls, List<PointInGrid> ConnectionPoints, int[][] ImageGrid) 
+	public RouteLogic(Point robotMiddle, Point robotFront, List<Point> Balls, List<Point> ConnectionPoints, int[][] ImageGrid) 
 	{
 		this.robotMiddle = robotMiddle;
 		this.robotFront = robotFront;
@@ -71,20 +71,20 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @param robotMiddle rotationCenter on robot
 	 * @param ConnectionPoints Four connectionPoints posing for the robot's overall path
 	 */
-	private PointInGrid findFirstConnectionPoint(PointInGrid robotMiddle, List<PointInGrid> ConnectionPoints) {
+	private Point findFirstConnectionPoint(Point robotMiddle, List<Point> ConnectionPoints) {
 		double dist = 10000;
-		PointInGrid closestPoint = null;
+		Point closestPoint = null;
 		
-		List<PointInGrid> connPointWithDirectPath = new ArrayList<PointInGrid>();
+		List<Point> connPointWithDirectPath = new ArrayList<Point>();
 		//checks if the points have a direct path
-		for (PointInGrid connPoint : ConnectionPoints) {
+		for (Point connPoint : ConnectionPoints) {
 			if(checkDirectPath(pointsOnRoute(robotMiddle, connPoint)) == true) {
 				connPointWithDirectPath.add(connPoint);
 			}
 		}
 
 		//finds the closest of those with direct path
-		for (PointInGrid connPoint : connPointWithDirectPath) {
+		for (Point connPoint : connPointWithDirectPath) {
 			if (Calculator.calc_Dist(robotMiddle, connPoint) < dist) {
 			dist = Calculator.calc_Dist(robotMiddle, connPoint);
 			closestPoint = connPoint;
@@ -98,8 +98,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 */
 	public void running() {
 		//INITIALIZE FOR TEST DATA
-		this.ConnectionPoints = new ArrayList<PointInGrid>();
-		this.Balls = new ArrayList<PointInGrid>();
+		this.ConnectionPoints = new ArrayList<Point>();
+		this.Balls = new ArrayList<Point>();
 		//CommunicateToServer("0F:1;0G:0;0S:300;LR:200;RR:200;0B:true;");
 		
 		////SIMULATION START////
@@ -113,11 +113,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		while (this.programStillRunning) {
 			
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
-			PointInGrid nearestBall;
+			Point nearestBall;
 			//TODO take picture and get elements
 			
 			//find all balls with a direct path
-			List<PointInGrid> ballsWithDirectPathFromRobot = BallsWithDirectPath(robotMiddle, Balls);
+			List<Point> ballsWithDirectPathFromRobot = BallsWithDirectPath(robotMiddle, Balls);
 			
 			System.out.println(ballsWithDirectPathFromRobot.size());
 			//if the list isn't empty
@@ -131,12 +131,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				System.out.println("this is the command send to server :" + commandToSend);
 				CommunicateToServer(commandToSend);
 				if(counter == 0) {
-					robotFront = new PointInGrid(4,5);
+					robotFront = new Point(4,5);
 					findElementsInGrid();
 					counter++;
 				}
 				else if(counter == 1) { 
-					robotFront = new PointInGrid(3,6); robotMiddle = new PointInGrid(4,5); 
+					robotFront = new Point(3,6); robotMiddle = new Point(4,5); 
 					Balls.remove(Balls.lastIndexOf(nearestBall));
 					findElementsInGrid();
 					String pickup = "0F:11;0R:0;0S:0;0B:true";
@@ -166,12 +166,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					//reset counter for this case
 					counter = 0;
 					if(counter == 0) {
-						robotFront = new PointInGrid(4,15);
+						robotFront = new Point(4,15);
 						findElementsInGrid();
 						counter++;
 					}
 					else if(counter == 1) { 
-						robotFront = new PointInGrid(2, 17); robotMiddle = newConnectionPoint;
+						robotFront = new Point(2, 17); robotMiddle = newConnectionPoint;
 						findElementsInGrid();
 						counter++;
 						firstConnectionTouched = true;
@@ -204,7 +204,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					else if(robotMiddle.getX() == newConnectionPoint.getX() && robotMiddle.getY() == newConnectionPoint.getY()) {
 						//all this gets triggered if the robot has reached the newConnection point
 						int connPointIndexCount = 0;
-						for (PointInGrid point : ConnectionPoints) {
+						for (Point point : ConnectionPoints) {
 							
 							if(robotMiddle.getX() == point.getX() && robotMiddle.getY() == point.getY()) {
 								if(connPointIndexCount == 0) newConnectionPoint = ConnectionPoints.get(2); //from top left to bottom left
@@ -230,12 +230,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 						//drives to the branch off point on the path between two locations
 						String commandToSend = Calculator.getDir(robotFront, robotMiddle, branchOffPoint);
 						if (counter == 2) {
-							robotFront = new PointInGrid(10,15);
+							robotFront = new Point(10,15);
 							findElementsInGrid();
 							counter++;
 						}
 						else if (counter == 3) {
-							robotFront = newConnectionPoint; robotMiddle = new PointInGrid(3,16);
+							robotFront = newConnectionPoint; robotMiddle = new Point(3,16);
 							findElementsInGrid();
 							counter = 0;
 						}
@@ -276,8 +276,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//DANGER BALLS POINTS
 		//GOAL SPOT
 		//SAFE SPOT TO LAND BEFORE HANDING IN BALLS TO GOAL (GOAL SPOT)
-		this.ConnectionPoints = new ArrayList<PointInGrid>();
-		this.Balls = new ArrayList<PointInGrid>();
+		this.ConnectionPoints = new ArrayList<Point>();
+		this.Balls = new ArrayList<Point>();
 		
 		CreateGrid(); //creates a artificial grid to use in simulation
 		findElementsInGrid(); //finds balls, robot points and connectionpoints
@@ -288,11 +288,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		int counter =  0;
 		while (this.programStillRunning) {
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
-			PointInGrid nearestBall;
+			Point nearestBall;
 			//TODO Get info from imageRec Thread
 			GetImageInfo();
 						
-			List<PointInGrid> ballsWithDirectPathFromRobot = BallsWithDirectPathObstacleHazard(robotMiddle, safeBalls);//find all balls with a direct path
+			List<Point> ballsWithDirectPathFromRobot = BallsWithDirectPathObstacleHazard(robotMiddle, safeBalls);//find all balls with a direct path
 			if(SPINWIN == true)
 			{
 				CommunicateToServer("0F:3;0R:1500;0S:300;0B:true");
@@ -301,17 +301,22 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			else if(ballsWithDirectPathFromRobot.size() != 0)
 			{
 				//finds the safest ball and communicates to the server
-				counter = NearestSafeBallPickupAlgorithm(ballsWithDirectPathFromRobot, counter);
+				//counter = 
+				NearestSafeBallPickupAlgorithm(ballsWithDirectPathFromRobot, counter);
 			}
-			else if(safeBalls.isEmpty() && !dangerBalls.isEmpty())//no more safe balls and still dangerous balls
+//			else if(safeBalls.isEmpty() && !dangerBalls.isEmpty())//no more safe balls and still dangerous balls
+//			{
+//				HazardBallPickupAlgorithm();
+//			}
+			else if(safeBalls.isEmpty())
 			{
-				HazardBallPickupAlgorithm();
-			}
-			else if(safeBalls.isEmpty() && dangerBalls.isEmpty()) //go to goal
-			{
-				//check for direct path to goal safe spot (not through hazard zone)
 				HeadForGoalAndUnload();
 			}
+//			else if(safeBalls.isEmpty() && dangerBalls.isEmpty()) //go to goal
+//			{
+//				//check for direct path to goal safe spot (not through hazard zone)
+//				HeadForGoalAndUnload();
+//			}
 			//We are at a point and can't reach any safe balls
 			else if(checkIfCoordsEqual(robotMiddle, newConnectionPoint)) { //sets the new connectionPoint
 				//all this gets triggered if the robot has reached the newConnection point
@@ -331,23 +336,27 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//GETS INFO FROM imagerecognition 
 	public void GetImageInfo()
 	{	
+//		robotMiddle = ImageRec.robotGreenMarker;
+//		robotFront = ImageRec.robotBlueMarker;
+//		safeBalls = ImageRec.listOfBallCoordinates;
+		
 //		ConnectionPoints = ImageRec.GetConnectionPoints();
-//		safeBalls = ImageRec.GetSafeBalls();
 //		dangerBalls = ImageRec.GetDangerBalls();
 //		dangerPickupPoints = ImageRec.GetHazardPoints();
 //		smallGoal = ImageRec.GetSmallGoal();
 //		smallGoalSafeSpot = ImageRec.GetSmallGoalSafeSpot();
 //		ImageGrid = ImageRec.GetTotalGrid();
+
 	}
 	/***
 	 * finds all points between to points
 	 * @param pos : robotMiddle
 	 * @param dest : Destination point
-	 * @return : List of PointInGrid: Containing all points between two points
+	 * @return : List of Point: Containing all points between two points
 	 */
-	public List<PointInGrid> pointsOnRoute(PointInGrid robotMiddle, PointInGrid dest) {
+	public List<Point> pointsOnRoute(Point robotMiddle, Point dest) {
 		
-		coordsOnPath = new ArrayList<PointInGrid>();
+		coordsOnPath = new ArrayList<Point>();
 		
 		double Slope = (dest.getX() - robotMiddle.getX()) / (dest.getY() - robotMiddle.getY());
 		double Intercept = robotMiddle.getX() - Slope * robotMiddle.getY();
@@ -368,7 +377,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					//bottom to top (both sides)
 				for (int y = (int) robotMiddle.getY(); y < (int) dest.getY(); y++) {
 					int x = (int) (Slope * y + Intercept);
-					coordsOnPath.add(new PointInGrid(x, y));
+					coordsOnPath.add(new Point(x, y));
 				}
 				break;
 			case 2: //runs while start x is less than end x.
@@ -376,21 +385,21 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				//was ...; x <= (int)....
 				for (int x = (int) robotMiddle.getX(); x > (int) dest.getX(); x--) {
 					int y = (int) ((x-Intercept)/Slope);
-					coordsOnPath.add(new PointInGrid(x, y));
+					coordsOnPath.add(new Point(x, y));
 				}
 				break;
 			case 3: //runs while start y is greater than end y
 					//top to bottom (both sides)
 				for (int y = (int) robotMiddle.getY(); y >= (int) dest.getY(); y--) {
 					int x = (int) (Slope * y + Intercept);
-					coordsOnPath.add(new PointInGrid(x, y));
+					coordsOnPath.add(new Point(x, y));
 				}
 				break;
 			case 4: //runs while start x is less than end x
 					//left to right (both lower and upper side)
 				for (int x = (int) robotMiddle.getX(); x <= (int) dest.getX(); x++) {
 					int y = (int) ((x-Intercept)/Slope);
-					coordsOnPath.add(new PointInGrid(x, y));
+					coordsOnPath.add(new Point(x, y));
 				}
 				break;
 			default: //purpose? will it ever get triggered?
@@ -408,7 +417,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * Evaluates all points in route.
 	 * to see if there is an angle on the route towards the nearest ball from
 	 * the side within the 85-95 degree angle.
-	 * returns a null PointInGrid if there is an obstacle (barrier or cross) 
+	 * returns a null Point if there is an obstacle (barrier or cross) 
 	 * between the robot and the ball
 	 * @param Robot : RobotMiddle
 	 * @param nextPoint : a point on path, should be null atm
@@ -417,11 +426,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 */
 	//TODO FIX IMPLEMENTATION (remove nextPoint and use the correct list in actual impl)
 	@Override
-	public PointInGrid CheckPickupAngleOnRoute(PointInGrid Robot, PointInGrid nextPoint, PointInGrid nearestBall, List<PointInGrid> pointsOnPath) {
+	public Point CheckPickupAngleOnRoute(Point Robot, Point nextPoint, Point nearestBall, List<Point> pointsOnPath) {
 		
-		PointInGrid Point = null;
+		Point Point = null;
 		
-		for (PointInGrid p : pointsOnPath) {
+		for (Point p : pointsOnPath) {
 			double angle = Calculator.calc_Angle(Robot, p, nearestBall);
 			
 			if (angle >= 85 && angle <= 95) {
@@ -434,15 +443,15 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 	/**
 	 * searches through all balls in list and reevalutes if one is closer than the other
-	 * @return PointInGrid: point of the closest ball (no matter its position)
+	 * @return Point: point of the closest ball (no matter its position)
 	 * @param Robot : middle of robot 
 	 */
 	@Override
-	public PointInGrid findNearestBall(PointInGrid Robot, List<PointInGrid> BallPoints) {
+	public Point findNearestBall(Point Robot, List<Point> BallPoints) {
 		double dist = 10000;
-		PointInGrid closestPoint = null;
+		Point closestPoint = null;
 		
-		for (PointInGrid Point : BallPoints) {
+		for (Point Point : BallPoints) {
 			if (Calculator.calc_Dist(Robot, Point) < dist) {
 				dist = Calculator.calc_Dist(Robot, Point);
 				closestPoint = Point;
@@ -461,7 +470,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 */
 	//TODO CHANGE IMPLEMENTATION
 	@Override
-	public void Drive(PointInGrid conPoint, PointInGrid Robot, PointInGrid nextCornor, PointInGrid nearestBall) {		
+	public void Drive(Point conPoint, Point Robot, Point nextCornor, Point nearestBall) {		
 		
 		//this gets triggered if the EvalRoute could 
 		//not find a point in which there was
@@ -560,16 +569,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 		for (int a = 0; a < rows; a++) {
 			for (int b = 0; b < columns; b++) {
-				if(SimulatedGrid[a][b] == 2) robotMiddle = new PointInGrid(a,b);
-				if(SimulatedGrid[a][b] == 3) robotFront = new PointInGrid(a,b);
+				if(SimulatedGrid[a][b] == 2) robotMiddle = new Point(a,b);
+				if(SimulatedGrid[a][b] == 3) robotFront = new Point(a,b);
 				if(SimulatedGrid[a][b] == 4) {
-					PointInGrid tmpBall = new PointInGrid(a, b);
+					Point tmpBall = new Point(a, b);
 					Balls.add(tmpBall);
 				}
 				if(SimulatedGrid[a][b] == 5 || SimulatedGrid[a][b] == 6 ||
 						   SimulatedGrid[a][b] == 7 ||SimulatedGrid[a][b] == 8)
 				{
-					PointInGrid tmpConnPoint = new PointInGrid(a, b);
+					Point tmpConnPoint = new Point(a, b);
 					ConnectionPoints.add(tmpConnPoint);
 				}
 			}
@@ -582,9 +591,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @return whether or not the path is clear
 	 */
 	////////CURRENTLY NOT USED//////////
-	public int SearchBroaderPath(List<PointInGrid> coordsOnPathLocal)
+	public int SearchBroaderPath(List<Point> coordsOnPathLocal)
 	{
-		for (PointInGrid point : coordsOnPathLocal) {
+		for (Point point : coordsOnPathLocal) {
 			for (int i = (int)point.getY(); i <= (int)point.getY()+2 ; i++)
 			{
 				if(SimulatedGrid[(int) point.getX()][i] == ballvalue) return ballvalue;
@@ -614,10 +623,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @param directpath : List of coords on direct path computed by pointsOnRoute()
 	 * @return : true if no obstacles or false if obstacles
 	 */
-	public boolean checkDirectPath(List<PointInGrid> directpath)
+	public boolean checkDirectPath(List<Point> directpath)
 	{
 		boolean bøv = true;
-		for (PointInGrid p : directpath)
+		for (Point p : directpath)
 		{
 			//checks if the simulatedGrid is initialized or if the actual grid is.
 			if(SimulatedGrid != null)
@@ -650,15 +659,15 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @return
 	 */
 	//////////CURRENTLY NOT USED//////////
-	public PointInGrid CheckPickupAngleSelfRotate(PointInGrid robotMid, PointInGrid robotFront, PointInGrid nearestBall)
+	public Point CheckPickupAngleSelfRotate(Point robotMid, Point robotFront, Point nearestBall)
 	{
-		List<PointInGrid> RobotPerimeterPoints = new ArrayList<PointInGrid>();
+		List<Point> RobotPerimeterPoints = new ArrayList<Point>();
 		
 		//gets the robot perimeter points
 		RobotPerimeterPoints = GetRobotPerimeter(robotMid.getX(), robotMid.getY(), Calculator.calc_Dist(robotMid, robotFront));
 		
 		//checks for angle where each robotPerimeterPoint is the nose of the robot in a full circle
-		for (PointInGrid robotFrontPoint : RobotPerimeterPoints) {
+		for (Point robotFrontPoint : RobotPerimeterPoints) {
 			double angle = Calculator.calc_Angle(robotFrontPoint, robotMid, nearestBall);
 			if (angle >= 85 && angle <= 95) {
 				return robotFrontPoint;
@@ -677,9 +686,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * @param robotRadius : the distance between robot middle and robot front
 	 * @return
 	 */
-	public static List<PointInGrid> GetRobotPerimeter(double RmidX, double RmidY, double robotRadius)
+	public static List<Point> GetRobotPerimeter(double RmidX, double RmidY, double robotRadius)
 	{
-		List<PointInGrid> CirclePoints = new ArrayList<PointInGrid>();
+		List<Point> CirclePoints = new ArrayList<Point>();
 		    
 		double PI = 3.1415926535;
 	    double i, angle, x1, y1;
@@ -695,7 +704,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		        int ElY = (int) (RmidY + y1);
 		        //SimulatedGrid[ElX][ElY] = 1;
 		        //setElementColor(color);
-		        CirclePoints.add(new PointInGrid(ElX,ElY));
+		        CirclePoints.add(new Point(ElX,ElY));
 		    }
 		    return CirclePoints; 
 		}
@@ -704,16 +713,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 * Finds balls with direct path (no obstacles inbetween)
 	 * @param robotMiddle
 	 * @param balls
-	 * @return a list of PointInGrid
+	 * @return a list of Point
 	 */
-	public List<PointInGrid> BallsWithDirectPath(PointInGrid robotMiddle, List<PointInGrid> balls)
+	public List<Point> BallsWithDirectPath(Point robotMiddle, List<Point> balls)
 	{
-		List<PointInGrid> ballsWithDirectPath = new ArrayList<PointInGrid>();
+		List<Point> ballsWithDirectPath = new ArrayList<Point>();
 		//for each ball, check its path and put it into a list if no obstacles
-		for (PointInGrid ballPoint : balls) {
+		for (Point ballPoint : balls) {
 			if(checkDirectPath(pointsOnRoute(robotMiddle, ballPoint))) //gets route, checks route
 			{
-				for (PointInGrid p : coordsOnPath)
+				for (Point p : coordsOnPath)
 					System.out.println("GETX: " + p.getX() + ", GETY: " + p.getY() + ", ALL: " + SimulatedGrid[(int) p.getX()][(int) p.getY()]);
 				System.out.println("BOOL: " + checkDirectPath(pointsOnRoute(robotMiddle, ballPoint)));
 				keyb.next();
@@ -729,8 +738,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		RC.SendCommandString(command);
 	}
 	
-	//checks if two PointInGrids coords are equals
-	public boolean checkIfCoordsEqual(PointInGrid robotMiddle, PointInGrid dest)
+	//checks if two Points coords are equals
+	public boolean checkIfCoordsEqual(Point robotMiddle, Point dest)
 	{
 		if(robotMiddle.getX() == dest.getX() && robotMiddle.getY() == dest.getY()) return true;		
 		
@@ -740,10 +749,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	/**
 	 * finds the next connectionPoint as long as the robot is on one
 	 */
-	public PointInGrid nextConnPoint(PointInGrid robotMiddle, List<PointInGrid> ConnectionPoints)
+	public Point nextConnPoint(Point robotMiddle, List<Point> ConnectionPoints)
 	{
 		int connPointIndexCount = 0;
-		for (PointInGrid point : ConnectionPoints) {
+		for (Point point : ConnectionPoints) {
 			
 			if(robotMiddle.getX() == point.getX() && robotMiddle.getY() == point.getY()) {
 				if(connPointIndexCount == 0) return ConnectionPoints.get(2); //from top left to bottom left
@@ -764,9 +773,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 */
 	public void HazardBallPickupAlgorithm()
 	{
-		if(readyToNavigateToAHazardPoint == true)
-		{ //we reached a connectionPoint
-			//finds safe pickup point - navigate to it if possible
+		if(readyToNavigateToAHazardPoint == true) //we are at a connPoint ready to get some dangerballs
+		{	//finds safe pickup point - navigate to it if possible
 			safeHazardPoint = findNearestBall(robotMiddle, dangerPickupPoints);
 			//not using directpathHazardCheck because the hazard spot can be in the hazard zone.
 			boolean allowTrip = checkDirectPath(pointsOnRoute(robotMiddle, safeHazardPoint));
@@ -780,8 +788,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					}
 				}
 				else { //find next connectionPoint on route
-					newConnectionPoint = nextConnPoint(robotMiddle, ConnectionPoints);
+					nextCornerToNavigateTo = nextConnPoint(robotMiddle, ConnectionPoints);
 					readyToNavigateToAHazardPoint = false;
+					NavigateToNextConnectionPoint = true;
 				}
 		}
 		else if(pickupBall == true) //if we have reached a hazard point and we can pickup the ball
@@ -799,6 +808,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			newConnectionPoint = findFirstConnectionPoint(robotMiddle, ConnectionPoints); String commandToSend = Calculator.getDir(robotFront, robotMiddle, safeHazardPoint);
 			CommunicateToServer(commandToSend);
 			if(checkIfCoordsEqual(robotMiddle, newConnectionPoint)) returnToPrevHazardPoint = false;
+		}
+		else if(NavigateToNextConnectionPoint == true)
+		{
+			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nextCornerToNavigateTo);
+			CommunicateToServer(commandToSend);
+			if(checkIfCoordsEqual(robotMiddle, nextCornerToNavigateTo) == true)
+			{
+				readyToNavigateToAHazardPoint = true;
+				NavigateToNextConnectionPoint = false;
+			}
 		}
 		else{ //constantly attempts to navigate to the closest connPoint
 			//gets conn point and calculates string to robot 
@@ -820,27 +839,28 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	}
 
 	//picks up the nearest ball
-	public int NearestSafeBallPickupAlgorithm(List<PointInGrid> safeBalls, int counter)
+	public int NearestSafeBallPickupAlgorithm(List<Point> safeBalls, int counter)
 	{		
 		//if the list isn't empty
-		PointInGrid nearestBall = findNearestBall(robotMiddle, safeBalls);
+		Point nearestBall = findNearestBall(robotFront,safeBalls);
+		//Point nearestBall = findNearestBall(robotMiddle, safeBalls);
 		String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 		keyb.next();
 		CommunicateToServer(commandToSend);
 			
 		//Scenario to get close ball
-		if(counter == 0) {
-			robotFront = new PointInGrid(4,5);
+/*		if(counter == 0) {
+			robotFront = new Point(4,5);
 			findElementsInGrid();
 			counter++;
 		}
 		else if(counter == 1) { 
-			robotFront = new PointInGrid(3,6); robotMiddle = new PointInGrid(4,5); 
+			robotFront = new Point(3,6); robotMiddle = new Point(4,5); 
 			safeBalls.remove(safeBalls.lastIndexOf(nearestBall));
 			findElementsInGrid();
 			CommunicateToServerPickup();
-		}
-		return counter;
+		}*/
+		return counter; //the return is used for testing
 	}
 	
 	//heads for goal safe spot and unloads
@@ -869,10 +889,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	}
 	
 	//checks if a direct path touches hazard zones or obstacles
-	public boolean checkDirectPathObstacleHazard(List<PointInGrid> directpath)
+	public boolean checkDirectPathObstacleHazard(List<Point> directpath)
 	{
 		boolean bøv = true;
-		for (PointInGrid p : directpath)
+		for (Point p : directpath)
 		{
 			//checks if the simulatedGrid is initialized or if the actual grid is.
 			if(SimulatedGrid != null)
@@ -897,14 +917,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	}
 
 	//returns a list of balls that isn't obstructed by obstacles or a hazard zone
-	public List<PointInGrid> BallsWithDirectPathObstacleHazard(PointInGrid robotMiddle, List<PointInGrid> balls)
+	public List<Point> BallsWithDirectPathObstacleHazard(Point robotMiddle, List<Point> balls)
 	{
-		List<PointInGrid> ballsWithDirectPath = new ArrayList<PointInGrid>();
+		List<Point> ballsWithDirectPath = new ArrayList<Point>();
 		//for each ball, check its path and put it into a list if no obstacles
-		for (PointInGrid ballPoint : balls) {
+		for (Point ballPoint : balls) {
 			if(checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, ballPoint))) //gets route, checks route
 			{
-				for (PointInGrid p : coordsOnPath)
+				for (Point p : coordsOnPath)
 					System.out.println("GETX: " + p.getX() + ", GETY: " + p.getY() + ", ALL: " + SimulatedGrid[(int) p.getX()][(int) p.getY()]);
 				//System.out.println("BOOL: " + checkDirectPath(pointsOnRoute(robotMiddle, ballPoint)));
 				keyb.next();
