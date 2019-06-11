@@ -752,6 +752,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		return false;
 	}
+	//checks if two Points coords are equals
+	public boolean checkIfCoordsNear(Point robotMiddle, Point dest)
+	{
+		if(robotMiddle.getX() < dest.getX()+3 && robotMiddle.getX() > dest.getX()-3 &&
+		 robotMiddle.getY() < dest.getY()+3 && robotMiddle.getY() > dest.getY()-3
+				
+				) return true;				
+		
+		return false;
+	}
 	
 	/**
 	 * finds the next connectionPoint as long as the robot is on one
@@ -851,7 +861,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//if the list isn't empty
 		Point nearestBall = findNearestBall(robotFront,safeBalls);
 		//Point nearestBall = findNearestBall(robotMiddle, safeBalls);
-		while(!checkIfCoordsEqual(robotFront, nearestBall))
+		while(!checkIfCoordsNear(robotFront, nearestBall))
 		{
 			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 			//keyb.next();
