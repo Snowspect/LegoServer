@@ -13,7 +13,7 @@ public class TestClass {
 	private static List<PointInGrid> listofBallCoords = new ArrayList<PointInGrid>();
 	private static PointInGrid robotMiddle = new PointInGrid(0, 0);
 	private static PointInGrid robotFront = new PointInGrid(0, 0);
-	private static int scale = 1;
+	private static int scale = 4;
 	private static int rows = 1080/scale;
 	private static int columns = 1920/scale;
 	private static int[][] SimulatedGrid = new int[rows][columns];	
@@ -28,8 +28,8 @@ public class TestClass {
 		findElementsInGrid();
 		Calculator = new RouteCalculator();
 		
-		robotFront = new PointInGrid(1,1);
-		robotMiddle = new PointInGrid(1,0);
+		robotFront = new PointInGrid(1051/scale, 50/scale);
+		robotMiddle = new PointInGrid(881/scale, 50/scale);
 		
 		PointInGrid destPoint = new PointInGrid(881/scale, 62/scale);
 		Calculator.getDir(robotFront, robotMiddle, destPoint);
