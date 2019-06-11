@@ -77,7 +77,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		// If angle > 0: Turn right, else if angle < 0: Turn left
 
 		//calculates the distance the robot needs to drive
-		double dist = calc_Dist(robotMiddle, destPoint)*2.01;
+		double dist = calc_Dist(robotMiddle, destPoint)*5.81;
 //		double dist = calc_Dist(robotMiddle, destPoint);
 		System.out.printf("Distance: %.2f\n\n", dist);
 

@@ -1,6 +1,6 @@
 package main;
 
-import RobotControl.Billedbehandling_27032019;
+import RobotControl.Billedbehandling;
 import RobotControl.RemoteCarClient;
 
 import java.io.IOException;
@@ -11,11 +11,11 @@ import Logic.RouteLogic;
 public class Main {
 
 	public static RemoteCarClient RC;
-	public static Billedbehandling_27032019 ImageRec;
+	public static Billedbehandling ImageRec;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 
-		new RouteLogic().running();
+//		new RouteLogic().runningTwo();
 		
 		// String ip = "192.168.0.17";
 		String ip = "192.168.43.107";
@@ -31,7 +31,11 @@ public class Main {
 			thread.setDaemon(true);
 			thread.start();
 //			
-//			BilledBehandling BB = new BilledBehandling();
+			Billedbehandling BB = new Billedbehandling();
+			System.out.println("initiating sleep");
+			Thread.sleep(90000);
+			System.out.println("past sleep");
+//          while()
 //			new RouteLogic(BB);
 //			
 //			ImageRec = new Billedbehandling_27032019();
@@ -39,7 +43,7 @@ public class Main {
 //			thread2.setDaemon(true);
 //			thread2.start();
 			
-			new RouteLogic().running();
+			new RouteLogic(BB).runningTwo();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

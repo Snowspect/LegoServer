@@ -14,9 +14,10 @@ import java.util.Scanner;
 
 import javax.swing.plaf.synth.Region;
 
-import RobotControl.Billedbehandling_27032019;
+import RobotControl.Billedbehandling;
+//import RobotControl.Billedbehandling_27032019;
 import RobotControl.RemoteCarClient;
-import RouteCalculator.PointInGrid;
+//import RouteCalculator.PointInGrid;
 
 public class RouteLogic implements IRouteLogic, Runnable {
 	
@@ -37,7 +38,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	boolean firstConnectionFound,firstConnectionTouched, programStillRunning, branchOff, readyToNavigateToAHazardPoint, pickupBall;
 	private boolean returnToPrevHazardPoint, unloadBalls, SPINWIN, NavigateToNextConnectionPoint;
 	private RemoteCarClient RC;
-	private Billedbehandling_27032019 ImageRec;
+	//private Billedbehandling_27032019 ImageRec;
+	private Billedbehandling ImageRec;
 	private RouteCalculatorInterface Calculator;
 	Scanner keyb = new Scanner(System.in); //Hvad er det her???
 	
@@ -46,10 +48,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		this.RC = Main.RC;
 		//this.ImageRec = Main.ImageRec;
 	}
-//	public RouteLogic(BilledBehandling BB)
-//	{
-//		this.BilledBehandling = BB;
-//	}
+	public RouteLogic(Billedbehandling BB)
+	{
+		this.ImageRec = BB;
+		this.Calculator = new RouteCalculator();
+		this.RC = Main.RC;
+	}
 	
 	/**
 	 * Constructor for the class
@@ -273,6 +277,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//using two different rule sets.
 	public void runningTwo()
 	{
+		System.out.println("MADE IT INTO RUNNINGTWO");
+		ImageGrid = new int[1080][1920];
 		//INITIALIZE FOR TEST DATA
 		//WE NEED CONNECTION POINTS
 		//SAFE BALLS
@@ -298,7 +304,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
 				
 			//Get info from imageRec.
-			runImageRec();
+			ImageRec.runImageRec();
 			GetImageInfo();
 			
 			while(RC.IsRobotExecuting() == true) {}
@@ -350,7 +356,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//GETS INFO FROM imagerecognition 
 	public void GetImageInfo()
 	{	
-//		robotMiddle = ImageRec.robotGreenMarker;
+		robotMiddle = ConvertPoint(ImageRec.robotGreenMarker);
+		robotFront = ConvertPoint(ImageRec.robotBlueMarker);
+		safeBalls = ConvertPoint(ImageRec.listOfBallCoordinates);
+//ImageGric = Con
 //		robotFront = ImageRec.robotBlueMarker;
 //		safeBalls = ImageRec.listOfBallCoordinates;
 		
@@ -642,15 +651,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		boolean bøv = true;
 		for (Point p : directpath)
 		{
-			//checks if the simulatedGrid is initialized or if the actual grid is.
-			if(SimulatedGrid != null)
-			{
-				if(SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE)
-				{
-					bøv = false;
-				}
-			}
-			
 			if(ImageGrid != null)
 			{
 				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE)
@@ -658,7 +658,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					bøv = false;
 				}
 			}
-			
+			//checks if the simulatedGrid is initialized or if the actual grid is.
+			else if(SimulatedGrid != null)
+			{
+				if(SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE)
+				{
+					bøv = false;
+				}
+			}
 		}
 		return bøv;
 	}
@@ -764,9 +771,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	{
 		if(robotMiddle.getX() < dest.getX()+3 && robotMiddle.getX() > dest.getX()-3 &&
 		 robotMiddle.getY() < dest.getY()+3 && robotMiddle.getY() > dest.getY()-3
-				
-				) return true;				
-		
+				) return true;						
 		return false;
 	}
 	
@@ -921,19 +926,19 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	{
 		for (Point p : directpath)
 		{
-			//checks if the simulatedGrid is initialized or if the actual grid is.
-			if(SimulatedGrid != null)
-			{
-				if((SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE) 
-				   || SimulatedGrid[(int)p.getX()][(int)p.getY()] == HAZARD)
-				{
-					return false;
-				}
-			}
 			if(ImageGrid != null)
 			{
 				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE
 				  || ImageGrid[(int) p.getX()][(int) p.getY()] == HAZARD)
+				{
+					return false;
+				}
+			}
+			//checks if the simulatedGrid is initialized or if the actual grid is.
+			else if(SimulatedGrid != null)
+			{
+				if((SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE) 
+				   || SimulatedGrid[(int)p.getX()][(int)p.getY()] == HAZARD)
 				{
 					return false;
 				}
@@ -954,5 +959,19 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			}
 		}
 		return ballsWithDirectPath;
+	}
+
+	public Point ConvertPoint(org.opencv.core.Point point)
+	{
+		Point p = new Point((int)point.x,(int)point.y);
+		return p;
+	}
+	public List<Point> ConvertPoint(List<org.opencv.core.Point> pointList)
+	{
+		List<Point> p = new ArrayList<Point>();
+		for (org.opencv.core.Point op : pointList) {
+			p.add(ConvertPoint(op));
+		}
+		return p;
 	}
 }

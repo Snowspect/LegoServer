@@ -1,3 +1,4 @@
+package RobotControl;
 import org.jfree.chart.block.GridArrangement;
 import org.opencv.core.*;
 import org.opencv.core.Point;
@@ -84,7 +85,7 @@ public class Billedbehandling
 	private static Boolean enableComments = false;
 	private static Boolean enableCamera = true;
     
-    private static String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+    private static String default_file = "C:\\Users\\tooth\\Desktop\\test_orig.png";
     
     private static Mat matrix;
     
@@ -104,17 +105,20 @@ public class Billedbehandling
     static final int MAX_THRESHOLD = 100;
     static int maxCorners = 36;
     static Random rng = new Random(12345);
+    public static boolean camReady = false;
     // ############################################
  
     public Billedbehandling()
     {      
-    	
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
     	capture = new VideoCapture(1);
         capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
         capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
         
-         
+        capture.
+        
+        System.out.println("too fast or too slow?");
+        
         matrix = new Mat();
 
         /*
@@ -139,7 +143,7 @@ public class Billedbehandling
         	
             // Specifying path for where to save image
         	if(enableComments) System.out.println("Creating file : test_orig.png");
-            //String file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+            //String file = "C:\\Users\\tooth\\Desktop\\test_orig.png";
  
             // Saving the original RGB image without any modifications
             if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
@@ -163,7 +167,7 @@ public class Billedbehandling
  
             // Edge detection
             if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
-            String edgeFile = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
+            String edgeFile = "C:\\Users\\tooth\\Desktop\\test_1_edges.png";
             runEdgeDetection(isolatedRedColor, edgeFile);
             
             // Estimating corners
@@ -221,7 +225,7 @@ public class Billedbehandling
     	
         // Specifying path for where to save image
     	if(enableComments) System.out.println("Creating file : test_orig.png");
-        //String file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+        //String file = "C:\\Users\\tooth\\Desktop\\test_orig.png";
 
         // Saving the original RGB image without any modifications
         if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
@@ -234,7 +238,7 @@ public class Billedbehandling
 
         // Edge detection
         if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
-        String edgeFile = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
+        String edgeFile = "C:\\Users\\tooth\\Desktop\\test_1_edges.png";
         runEdgeDetection(isolatedRedColor, edgeFile);
         
         // Estimating corners
@@ -333,9 +337,9 @@ public class Billedbehandling
         Imgproc.medianBlur(frameGreen, frameGreen, 7);
  
         // Saving the image path and writing the new image
-        String fileTestB = "C:\\Users\\benja\\Desktop\\IdentifyBlue.png";
+        String fileTestB = "C:\\Users\\tooth\\Desktop\\IdentifyBlue.png";
         imageCodecs.imwrite(fileTestB, frameBlue);
-        String fileTestG = "C:\\Users\\benja\\Desktop\\IdentifyGreen.png";
+        String fileTestG = "C:\\Users\\tooth\\Desktop\\IdentifyGreen.png";
         imageCodecs.imwrite(fileTestG, frameGreen);
         
         // Detecting circles from the grayscale image and saving it in the circles matrix
@@ -419,7 +423,7 @@ public class Billedbehandling
 
             
             // Saving the image path and writing the new image
-            String fileBlue = "C:\\Users\\benja\\Desktop\\final_Blue.png";
+            String fileBlue = "C:\\Users\\tooth\\Desktop\\final_Blue.png";
             imageCodecs.imwrite(fileBlue, printBlue);
         }
         
@@ -451,8 +455,8 @@ public class Billedbehandling
                     8,
                     0);
             // Saving the image path and writing the new image
-            //String file = "C:\\Users\\benja\\Desktop\\test_Green.png";
-            String fileGreen = "C:\\Users\\benja\\Desktop\\final_Green.png";
+            //String file = "C:\\Users\\tooth\\Desktop\\test_Green.png";
+            String fileGreen = "C:\\Users\\tooth\\Desktop\\final_Green.png";
             imageCodecs.imwrite(fileGreen, printGreen);
         }
         
@@ -534,7 +538,7 @@ public class Billedbehandling
     private static void printOutlineToOrigImg(List<Point> localPoints) 
     {
     	// Load an image
-    	String default_file = "C:\\Users\\benja\\Desktop\\test_orig.png";
+    	String default_file = "C:\\Users\\tooth\\Desktop\\test_orig.png";
         Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
         
         Mat copy = src.clone();
@@ -546,7 +550,7 @@ public class Billedbehandling
         Imgproc.line(copy, localPoints.get(HB), localPoints.get(VB), new Scalar(200, 200, 0, 255), 1);
         Imgproc.line(copy, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 1);
         
-        imageCodecs.imwrite("C:\\Users\\benja\\Desktop\\test_orig_mod.png", copy);
+        imageCodecs.imwrite("C:\\Users\\tooth\\Desktop\\test_orig_mod.png", copy);
     }
     
     /**
@@ -712,7 +716,7 @@ public class Billedbehandling
                     0);
  
             // Saving the image path and writing the new image
-            String file = "C:\\Users\\benja\\Desktop\\test1.png";
+            String file = "C:\\Users\\tooth\\Desktop\\test1.png";
             imageCodecs.imwrite(file, frameColor);
             // ---------------------------------------------------------------------------------------------------------
         } // End of for loop for each detected circle
@@ -735,7 +739,7 @@ public class Billedbehandling
         Imgproc.blur(frame, frame, new Size(3,3), new Point(-1,-1));
  
         // Saving the image path and writing the new image
-        String file = "C:\\Users\\benja\\Desktop\\test1.png";
+        String file = "C:\\Users\\tooth\\Desktop\\test1.png";
         imageCodecs.imwrite(file, frame);
  
         return frame;
@@ -763,7 +767,7 @@ public class Billedbehandling
         /*
         Scanner scan = null;
         try {
-            scan = new Scanner(new File("C:\\Users\\benja\\Desktop\\config.txt"));
+            scan = new Scanner(new File("C:\\Users\\tooth\\Desktop\\config.txt"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -819,7 +823,7 @@ public class Billedbehandling
         }
  
         // Saving the image path
-        String file = "C:\\Users\\benja\\Desktop\\test3-matrix-output.png";
+        String file = "C:\\Users\\tooth\\Desktop\\test3-matrix-output.png";
         imageCodecs.imwrite(file, imgMat);
  		*/
         return localGrid;
@@ -833,7 +837,7 @@ public class Billedbehandling
         BufferedImage bi = null;
  
         try {
-            bi = ImageIO.read(new File("C:\\Users\\benja\\Desktop\\test1.png"));
+            bi = ImageIO.read(new File("C:\\Users\\tooth\\Desktop\\test1.png"));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to load input image");
@@ -862,7 +866,7 @@ public class Billedbehandling
         }
  
         // Saving the image path
-        String file = "C:\\Users\\benja\\Desktop\\test3-matrix-output.png";
+        String file = "C:\\Users\\tooth\\Desktop\\test3-matrix-output.png";
         imageCodecs.imwrite(file, imgMat);
  
         return localMap;
@@ -871,7 +875,7 @@ public class Billedbehandling
     
     private static List<Point> RunUpdate() 
     {
-        String filename = "C:\\Users\\benja\\Desktop\\test_1_edges.png";
+        String filename = "C:\\Users\\tooth\\Desktop\\test_1_edges.png";
         src = Imgcodecs.imread(filename);
         if (src.empty()) {
             System.err.println("Cannot read image: " + filename);
@@ -1094,7 +1098,7 @@ public class Billedbehandling
                 0,
                 0);
         
-        imageCodecs.imwrite("C:\\Users\\benja\\Desktop\\test_dynamic_color.png", cloneMat);
+        imageCodecs.imwrite("C:\\Users\\tooth\\Desktop\\test_dynamic_color.png", cloneMat);
     }
     
     public static BufferedImage Mat2BufferedImage(Mat matrix)throws IOException {
