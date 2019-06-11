@@ -90,12 +90,12 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 			OF = "0F:1;"; //forward is 1
 			if (dist > 300)
 			{
-				OR = "0R:"+dist+";"; //rotate 200 on both motors
+				OR = "0R:200;"; //rotate 200 on both motors
 				OS = "0S:150;"; //speed is 150
 			}
 			else {
 				OS = "0S:150;"; //speed is 50
-				OR = "0R:"+dist+";"; //Hardcoded 200 rotations on motor
+				OR = "0R:200;"; //Hardcoded 200 rotations on motor
 			}
 		}
 
