@@ -5,8 +5,8 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import RouteCalculator.PointInGrid;
-import RouteCalculator.RouteCalculator;
+//import RouteCalculator.PointInGrid;
+//import RouteCalculator.RouteCalculator;
 
 public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 
@@ -16,7 +16,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	public static final int FORWARD = 38, //pil op
 			STOP = 81, //Q = Stops motors
 	TURNLEFT = 37, // Pil venstre
-	TURNRIGHT = 39, // Pil højre
+	TURNRIGHT = 39, // Pil hï¿½jre
 	BACKWARD = 40, //pil ned
 	ARMUP = 88, // X
 	ARMDOWN = 90, // Z
@@ -25,8 +25,8 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	WHEELSTOP = 68, // D
 	UNLOAD = 80, //P = unload
 	GRAPPLEARMFUNCTION = 86; // V = grappleFunction ------------ FIX
-	
-	
+
+
 	public static boolean robotExecuting;
 	public static int [] [] GRID = new int [20][20];
 
@@ -46,8 +46,8 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	/**
 	 * @param title : unsure, suspect it sets the title of the GUI
 	 * @param ip : the ip address in which we want to show in the GUI.
-	 * @throws IOException 
-	 * @throws UnknownHostException 
+	 * @throws IOException
+	 * @throws UnknownHostException
 	 */
 	public RemoteCarClient(String title, String ip) throws UnknownHostException, IOException
 	{
@@ -83,7 +83,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 //		if (Math.abs(posPoint.getX()-destPoint.getX()) > RouteCalculator.TrackWidth/2
 //				&& Math.abs(posPoint.getY()-destPoint.getY()) > RouteCalculator.TrackLenght/2)
 
-		
+
 			COMMAND = rc.getDir(conPoint, posPoint, destPoint);
 
 
