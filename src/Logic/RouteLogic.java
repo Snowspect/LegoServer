@@ -285,8 +285,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		double Slope = (dest.getX() - robotMiddle.getX()) / (dest.getY() - robotMiddle.getY());
 		double Intercept = robotMiddle.getX() - Slope * robotMiddle.getY();
 		
-		
-		//Needs fixing
 		if(robotMiddle.getX() <= dest.getX() && Math.abs(robotMiddle.getY()-dest.getY()) < Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 4;
 		if (robotMiddle.getY() >= dest.getY() && Math.abs(robotMiddle.getY()-dest.getY()) >= Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 3;
 		if (robotMiddle.getX() >= dest.getX() && Math.abs(robotMiddle.getY()-dest.getY()) < Math.abs(robotMiddle.getX()-dest.getX())) checkpoint = 2;
@@ -472,15 +470,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		 * This inserts 6 balls into the system, whereas one is outside the main barrier.
 		 */
 			int ball = 4;
-			//SimulatedGrid[12][5] = ball;
+			SimulatedGrid[12][5] = ball;
 			SimulatedGrid[10][10] = ball;
-//			SimulatedGrid[12][16] = ball;
-//			SimulatedGrid[3][6] = ball;
-//			SimulatedGrid[7][15] = ball;
+			//SimulatedGrid[5][14] = ball;
+			SimulatedGrid[3][6] = ball;
+			SimulatedGrid[12][15] = ball;
 			SimulatedGrid[19][19] = ball;
 	}
 
-	
 	/**
 	 * Finds elements in grid (used for simulation) 
 	 * In the actual implementation, the image recog will send the grid info in lists
@@ -549,7 +546,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 */
 	public boolean checkDirectPath(List<PointInGrid> directpath)
 	{
-		boolean bøv = true;
 		for (PointInGrid p : directpath)
 		{
 			//checks if the simulatedGrid is initialized or if the actual grid is.
@@ -557,7 +553,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			{
 				if(SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE)
 				{
-					bøv = false;
+					return false;
 				}
 			}
 			
@@ -565,15 +561,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			{
 				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE)
 				{
-					bøv = false;
+					return false;
 				}
 			}
 			
 		}
-		return bøv;
+		return true;
 	}
 
- 
 	/**
 	 * Checks to see if the robot can get a 
 	 * 90 degree angle by rotating around itself that points towards the nearest ball
@@ -660,4 +655,30 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	{
 		//RC.SendCommandString(command);
 	}
+
+	
+	//			Getters			//
+	
+	private int[][] getSimulatedGrid() {
+		return SimulatedGrid;
+	}
+
+	public PointInGrid getRobotMiddle() {
+		return robotMiddle;
+	}
+
+	private PointInGrid getRobotFront() {
+		return robotFront;
+	}
+
+	public List<PointInGrid> getBalls() {
+		return Balls;
+	}
+
+
+
+
+
+
+
 }
