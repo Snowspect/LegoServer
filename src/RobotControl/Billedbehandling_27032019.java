@@ -17,7 +17,7 @@ import java.io.IOException;
  
 import static org.opencv.core.Core.inRange;
  
-public class Billedbehandling_27032019
+public class Billedbehandling_27032019 implements Runnable
 {
     // The camera has a maximum resolution of 1920x1080
     public static int imageWidth = 1920;                // Image width
@@ -299,4 +299,10 @@ public class Billedbehandling_27032019
         System.out.println("        ------ Press 1 to capture new image ------        ");
  
     } // End of create_matrix()
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
 } // End of public class Billedbehandling

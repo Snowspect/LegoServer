@@ -1,5 +1,6 @@
 package main;
 
+import RobotControl.Billedbehandling_27032019;
 import RobotControl.RemoteCarClient;
 
 import java.io.IOException;
@@ -9,7 +10,8 @@ import Logic.RouteLogic;
 
 public class Main {
 
-	//public static RemoteCarClient RC;
+	public static RemoteCarClient RC;
+	public static Billedbehandling_27032019 ImageRec;
 	
 	public static void main(String[] args) {
 
@@ -22,20 +24,23 @@ public class Main {
 //		if (args.length > 0) {
 //			ip = args[0];
 //		}
-//		try {
-//			//activates the connection and allows for communication with thread
-//			RC = new RemoteCarClient("R/C Client", ip);
-//			Thread thread = new Thread(RC);
-//			thread.setDaemon(true);
-//			thread.start();
-//			
-//			new RouteLogic().running();
-//			
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
+		try {
+			//activates the connection and allows for communication with thread
+			RC = new RemoteCarClient("R/C Client", ip);
+			Thread thread = new Thread(RC);
+			thread.setDaemon(true);
+			thread.start();
+			
+			/*ImageRec = new Billedbehandling_27032019();
+			Thread thread2 = new Thread(ImageRec);
+			thread2.setDaemon(true);
+			thread2.start();*/
+			
+			new RouteLogic().running();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-
 }

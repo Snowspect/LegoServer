@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.swing.plaf.synth.Region;
+
+import RobotControl.Billedbehandling_27032019;
 import RobotControl.RemoteCarClient;
 import RouteCalculator.PointInGrid;
 
@@ -26,20 +29,22 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	private int checkpoint;
 	private List<PointInGrid> coordsOnPath;
 	private PointInGrid robotMiddle, robotFront;
+	private PointInGrid safeHazardPoint, smallGoalSafeSpot, smallGoal;
 	private PointInGrid firstConnection, LastTouchedConnectionPoint, newConnectionPoint, branchOffPoint;
-	private List<PointInGrid> Balls, ConnectionPoints; 
+	private List<PointInGrid> Balls, ConnectionPoints, safeBalls, dangerBalls, dangerPickupPoints; 
 	private int[][] ImageGrid;
-	private final int OBSTACLE = 1;
-	boolean firstConnectionFound,firstConnectionTouched, programStillRunning, branchOff;
+	private final int OBSTACLE = 1, HAZARD = 20;
+	boolean firstConnectionFound,firstConnectionTouched, programStillRunning, branchOff, readyToNavigateToAHazardPoint, pickupBall;
+	private boolean returnToPrevHazardPoint, unloadBalls, SPINWIN;
 	private RemoteCarClient RC;
+	private Billedbehandling_27032019 ImageRec;
 	private RouteCalculatorInterface Calculator;
-	Scanner keyb = new Scanner(System.in);
+	Scanner keyb = new Scanner(System.in); //Hvad er det her???
 	
 	public RouteLogic() {
 		this.Calculator = new RouteCalculator();
-		//this.RC = Main.RC;
-		
-
+		this.RC = Main.RC;
+		this.ImageRec = Main.ImageRec;
 	}
 	
 	/**
@@ -106,21 +111,17 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		this.programStillRunning = true;
 		int counter =  0;
 		while (this.programStillRunning) {
-			//System.out.println("waiting status : " + RC.GetSendingStatus());
+			
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
 			PointInGrid nearestBall;
 			//TODO take picture and get elements
-			/*if(counter == 0)
-			{
-				CommunicateToServer(command);
-			}*/
-			
 			
 			//find all balls with a direct path
 			List<PointInGrid> ballsWithDirectPathFromRobot = BallsWithDirectPath(robotMiddle, Balls);
 			
 			System.out.println(ballsWithDirectPathFromRobot.size());
 			//if the list isn't empty
+			
 			if(!ballsWithDirectPathFromRobot.isEmpty())
 			{
 				System.out.println("Direct path found");
@@ -146,7 +147,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				//TODO make sequence or method that can pickup ball
 				//should be room for pickup of ball here and nullifying the nearestball object
 			}
-			else //the list of direct balls is empty
+			else//the list of direct balls is empty
 			{
 				//find nearest connection point
 				if(firstConnectionTouched == false) {
@@ -161,6 +162,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					System.out.println(robotFront.toString() + " : " + robotMiddle + " : " + newConnectionPoint);
 					String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
 					String a = keyb.next();
+					
+					//reset counter for this case
+					counter = 0;
 					if(counter == 0) {
 						robotFront = new PointInGrid(4,15);
 						findElementsInGrid();
@@ -173,14 +177,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 						firstConnectionTouched = true;
 //						Balls.remove(Balls.lastIndexOf(nearestBall));
 //						String pickup = "0F:11;0R:0;0S:0;0B:true";
-//						CommunicateToServer(pickup);
-						
+//						CommunicateToServer(pickup);	
 					}
-//					
-						
 					CommunicateToServer(commandToSend);
-//					LastTouchedConnectionPoint = newConnectionPoint; //now we know where we we touched initially
-					
 				}
 				else { //searches through connectionPoints and sets next connectionPoint appropriately
 					if(branchOff == true) {
@@ -191,7 +190,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 							//finds the closest connection point
 							newConnectionPoint = findFirstConnectionPoint(robotMiddle, ConnectionPoints);
 							//drives to that point
-//							LastTouchedConnectionPoint = newConnectionPoint; //this is due to resetting the robots route by getting it a totally new first connection point
 							String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
 							CommunicateToServer(commandToSend);
 							branchOff = false;
@@ -203,13 +201,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 							branchOff = false;
 						}
 					}
-//					else if(LastTouchedConnectionPoint.equals(newConnectionPoint)){
 					else if(robotMiddle.getX() == newConnectionPoint.getX() && robotMiddle.getY() == newConnectionPoint.getY()) {
 						//all this gets triggered if the robot has reached the newConnection point
 						int connPointIndexCount = 0;
 						for (PointInGrid point : ConnectionPoints) {
 							
-//							if(LastTouchedConnectionPoint.getX() == point.getX() && LastTouchedConnectionPoint.getY() == point.getY()){
 							if(robotMiddle.getX() == point.getX() && robotMiddle.getY() == point.getY()) {
 								if(connPointIndexCount == 0) newConnectionPoint = ConnectionPoints.get(2); //from top left to bottom left
 								if(connPointIndexCount == 1) newConnectionPoint = ConnectionPoints.get(0); //from top right to top left
@@ -218,10 +214,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 							}
 							connPointIndexCount++; //increment after first if statement as we now move on to next index
 						}
-						//don't drive right away as we need to check for closest ball we can't reach.
-						//to enforce our 90 degree angle rule while on path between two connPoints.
 					}
-//					else if(!LastTouchedConnectionPoint.equals(newConnectionPoint)) {
 					else if(!(robotMiddle.getX() == newConnectionPoint.getX() && robotMiddle.getY() == newConnectionPoint.getY())) {						//gets triggered if the robot hasn't touched the newConnectionPoint yet.
 						//we are currently either at a point or somewhere along a line bewtween
 						//two connection points
@@ -272,6 +265,80 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		}*/
 	}
 	
+	//an implementation that picks up safe balls first, then dangerous balls
+	//using two different rule sets.
+	public void runningTwo()
+	{
+		//INITIALIZE FOR TEST DATA
+		//WE NEED CONNECTION POINTS
+		//SAFE BALLS
+		//DANGER BALLS
+		//DANGER BALLS POINTS
+		//GOAL SPOT
+		//SAFE SPOT TO LAND BEFORE HANDING IN BALLS TO GOAL (GOAL SPOT)
+		this.ConnectionPoints = new ArrayList<PointInGrid>();
+		this.Balls = new ArrayList<PointInGrid>();
+		
+		CreateGrid(); //creates a artificial grid to use in simulation
+		findElementsInGrid(); //finds balls, robot points and connectionpoints
+		
+		//TODO take picture and get initial elements
+		
+		this.programStillRunning = true;
+		int counter =  0;
+		while (this.programStillRunning) {
+			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
+			PointInGrid nearestBall;
+			//TODO Get info from imageRec Thread
+			GetImageInfo();
+						
+			List<PointInGrid> ballsWithDirectPathFromRobot = BallsWithDirectPathObstacleHazard(robotMiddle, safeBalls);//find all balls with a direct path
+			if(SPINWIN == true)
+			{
+				CommunicateToServer("0F:3;0R:1500;0S:300;0B:true");
+				this.programStillRunning = false;
+			}
+			else if(ballsWithDirectPathFromRobot.size() != 0)
+			{
+				//finds the safest ball and communicates to the server
+				counter = NearestSafeBallPickupAlgorithm(ballsWithDirectPathFromRobot, counter);
+			}
+			else if(safeBalls.isEmpty() && !dangerBalls.isEmpty())//no more safe balls and still dangerous balls
+			{
+				HazardBallPickupAlgorithm();
+			}
+			else if(safeBalls.isEmpty() && dangerBalls.isEmpty()) //go to goal
+			{
+				//check for direct path to goal safe spot (not through hazard zone)
+				HeadForGoalAndUnload();
+			}
+			//We are at a point and can't reach any safe balls
+			else if(checkIfCoordsEqual(robotMiddle, newConnectionPoint)) { //sets the new connectionPoint
+				//all this gets triggered if the robot has reached the newConnection point
+				newConnectionPoint = nextConnPoint(robotMiddle, ConnectionPoints);
+			}
+			else { //we are not at a point and there is safe balls but they
+				   // can't get picked up
+				   // finds closest connectionPoint and drives to it.
+				newConnectionPoint = findFirstConnectionPoint(robotMiddle, ConnectionPoints);
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+				CommunicateToServer(commandToSend);
+			}
+		}
+	}
+	
+	
+	//GETS INFO FROM imagerecognition 
+	public void GetImageInfo()
+	{	
+//		ConnectionPoints = ImageRec.GetConnectionPoints();
+//		safeBalls = ImageRec.GetSafeBalls();
+//		dangerBalls = ImageRec.GetDangerBalls();
+//		dangerPickupPoints = ImageRec.GetHazardPoints();
+//		smallGoal = ImageRec.GetSmallGoal();
+//		smallGoalSafeSpot = ImageRec.GetSmallGoalSafeSpot();
+//		ImageGrid = ImageRec.GetTotalGrid();
+	}
 	/***
 	 * finds all points between to points
 	 * @param pos : robotMiddle
@@ -379,7 +446,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			if (Calculator.calc_Dist(Robot, Point) < dist) {
 				dist = Calculator.calc_Dist(Robot, Point);
 				closestPoint = Point;
-			}		
+			}
 		}
 		
 		return closestPoint;
@@ -656,8 +723,194 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		return ballsWithDirectPath;
 	}
 
+	//sends a string to the server
 	public void CommunicateToServer(String command)
 	{
-		//RC.SendCommandString(command);
+		RC.SendCommandString(command);
+	}
+	
+	//checks if two PointInGrids coords are equals
+	public boolean checkIfCoordsEqual(PointInGrid robotMiddle, PointInGrid dest)
+	{
+		if(robotMiddle.getX() == dest.getX() && robotMiddle.getY() == dest.getY()) return true;		
+		
+		return false;
+	}
+	
+	/**
+	 * finds the next connectionPoint as long as the robot is on one
+	 */
+	public PointInGrid nextConnPoint(PointInGrid robotMiddle, List<PointInGrid> ConnectionPoints)
+	{
+		int connPointIndexCount = 0;
+		for (PointInGrid point : ConnectionPoints) {
+			
+			if(robotMiddle.getX() == point.getX() && robotMiddle.getY() == point.getY()) {
+				if(connPointIndexCount == 0) return ConnectionPoints.get(2); //from top left to bottom left
+				if(connPointIndexCount == 1) return ConnectionPoints.get(0); //from top right to top left
+				if(connPointIndexCount == 2) return ConnectionPoints.get(3); //from bottom left to bottom right
+				if(connPointIndexCount == 3) return ConnectionPoints.get(1); //from bottom right to top right							
+			}	
+		}
+		return null;	
+	}
+	
+	/**
+	 * drives to closest connectionPoint
+	 * checks if it can find a hazard point it can navigate to
+	 * navigates to it, navigates to closest ball thereafter
+	 * returns to hazardpoint
+	 * returns to closest connectionPoint
+	 */
+	public void HazardBallPickupAlgorithm()
+	{
+		if(readyToNavigateToAHazardPoint == true)
+		{ //we reached a connectionPoint
+			//finds safe pickup point - navigate to it if possible
+			safeHazardPoint = findNearestBall(robotMiddle, dangerPickupPoints);
+			//not using directpathHazardCheck because the hazard spot can be in the hazard zone.
+			boolean allowTrip = checkDirectPath(pointsOnRoute(robotMiddle, safeHazardPoint));
+				if(allowTrip == true) //will be adjusted automatically next time method is called
+				{
+					String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+					CommunicateToServer(commandToSend);
+					if(checkIfCoordsEqual(robotMiddle, safeHazardPoint)) {
+						readyToNavigateToAHazardPoint = false;
+						pickupBall = true;
+					}
+				}
+				else { //find next connectionPoint on route
+					newConnectionPoint = nextConnPoint(robotMiddle, ConnectionPoints);
+					readyToNavigateToAHazardPoint = false;
+				}
+		}
+		else if(pickupBall == true) //if we have reached a hazard point and we can pickup the ball
+		{
+			newConnectionPoint = findNearestBall(robotMiddle, dangerBalls);
+			String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+			CommunicateToServer(commandToSend);
+			if(checkIfCoordsEqual(robotMiddle, newConnectionPoint)) {
+				pickupBall = false;
+				returnToPrevHazardPoint = true;
+			}
+			CommunicateToServerPickup();
+		}
+		else if(returnToPrevHazardPoint == true){ //if we have returned to our safe hazard point
+			newConnectionPoint = findFirstConnectionPoint(robotMiddle, ConnectionPoints); String commandToSend = Calculator.getDir(robotFront, robotMiddle, safeHazardPoint);
+			CommunicateToServer(commandToSend);
+			if(checkIfCoordsEqual(robotMiddle, newConnectionPoint)) returnToPrevHazardPoint = false;
+		}
+		else{ //constantly attempts to navigate to the closest connPoint
+			//gets conn point and calculates string to robot 
+			newConnectionPoint = findFirstConnectionPoint(robotMiddle, ConnectionPoints); String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+			CommunicateToServer(commandToSend);
+			if(checkIfCoordsEqual(robotMiddle, newConnectionPoint))
+			{
+				readyToNavigateToAHazardPoint = true;
+			}
+		}
+	}
+	
+	/**
+	 * sends the pickup command to the robot
+	 */
+	public void CommunicateToServerPickup()
+	{
+		CommunicateToServer("0F:11;0R:0;0S:0;0B:true;");
+	}
+
+	//picks up the nearest ball
+	public int NearestSafeBallPickupAlgorithm(List<PointInGrid> safeBalls, int counter)
+	{		
+		//if the list isn't empty
+		PointInGrid nearestBall = findNearestBall(robotMiddle, safeBalls);
+		String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
+		keyb.next();
+		CommunicateToServer(commandToSend);
+			
+		//Scenario to get close ball
+		if(counter == 0) {
+			robotFront = new PointInGrid(4,5);
+			findElementsInGrid();
+			counter++;
+		}
+		else if(counter == 1) { 
+			robotFront = new PointInGrid(3,6); robotMiddle = new PointInGrid(4,5); 
+			safeBalls.remove(safeBalls.lastIndexOf(nearestBall));
+			findElementsInGrid();
+			CommunicateToServerPickup();
+		}
+		return counter;
+	}
+	
+	//heads for goal safe spot and unloads
+	public void HeadForGoalAndUnload()
+	{
+		if(unloadBalls == true)
+		{
+			CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+			unloadBalls = false;
+			programStillRunning = false;
+		}
+		else {
+			boolean allowTrip = checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, smallGoalSafeSpot));
+			if(allowTrip == true)
+			{
+				newConnectionPoint = smallGoalSafeSpot;
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+				CommunicateToServer(commandToSend);
+				if(checkIfCoordsEqual(robotMiddle, newConnectionPoint))
+				{
+					allowTrip = false;
+					unloadBalls = true;
+				}
+			}
+		}
+	}
+	
+	//checks if a direct path touches hazard zones or obstacles
+	public boolean checkDirectPathObstacleHazard(List<PointInGrid> directpath)
+	{
+		boolean bøv = true;
+		for (PointInGrid p : directpath)
+		{
+			//checks if the simulatedGrid is initialized or if the actual grid is.
+			if(SimulatedGrid != null)
+			{
+				if((SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE) 
+				   || SimulatedGrid[(int)p.getX()][(int)p.getY()] == HAZARD)
+				{
+					bøv = false;
+				}
+			}
+			if(ImageGrid != null)
+			{
+				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE
+				  || ImageGrid[(int) p.getX()][(int) p.getY()] == HAZARD)
+				{
+					bøv = false;
+				}
+			}
+			
+		}
+		return bøv;
+	}
+
+	//returns a list of balls that isn't obstructed by obstacles or a hazard zone
+	public List<PointInGrid> BallsWithDirectPathObstacleHazard(PointInGrid robotMiddle, List<PointInGrid> balls)
+	{
+		List<PointInGrid> ballsWithDirectPath = new ArrayList<PointInGrid>();
+		//for each ball, check its path and put it into a list if no obstacles
+		for (PointInGrid ballPoint : balls) {
+			if(checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, ballPoint))) //gets route, checks route
+			{
+				for (PointInGrid p : coordsOnPath)
+					System.out.println("GETX: " + p.getX() + ", GETY: " + p.getY() + ", ALL: " + SimulatedGrid[(int) p.getX()][(int) p.getY()]);
+				//System.out.println("BOOL: " + checkDirectPath(pointsOnRoute(robotMiddle, ballPoint)));
+				keyb.next();
+				ballsWithDirectPath.add(ballPoint);
+			}
+		}
+		return ballsWithDirectPath;
 	}
 }
