@@ -274,8 +274,6 @@ public class ServerRemote {
 //		motorLeft.backward();
 		motorRight.rotate(wheelRotation,true);
 		motorLeft.rotate(wheelRotation,false);
-		int counter = 0;
-		//
 	}
 
 	/**
@@ -300,8 +298,8 @@ public class ServerRemote {
 	public void turnLeft(int speed, int angle, boolean override) {
 		motorRight.setSpeed(speed);
 		motorLeft.setSpeed(speed);
-		motorRight.rotate(-angle, true);
-		motorLeft.rotate(angle, false);
+		motorRight.rotate(angle, true);
+		motorLeft.rotate(-angle, false);
 
 	}
 
@@ -318,8 +316,8 @@ public class ServerRemote {
 	void turnRight(int speed, int angle, boolean override) {
 		motorRight.setSpeed(speed);
 		motorLeft.setSpeed(speed);
-		motorRight.rotate(angle, true);
-		motorLeft.rotate(-angle, false);
+		motorRight.rotate(-angle, true);
+		motorLeft.rotate(angle, false);
 	}
 
 	/**

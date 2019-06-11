@@ -5,6 +5,8 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import RouteCalculator.RouteCalculator;
+
 //import RouteCalculator.PointInGrid;
 //import RouteCalculator.RouteCalculator;
 
@@ -30,8 +32,6 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	public static boolean robotExecuting;
 	public static int [] [] GRID = new int [20][20];
 
-		PointInGrid [] checkPoints = { new PointInGrid(480, 270), new PointInGrid(1440, 270),
-										new PointInGrid(480, 810), new PointInGrid(1440, 810) };
 	Button btnConnect;
 	TextField txtIpAddress;
 	TextArea messages;
@@ -76,7 +76,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 	 * @param posPoint : where we are located.
 	 * @param destPoint : Where we are going ultimately.
 	 */
-	public void roadtrip(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint, boolean goingOverNOGO) {
+/*	public void roadtrip(PointInGrid conPoint, PointInGrid posPoint, PointInGrid destPoint, boolean goingOverNOGO) {
 
 		String COMMAND;
 
@@ -89,7 +89,7 @@ public class RemoteCarClient extends Frame implements KeyListener, Runnable {
 
 		System.out.println(COMMAND);
 
-	}
+	}*/
 
 	 /* Sends the string for the robot to interpret.
 	 * @param command : currently the number which is written to the server
