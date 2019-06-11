@@ -290,18 +290,22 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		this.programStillRunning = true;
 		int counter =  0;
+		Point nearestBall;
 		while (this.programStillRunning) {
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
+			
+			
+			//Get info from imageRec.
+			GetImageInfo();
+			
 			while(RC.IsRobotExecuting() == true) {}
 	
-			Point nearestBall;
-			//TODO Get info from imageRec Thread
-			GetImageInfo();
 						
 			List<Point> ballsWithDirectPathFromRobot = BallsWithDirectPathObstacleHazard(robotMiddle, safeBalls);//find all balls with a direct path
 			if(SPINWIN == true)
 			{
 				CommunicateToServer("0F:3;0R:1500;0S:300;0B:true");
+				//this stops the while loop
 				this.programStillRunning = false;
 			}
 			else if(ballsWithDirectPathFromRobot.size() != 0)
@@ -309,7 +313,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				//finds the safest ball and communicates to the server
 				//counter = 
 				NearestSafeBallPickupAlgorithm(ballsWithDirectPathFromRobot, counter);
-				//IMPLEMENT PICKUP
+				
 			}
 //			else if(safeBalls.isEmpty() && !dangerBalls.isEmpty())//no more safe balls and still dangerous balls
 //			{
@@ -325,7 +329,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 //				HeadForGoalAndUnload();
 //			}
 			//We are at a point and can't reach any safe balls
-			else if(checkIfCoordsEqual(robotMiddle, newConnectionPoint)) { //sets the new connectionPoint
+			else if(checkIfCoordsNear(robotMiddle, newConnectionPoint)) { //sets the new connectionPoint
 				//all this gets triggered if the robot has reached the newConnection point
 				newConnectionPoint = nextConnPoint(robotMiddle, ConnectionPoints);
 			}
@@ -891,7 +895,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		{
 			CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
 			unloadBalls = false;
-			programStillRunning = false;
+			SPINWIN = true;
 		}
 		else {
 			boolean allowTrip = checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, smallGoalSafeSpot));
@@ -912,7 +916,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//checks if a direct path touches hazard zones or obstacles
 	public boolean checkDirectPathObstacleHazard(List<Point> directpath)
 	{
-		boolean bøv = true;
 		for (Point p : directpath)
 		{
 			//checks if the simulatedGrid is initialized or if the actual grid is.
@@ -921,7 +924,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				if((SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE) 
 				   || SimulatedGrid[(int)p.getX()][(int)p.getY()] == HAZARD)
 				{
-					bøv = false;
+					return false;
 				}
 			}
 			if(ImageGrid != null)
@@ -929,12 +932,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE
 				  || ImageGrid[(int) p.getX()][(int) p.getY()] == HAZARD)
 				{
-					bøv = false;
+					return false;
 				}
 			}
-			
 		}
-		return bøv;
+		return true;
 	}
 
 	//returns a list of balls that isn't obstructed by obstacles or a hazard zone
@@ -945,10 +947,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		for (Point ballPoint : balls) {
 			if(checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, ballPoint))) //gets route, checks route
 			{
-				for (Point p : coordsOnPath)
-					System.out.println("GETX: " + p.getX() + ", GETY: " + p.getY() + ", ALL: " + SimulatedGrid[(int) p.getX()][(int) p.getY()]);
-				//System.out.println("BOOL: " + checkDirectPath(pointsOnRoute(robotMiddle, ballPoint)));
-				keyb.next();
 				ballsWithDirectPath.add(ballPoint);
 			}
 		}
