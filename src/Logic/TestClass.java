@@ -13,8 +13,8 @@ public class TestClass {
 	private static List<PointInGrid> listofBallCoords = new ArrayList<PointInGrid>();
 	private static PointInGrid robotMiddle = new PointInGrid(0, 0);
 	private static PointInGrid robotFront = new PointInGrid(0, 0);
-	private static int rows = 20;
-	private static int columns = 20;
+	private static int rows = 1080;
+	private static int columns = 1920;
 	private static int[][] SimulatedGrid = new int[rows][columns];	
 	
 	private static RouteCalculatorInterface Calculator;
@@ -78,14 +78,19 @@ public class TestClass {
 		/**
 		 * This for loop construction simulates walls in the grid
 		 */
+		int rows = 1080;
+		int columns = 1920;
+		/**
+		 * This for loop construction simulates walls in the grid
+		 */
 		//first for loop iterates downwards through rows
 		//second for loop iterates to the right through columns
 		for (int a = 0; a <= rows; a++) {
 			for (int b = 0; b < columns; b++) {
-				if((a == 1 || a == 18) && b >= 1 && b <= 18) SimulatedGrid[a][b] = 1;
-				if((b == 1 || b == 18) && a >= 1 && a <= 18) SimulatedGrid[a][b] = 1;
-				if(a == 9 && b >= 6 && b <= 13) SimulatedGrid[a][b] = 1;
-				if(b == 9 && a >= 6 && a <= 13) SimulatedGrid[a][b] = 1;
+				if((a == 1 || a == 1078) && b >= 1 && b <= 1918) SimulatedGrid[a][b] = 1;
+				if((b == 1 || b == 1918) && a >= 1 && a <= 1078) SimulatedGrid[a][b] = 1;
+				if(a == 9*54 && b >= 6*96 && b <= 13*96) SimulatedGrid[a][b] = 1;
+				if(b == 9*96 && a >= 6*54 && a <= 13*54) SimulatedGrid[a][b] = 1;
 			}
 		}
 		
@@ -94,31 +99,32 @@ public class TestClass {
 		 */
 			for (int a = 0; a < rows; a++) {
 				for (int b = 0; b < columns; b++) {
-					if((a == 3 && b == 3)) SimulatedGrid[a][b] = 5;
-					if((b == 3 && a == 16)) SimulatedGrid[a][b] = 6;
-					if((a == 16 && b == 16)) SimulatedGrid[a][b] = 7;
-					if((b == 16 && a == 3)) SimulatedGrid[a][b] = 8;
+					if((a == 3*54 && b == 3*96)) SimulatedGrid[a][b] = 5;
+					if((b == 3*96 && a == 16*54)) SimulatedGrid[a][b] = 6;
+					if((a == 16*54 && b == 16*96)) SimulatedGrid[a][b] = 7;
+					if((b == 16*96 && a == 3*54)) SimulatedGrid[a][b] = 8;
 				}
 			}
 		
 		/**
 		 * This line inserts the robot into the grid
 		 */
-		int RobotFront = 3;
-		int RobotMid = 2;
-		SimulatedGrid[5][14] = RobotMid;
-		SimulatedGrid[6][15] = RobotFront;
+			int RobotFront = 3;
+			int RobotMid = 2;
+			SimulatedGrid[500][1400] = RobotMid;
+			SimulatedGrid[670][1400] = RobotFront;
 			
 		/**
 		 * This inserts 6 balls into the system, whereas one is outside the main barrier.
+		 * size: 2cm = 
 		 */
-		int ball = 4;
-		//SimulatedGrid[12][5] = ball;
-		SimulatedGrid[10][10] = ball;
-		//SimulatedGrid[5][14] = ball;
-		SimulatedGrid[3][6] = ball;
-		//SimulatedGrid[12][15] = ball;
-		SimulatedGrid[19][19] = ball;
+			int ball = 4;
+			//SimulatedGrid[12][5] = ball;
+			SimulatedGrid[1000][1000] = ball;
+//			SimulatedGrid[12][16] = ball;
+//			SimulatedGrid[3][6] = ball;
+//			SimulatedGrid[7][15] = ball;
+			SimulatedGrid[1000][1900] = ball;
 	}
 	
 	
