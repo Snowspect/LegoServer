@@ -280,12 +280,15 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//DANGER BALLS POINTS
 		//GOAL SPOT
 		//SAFE SPOT TO LAND BEFORE HANDING IN BALLS TO GOAL (GOAL SPOT)
-		this.ConnectionPoints = new ArrayList<Point>();
-		this.Balls = new ArrayList<Point>();
+
 		
-		CreateGrid(); //creates a artificial grid to use in simulation
-		findElementsInGrid(); //finds balls, robot points and connectionpoints
 		
+//		this.ConnectionPoints = new ArrayList<Point>();
+//		this.Balls = new ArrayList<Point>();
+//		
+//		CreateGrid(); //creates a artificial grid to use in simulation
+//		findElementsInGrid(); //finds balls, robot points and connectionpoints
+//		
 		//TODO take picture and get initial elements
 		
 		this.programStillRunning = true;
@@ -293,9 +296,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		Point nearestBall;
 		while (this.programStillRunning) {
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
-			
-			
+				
 			//Get info from imageRec.
+			runImageRec();
 			GetImageInfo();
 			
 			while(RC.IsRobotExecuting() == true) {}
