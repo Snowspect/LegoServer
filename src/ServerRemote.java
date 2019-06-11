@@ -107,11 +107,11 @@ public class ServerRemote {
 			unload();
 			break;
 		case RemoteCarClient.TURNLEFT: //f4
-			turnRight(400, 10, true);
+			turnRight(150, 45, true);
 			//gyroSensor.reset();
 			break;
 		case RemoteCarClient.TURNRIGHT: // f5
-			turnLeft(400, 10, true);
+			turnLeft(150, 45, true);
 			//gyroSensor.reset();
 			break;
 	}
@@ -235,10 +235,10 @@ private class EscapeListener implements KeyListener
 public void driveForward(int speed, float wheelrotation, boolean override) { // w for activate
 	motorLeft.setSpeed(speed);
 	motorRight.setSpeed(speed);
-	motorRight.forward();
-	motorLeft.forward();
+	motorRight.rotate(-360, true);;
+	motorLeft.rotate(-360, true);
 	int counter = 0;
-
+//34,2 angle = 1 centimeter fremadrettet
 }
 	
 /**
