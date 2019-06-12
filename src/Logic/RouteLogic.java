@@ -53,6 +53,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		this.ImageRec = BB;
 		this.Calculator = new RouteCalculator();
 		this.RC = Main.RC;
+		
+		
 	}
 	
 	/**
@@ -306,6 +308,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			//Get info from imageRec.
 			ImageRec.runImageRec();
 			GetImageInfo();
+			for (int i = 0; i < ImageRec.listOfBallCoordinates.size(); i++) {        
+	        	System.out.println("Ball coordinate : x = " +ImageRec.listOfBallCoordinates.get(i).x+ " y = " +ImageRec.listOfBallCoordinates.get(i).y);
+	        }
+	        System.out.println("Green robot marker : x = " +ImageRec.robotGreenMarker.x+ " y = " +ImageRec.robotGreenMarker.y);
+	        System.out.println("Blue  robot marker : x = " +ImageRec.robotBlueMarker.x+ " y = " +ImageRec.robotBlueMarker.y + 
+	        		"_________________________________________________________");
+		
 			
 			while(RC.IsRobotExecuting() == true) {}
 	

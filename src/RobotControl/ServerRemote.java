@@ -18,7 +18,7 @@ import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.RegulatedMotor;
 import lejos.robotics.SampleProvider;
-
+import lejos.hardware.Audio;
 public class ServerRemote {
 
 	/// VARIABLES START ///

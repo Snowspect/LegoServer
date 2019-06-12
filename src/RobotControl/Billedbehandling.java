@@ -25,9 +25,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.plaf.ColorUIResource;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.awt.Image;
@@ -48,14 +50,14 @@ public class Billedbehandling
     private static Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!) (Better than original : (140, 110, 255, 0))
     
     // Color range for detecting BLUE circle on robot
-    private static Scalar minBlue = new Scalar(90, 0, 0, 0);  	// BGR-A (NOT RGB!)
-    private static Scalar maxBlue = new Scalar(255, 70, 65, 0); // BGR-A (NOT RGB!)
+    private static Scalar minBlue = new Scalar(110, 0, 0, 0);  	// BGR-A (NOT RGB!)
+    private static Scalar maxBlue = new Scalar(255, 100, 100, 0); // BGR-A (NOT RGB!)
     
     // Color range for detecting GREEN circle on robot
     //private static Scalar minGreen = new Scalar(0, 100, 0, 0);	// BGR-A (NOT RGB!)
     //private static Scalar maxGreen = new Scalar(90, 255, 90, 0);// BGR-A (NOT RGB!)
-    private static Scalar minGreen = new Scalar(0, 100, 0, 0);	// BGR-A (NOT RGB!)
-    private static Scalar maxGreen = new Scalar(110, 255, 80, 0);// BGR-A (NOT RGB!)
+    private static Scalar minGreen = new Scalar(0, 110, 0, 0);	// BGR-A (NOT RGB!)
+    private static Scalar maxGreen = new Scalar(100, 255, 100, 0);// BGR-A (NOT RGB!)
     
     // Color range for dynamic GREEN & BLUE
     private static Scalar minBlueDynamic = new Scalar(90, 0, 0, 0);  	// BGR-A (NOT RGB!)
@@ -74,9 +76,9 @@ public class Billedbehandling
 	// Variables to be fetched by the logic
     public static int[][] arrayMap = new int[imageHeight][imageWidth];
     public static List<Point> squareCorners = new ArrayList<>();
-    public static List<Point> listOfBallCoordinates;
-    public static Point robotBlueMarker = new Point();
-    public static Point robotGreenMarker = new Point();
+    public static List<Point> listOfBallCoordinates = new ArrayList<>();
+    public static Point robotBlueMarker;
+    public static Point robotGreenMarker;
 
     // Creating an array of points
     private static Point[] robotCameraPoints = new Point[2];
@@ -85,7 +87,7 @@ public class Billedbehandling
 	private static Boolean enableComments = false;
 	private static Boolean enableCamera = true;
     
-    private static String default_file = "C:\\Users\\tooth\\Desktop\\test_orig.png";
+    private static String default_file = "C:\\Users\\Oii\\Desktop\\test_orig.png";
     
     private static Mat matrix;
     
@@ -111,11 +113,13 @@ public class Billedbehandling
     public Billedbehandling()
     {      
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
-    	capture = new VideoCapture(0);
+    	capture = new VideoCapture(1);
         capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
         capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
         
         matrix = new Mat();
+        robotBlueMarker = new Point();
+        robotGreenMarker = new Point();
 
         /*
         // The detection program only runs when the user has pressed 1
@@ -139,7 +143,7 @@ public class Billedbehandling
         	
             // Specifying path for where to save image
         	if(enableComments) System.out.println("Creating file : test_orig.png");
-            //String file = "C:\\Users\\tooth\\Desktop\\test_orig.png";
+            //String file = "C:\\Users\\Oii\\Desktop\\test_orig.png";
  
             // Saving the original RGB image without any modifications
             if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
@@ -163,7 +167,7 @@ public class Billedbehandling
  
             // Edge detection
             if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
-            String edgeFile = "C:\\Users\\tooth\\Desktop\\test_1_edges.png";
+            String edgeFile = "C:\\Users\\Oii\\Desktop\\test_1_edges.png";
             runEdgeDetection(isolatedRedColor, edgeFile);
             
             // Estimating corners
@@ -221,7 +225,7 @@ public class Billedbehandling
     	
         // Specifying path for where to save image
     	if(enableComments) System.out.println("Creating file : test_orig.png");
-        //String file = "C:\\Users\\tooth\\Desktop\\test_orig.png";
+        //String file = "C:\\Users\\Oii\\Desktop\\test_orig.png";
 
         // Saving the original RGB image without any modifications
         if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
@@ -234,9 +238,10 @@ public class Billedbehandling
 
         // Edge detection
         if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
-        String edgeFile = "C:\\Users\\tooth\\Desktop\\test_1_edges.png";
+        String edgeFile = "C:\\Users\\Oii\\Desktop\\test_1_edges.png";
         runEdgeDetection(isolatedRedColor, edgeFile);
         
+        /*
         // Estimating corners
         squareCorners = RunUpdate();
                     
@@ -248,19 +253,27 @@ public class Billedbehandling
         
         // Create a new outline for the obstacle course
         //printOutlineToOrigImg(squareCorners);
+        */
         
         // Extend the cross
         
         // Running ball detection function.
         if(enableComments) System.out.println("Running circel detection : saved as test2.png");
-        findBalls(default_file, default_file, isolatedRedColor, arrayMap);
+        arrayMap = findBalls(default_file, isolatedRedColor, arrayMap);
         
+        /*
         for(int i = 0; i < listOfBallCoordinates.size(); i++) {
         	listOfBallCoordinates.set(i, calculateActualCoordinates(listOfBallCoordinates.get(i), "ball"));
         }
+        */
+        
         
         // Estimating Robot Coordinates based on image from webcam
-        robotCameraPoints = robotCircleCenter(matrix, default_file);
+        
+        //robotCameraPoints = robotCircleCenter(matrix, default_file);
+        
+        robotCameraPoints = newRobotDetect(default_file);
+        
         // Calculating the actual coordinates of the first robot marker
         robotBlueMarker = calculateActualCoordinates(robotCameraPoints[0], "robot");
         robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
@@ -269,10 +282,121 @@ public class Billedbehandling
         if(enableComments) System.out.println("Accessing create_matrix() - example image saved as test3.png");
         //arrayMap = create_matrix(arrayMap);
         
+        /*
+        for (int i = 0; i < listOfBallCoordinates.size(); i++) {        
+        	System.out.println("Ball coordinate : x = " +listOfBallCoordinates.get(i).x+ " y = " +listOfBallCoordinates.get(i).y);
+        }
+        System.out.println("Green robot marker : x = " +robotGreenMarker.x+ " y = " +robotGreenMarker.y);
+        System.out.println("Blue  robot marker : x = " +robotBlueMarker.x+ " y = " +robotBlueMarker.y);
+        System.out.println("_________________________________________________________");
+        */
+        
         //System.out.println("| ------------------------ Done ------------------------ |");
         //System.out.println("        ------ Press 1 to capture new image ------        ");  		
 	}
     
+	private static Point[] newRobotDetect(String default_file)
+    {
+        // Load an image
+        Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
+ 
+        // Check if image is loaded correctly
+        if (src.empty()) {
+            System.out.println("Error opening image!");
+            System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
+            System.exit(-1);
+        }
+ 
+        // Creating new matrix to hold grayscale image information
+        Mat gray = new Mat();
+        Mat print = new Mat(imageHeight, imageWidth, CvType.CV_8U);
+ 
+        // Converting the original image (src) into an grayscale image and saving it as grey
+        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+ 
+        // Adding some blur to the image to smooth out edges
+        Imgproc.medianBlur(gray, gray, 5);
+ 
+        // Creating new matrix to hold the detected circles
+        Mat circlesRobot = new Mat();
+ 
+        // Detecting circles from the grayscale image and saving it in the circles matrix
+        Imgproc.HoughCircles(gray, 
+        		circlesRobot, 
+        		Imgproc.HOUGH_GRADIENT, 
+        		1.0,
+                (double) gray.rows() / 25,  	// change this value to detect circles with different distances to each other (orig: 8)
+                25.0, 
+                14.0, 
+                17, 							// Minimum radius
+                21);           					// Maximum radius
+  
+        Point greenCircle = new Point();
+        Point blueCircle = new Point();
+        int blueMax = 0; 
+        int greenMax = 0;
+        int readColor = 0;
+        int R = 0;
+        int G = 0;
+        int B = 0;
+        
+        BufferedImage buffImg = null;
+    	try {
+			buffImg =  Mat2BufferedImage(src);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+        for (int x = 0; x < circlesRobot.cols(); x++)
+        {
+            double[] cRobot = circlesRobot.get(0, x);
+            // Calculation center of the circle
+            Point centerRobot = new Point(Math.round(cRobot[0]), Math.round(cRobot[1]));
+            int radius = (int) Math.round(cRobot[2]);           
+            
+            readColor = (buffImg.getRGB((int)centerRobot.x, (int)centerRobot.y));
+            
+			R = (readColor >> 16) & 0xff;
+			G = (readColor >> 8) & 0xff;
+			B = (readColor) & 0xff;
+            
+			if (G > greenMax) {
+				greenMax = G;
+				greenCircle = centerRobot;
+			}
+			if (B > blueMax) {
+				blueMax = B;
+				blueCircle = centerRobot;
+			}
+			
+            Imgproc.circle(src,       // Circle center
+                    centerRobot, 
+                    radius,
+                    new Scalar(0, 0, 0),
+                    3,
+                    0,
+                    0);
+            
+            // Saving the image path and writing the new image
+            String file = "C:\\Users\\Oii\\Desktop\\detect_all_circles.png";
+            imageCodecs.imwrite(file, src);
+        } // End of for loop for each detected circle
+        
+        /*
+        List<Point> finalPoints = new ArrayList();
+        
+        finalPoints.add(greenCircle);
+        finalPoints.add(blueCircle);
+        */
+        
+        Point[] finalPoints = new Point[2];
+        finalPoints[0] = new Point(blueCircle.x, blueCircle.y);
+        finalPoints[1] = new Point(greenCircle.x, greenCircle.y);
+        
+        return finalPoints;
+
+    } // End of private static void runOpenCV(...)
+	
     /**
      * Takes the original image and isolates the colors blue and green. 
      * The center of these colored circles is then determined and returned as a list of points.
@@ -318,7 +442,7 @@ public class Billedbehandling
 	    	frameGreen = src.clone();
     	}
     	
-        calibrateColor();
+        //calibrateColor();
 
         // Initializing color range
         inRange(frameBlue, minBlue, maxBlue, frameBlue);
@@ -333,9 +457,9 @@ public class Billedbehandling
         Imgproc.medianBlur(frameGreen, frameGreen, 7);
  
         // Saving the image path and writing the new image
-        String fileTestB = "C:\\Users\\tooth\\Desktop\\IdentifyBlue.png";
+        String fileTestB = "C:\\Users\\Oii\\Desktop\\IdentifyBlue.png";
         imageCodecs.imwrite(fileTestB, frameBlue);
-        String fileTestG = "C:\\Users\\tooth\\Desktop\\IdentifyGreen.png";
+        String fileTestG = "C:\\Users\\Oii\\Desktop\\IdentifyGreen.png";
         imageCodecs.imwrite(fileTestG, frameGreen);
         
         // Detecting circles from the grayscale image and saving it in the circles matrix
@@ -419,7 +543,7 @@ public class Billedbehandling
 
             
             // Saving the image path and writing the new image
-            String fileBlue = "C:\\Users\\tooth\\Desktop\\final_Blue.png";
+            String fileBlue = "C:\\Users\\Oii\\Desktop\\final_Blue.png";
             imageCodecs.imwrite(fileBlue, printBlue);
         }
         
@@ -451,8 +575,8 @@ public class Billedbehandling
                     8,
                     0);
             // Saving the image path and writing the new image
-            //String file = "C:\\Users\\tooth\\Desktop\\test_Green.png";
-            String fileGreen = "C:\\Users\\tooth\\Desktop\\final_Green.png";
+            //String file = "C:\\Users\\Oii\\Desktop\\test_Green.png";
+            String fileGreen = "C:\\Users\\Oii\\Desktop\\final_Green.png";
             imageCodecs.imwrite(fileGreen, printGreen);
         }
         
@@ -472,7 +596,7 @@ public class Billedbehandling
     private static Point calculateActualCoordinates(Point localPoint, String objectType) 
     {    	
     	// Boolean to enable console comments
-    	Boolean enableComments = true;
+    	Boolean enableComments = false;
     	
     	// Calculating how many pixels it takes to get a mm.
     	double mmToPixel = 1.7;
@@ -534,7 +658,7 @@ public class Billedbehandling
     private static void printOutlineToOrigImg(List<Point> localPoints) 
     {
     	// Load an image
-    	String default_file = "C:\\Users\\tooth\\Desktop\\test_orig.png";
+    	String default_file = "C:\\Users\\Oii\\Desktop\\test_orig.png";
         Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
         
         Mat copy = src.clone();
@@ -546,7 +670,7 @@ public class Billedbehandling
         Imgproc.line(copy, localPoints.get(HB), localPoints.get(VB), new Scalar(200, 200, 0, 255), 1);
         Imgproc.line(copy, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 1);
         
-        imageCodecs.imwrite("C:\\Users\\tooth\\Desktop\\test_orig_mod.png", copy);
+        imageCodecs.imwrite("C:\\Users\\Oii\\Desktop\\test_orig_mod.png", copy);
     }
     
     /**
@@ -623,10 +747,10 @@ public class Billedbehandling
      * @param default_file
      * @param frameColor
      */
-    private static int[][] findBalls(String filename, String default_file, Mat frameColor, int[][] localMap)
+    private static int[][] findBalls(String default_file, Mat frameColor, int[][] localMap)
     {
         // Load an image
-        Mat src = Imgcodecs.imread(filename, Imgcodecs.IMREAD_COLOR);
+        Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
  
         // Check if image is loaded correctly
         if (src.empty()) {
@@ -661,8 +785,6 @@ public class Billedbehandling
         										// Latest calibration : 8, 15)
         										// Eclipse calibration : 9, 11)
   
-        listOfBallCoordinates = new ArrayList<>(10);
-        
         for (int x = 0; x < circles.cols(); x++)
         {
             double[] c = circles.get(0, x);
@@ -675,7 +797,9 @@ public class Billedbehandling
             
             // Parsing a double value to an integer
             localMap[(int)center.y][(int)center.x] = 2;
+            //System.out.println("Ball : x = " +center.x+ " y = "+center.y);
             listOfBallCoordinates.add(center);
+            //System.out.println(" Size of ball list : " +listOfBallCoordinates.size());
  
             Imgproc.circle(src,            		// Circle center
                     center,
@@ -712,7 +836,7 @@ public class Billedbehandling
                     0);
  
             // Saving the image path and writing the new image
-            String file = "C:\\Users\\tooth\\Desktop\\test1.png";
+            String file = "C:\\Users\\Oii\\Desktop\\test1.png";
             imageCodecs.imwrite(file, frameColor);
             // ---------------------------------------------------------------------------------------------------------
         } // End of for loop for each detected circle
@@ -735,7 +859,7 @@ public class Billedbehandling
         Imgproc.blur(frame, frame, new Size(3,3), new Point(-1,-1));
  
         // Saving the image path and writing the new image
-        String file = "C:\\Users\\tooth\\Desktop\\test1.png";
+        String file = "C:\\Users\\Oii\\Desktop\\test1.png";
         imageCodecs.imwrite(file, frame);
  
         return frame;
@@ -763,7 +887,7 @@ public class Billedbehandling
         /*
         Scanner scan = null;
         try {
-            scan = new Scanner(new File("C:\\Users\\tooth\\Desktop\\config.txt"));
+            scan = new Scanner(new File("C:\\Users\\Oii\\Desktop\\config.txt"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -819,7 +943,7 @@ public class Billedbehandling
         }
  
         // Saving the image path
-        String file = "C:\\Users\\tooth\\Desktop\\test3-matrix-output.png";
+        String file = "C:\\Users\\Oii\\Desktop\\test3-matrix-output.png";
         imageCodecs.imwrite(file, imgMat);
  		*/
         return localGrid;
@@ -833,7 +957,7 @@ public class Billedbehandling
         BufferedImage bi = null;
  
         try {
-            bi = ImageIO.read(new File("C:\\Users\\tooth\\Desktop\\test1.png"));
+            bi = ImageIO.read(new File("C:\\Users\\Oii\\Desktop\\test1.png"));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to load input image");
@@ -862,7 +986,7 @@ public class Billedbehandling
         }
  
         // Saving the image path
-        String file = "C:\\Users\\tooth\\Desktop\\test3-matrix-output.png";
+        String file = "C:\\Users\\Oii\\Desktop\\test3-matrix-output.png";
         imageCodecs.imwrite(file, imgMat);
  
         return localMap;
@@ -871,7 +995,7 @@ public class Billedbehandling
     
     private static List<Point> RunUpdate() 
     {
-        String filename = "C:\\Users\\tooth\\Desktop\\test_1_edges.png";
+        String filename = "C:\\Users\\Oii\\Desktop\\test_1_edges.png";
         src = Imgcodecs.imread(filename);
         if (src.empty()) {
             System.err.println("Cannot read image: " + filename);
@@ -879,11 +1003,11 @@ public class Billedbehandling
         }
         Imgproc.cvtColor(src, srcGray, Imgproc.COLOR_BGR2GRAY);
         // Create and set up the window.
-        frame = new JFrame("Shi-Tomasi corner detector demo");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //frame = new JFrame("Shi-Tomasi corner detector demo");
+        //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // Set up the content pane.
         Image img = HighGui.toBufferedImage(src);
-        addComponentsToPane(frame.getContentPane(), img);
+        //addComponentsToPane(frame.getContentPane(), img);
         // Use the content pane's default BorderLayout. No need for
         // setLayout(new BorderLayout());
         // Display the window.
@@ -1017,7 +1141,7 @@ public class Billedbehandling
         pane.add(imgLabel, BorderLayout.CENTER);
     }
 
-    private static void calibrateColor() 
+    private void calibrateColor() 
     {
     	BufferedImage buffImg = null;
     	
@@ -1094,7 +1218,7 @@ public class Billedbehandling
                 0,
                 0);
         
-        imageCodecs.imwrite("C:\\Users\\tooth\\Desktop\\test_dynamic_color.png", cloneMat);
+        imageCodecs.imwrite("C:\\Users\\Oii\\Desktop\\test_dynamic_color.png", cloneMat);
     }
     
     public static BufferedImage Mat2BufferedImage(Mat matrix)throws IOException {
