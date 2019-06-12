@@ -42,7 +42,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		double angle2 = Math.atan2((destRow - posRow), (destCol - posCol)) * 180/Math.PI;
 		System.out.println("ControlAngle: " + angle1);
 		System.out.println("DestAngle: " + angle2);
-		//System.out.println("angle3: " + (angle2 - angle1) + "\n");
+		System.out.println("angle3: " + (angle2 - angle1) + "\n");
 		double angle = angle2 - angle1;
 			return angle;
 	}
