@@ -298,9 +298,8 @@ public class ServerRemote {
 	public void turnLeft(int speed, int angle, boolean override) {
 		motorRight.setSpeed(speed);
 		motorLeft.setSpeed(speed);
-		motorRight.rotate(angle, true);
-		motorLeft.rotate(-angle, false);
-
+		motorRight.rotate(-angle, true);
+		motorLeft.rotate(angle, false);
 	}
 
 	/**
@@ -316,8 +315,8 @@ public class ServerRemote {
 	void turnRight(int speed, int angle, boolean override) {
 		motorRight.setSpeed(speed);
 		motorLeft.setSpeed(speed);
-		motorRight.rotate(-angle, true);
-		motorLeft.rotate(angle, false);
+		motorRight.rotate(angle, true);
+		motorLeft.rotate(-angle, false);
 	}
 
 	/**
@@ -338,14 +337,14 @@ public class ServerRemote {
 		ArmWheelMoter.forward();
 		grappleArmDown();
 		try {
-			Thread.sleep(3000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		grappleArmUp();
 		try {
-			Thread.sleep(3000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

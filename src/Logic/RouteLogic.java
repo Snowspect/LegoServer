@@ -879,6 +879,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			//keyb.next();
 			CommunicateToServer(commandToSend);
 			ImageRec.runImageRec();
+			
+			GetImageInfo();
 		}
 		CommunicateToServerPickup();
 		
