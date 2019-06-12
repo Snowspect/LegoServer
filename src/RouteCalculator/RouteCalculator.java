@@ -98,7 +98,11 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 		System.out.println("Angle : " + angle);
 		//
-		if(dist > 60) {
+//		if(dist < 35) {
+//			
+//		}
+//		else 
+			if(dist > 60) {
 			if (angle > 4) {
 				OF = "0F:4;"; //function 4 (right)
 				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
@@ -112,14 +116,14 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				if (dist > 300)
 				{
 					//TODO 
-					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)-30) + ";"; //rotate 200 on both motors
 					//OR = "0R:200;"; //rotate 200 on both motors
 					OS = "0S:250;"; //speed is 150
 				}
 				else {
 					OS = "0S:250;"; //speed is 50
 //					OR = "0R:200;"; //Hardcoded 200 rotations on motor
-					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)-30) + ";"; //rotate 200 on both motors
 				}
 			}
 		}
@@ -137,14 +141,14 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				if (dist > 300)
 				{
 					//TODO 
-					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)-30) + ";"; //rotate 200 on both motors
 					//OR = "0R:200;"; //rotate 200 on both motors
 					OS = "0S:250;"; //speed is 150
 				}
 				else {
 					OS = "0S:250;"; //speed is 50
 //					OR = "0R:200;"; //Hardcoded 200 rotations on motor
-					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)-30) + ";"; //rotate 200 on both motors
 				}
 			}
 		}

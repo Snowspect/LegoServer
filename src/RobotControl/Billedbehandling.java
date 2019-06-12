@@ -785,6 +785,7 @@ public class Billedbehandling
         										// Latest calibration : 8, 15)
         										// Eclipse calibration : 9, 11)
   
+        listOfBallCoordinates.clear();
         for (int x = 0; x < circles.cols(); x++)
         {
             double[] c = circles.get(0, x);
