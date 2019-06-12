@@ -789,11 +789,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//checks if two Points coords are equals
 	public boolean checkIfCoordsNear(Point robotMiddle, Point dest)
 	{
+		int error_margin = 20;
+		
 		System.out.println("Dif. on x-axis"+(robotMiddle.getX()-dest.getX()));
 		System.out.println("Dif. on y-axis"+(robotMiddle.getY()-dest.getY()));
 		
-		if(robotMiddle.getX() < dest.getX()+20 && robotMiddle.getX() > dest.getX()-20 &&
-		 robotMiddle.getY() < dest.getY()+20 && robotMiddle.getY() > dest.getY()-20
+		if(robotMiddle.getX() < dest.getX()+error_margin && robotMiddle.getX() > dest.getX()-error_margin &&
+		 robotMiddle.getY() < dest.getY()+error_margin && robotMiddle.getY() > dest.getY()-error_margin
 				) return true;						
 		return false;
 	}
@@ -902,20 +904,24 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			//keyb.next();
 			CommunicateToServer(commandToSend);
 			
-			try {
-				Thread.sleep(6000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				Thread.sleep(6000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			
-			//while(RC.IsRobotExecuting() == true) {}
+			while(RC.robotExecuting) {
+				System.out.println("We are executing");
+			}
 			
 			ImageRec.runImageRec();
 			
 			GetImageInfo();
 		}
 		CommunicateToServerPickup();
+		
+		System.out.println("Going through");
 		
 		//Scenario to get close ball
 /*		if(counter == 0) {
