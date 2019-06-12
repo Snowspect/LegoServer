@@ -1,7 +1,6 @@
 package RobotControl;
 import org.jfree.chart.block.GridArrangement;
 import org.opencv.core.*;
-import org.opencv.core.Point;
 import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -29,6 +28,7 @@ import javax.swing.plaf.ColorUIResource;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
@@ -67,7 +67,7 @@ public class Billedbehandling
  
     // Measurements (camera, robot, ball and obstacles)
     private static double cameraHeight = 2000; 					// 2000mm = 200cm
-    private static double robotHeight = 400; 					// 280mm = 28cm
+    private static double robotHeight = 255; 					// 255mm = 25.5cm
     private static double ballHeight = 40;						// 40mm = 4cm
     private static double courseEdgeHeight = 74;				// 70mm = 7cm
     private static double crossHeight = 30;						// 30mm = 3cm
@@ -87,9 +87,13 @@ public class Billedbehandling
 	private static Boolean enableComments = false;
 	private static Boolean enableCamera = true;
     
-    private static String default_file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig.png";
+    private static String default_file = "C:\\Users\\Niklas\\Desktop\\test_dots.png";
     
     private static Mat matrix;
+    private static Mat orgMatrix;
+    private static Mat modMatrix;
+    
+    private static JLabel label1, label2, label3, label4;
     
     private VideoCapture capture;
     
@@ -103,6 +107,7 @@ public class Billedbehandling
     static Mat src = new Mat();
     static Mat srcGray = new Mat();
     static JFrame frame;
+    static JPanel panel = new JPanel(new GridLayout(2, 2));
     static JLabel imgLabel;
     static final int MAX_THRESHOLD = 100;
     static int maxCorners = 36;
@@ -114,137 +119,52 @@ public class Billedbehandling
     {      
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
     	capture = new VideoCapture(1);
+    	//VideoCapture vCap;
+    	//vCap.open(1);
+    	//capture = new VideoCapture().open(1);
         capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
         capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
         
         matrix = new Mat();
+        orgMatrix = new Mat();
+        modMatrix = new Mat();
         robotBlueMarker = new Point();
         robotGreenMarker = new Point();
-
-        /*
-        // The detection program only runs when the user has pressed 1
-        while(keyboard.nextInt() == 1)
-        {        	
-        	if(enableCamera.equals(true)) {
-	            // Saving the input from the camera capture to the new matrix
-	    		capture.read(matrix);
-        	}
- 
-        	if (enableCamera.equals(false)) {
-    	    	// Load an image
-    	        matrix = Imgcodecs.imread(filename, Imgcodecs.IMREAD_COLOR);
-    	        // Check if image is loaded correctly
-    	        if (matrix.empty()) {
-    	            System.out.println("Error opening image!");
-    	            System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
-    	            System.exit(-1);
-    	        }
-        	}
-        	
-            // Specifying path for where to save image
-        	if(enableComments) System.out.println("Creating file : test_orig.png");
-            //String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig.png";
- 
-            // Saving the original RGB image without any modifications
-            if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
-            imageCodecs.imwrite(default_file, matrix);
-            
-            
-            // Estimating Robot Coordinates based on image from webcam
-            robotCameraPoints = robotCircleCenter(matrix, default_file);
-            
-            // Calculating the actual coordinates of the first robot marker
-            robotBlueMarker = calculateActualCoordinates(robotCameraPoints[0], "robot");
-            
-            // Calculating the actual coordinates of the second robot marker
-            robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
-            
-                        
-            // Run color detection
-            if(enableComments) System.out.println("Running color detection : saved as test1.png");
-            Mat isolatedRedColor = new Mat();
-            isolatedRedColor = runColorDetection(matrix);
- 
-            // Edge detection
-            if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
-            String edgeFile = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_1_edges.png";
-            runEdgeDetection(isolatedRedColor, edgeFile);
-            
-            // Estimating corners
-            squareCorners = RunUpdate();
-                        
-            // Neutralisering af perspektiv forvrængning (kør igennem metoden : calculateActualCoordinates();
-            squareCorners.set(0, calculateActualCoordinates(squareCorners.get(0), "edge"));
-            squareCorners.set(1, calculateActualCoordinates(squareCorners.get(1), "edge"));
-            squareCorners.set(2, calculateActualCoordinates(squareCorners.get(2), "edge"));
-            squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));
-            
-            // Create a new outline for the obstacle course
-            //printOutlineToOrigImg(squareCorners);
-            
-            // Extend the cross
-            
-            // Running ball detection function.
-            if(enableComments) System.out.println("Running circel detection : saved as test2.png");
-            findBalls(filename, default_file, isolatedRedColor, arrayMap);
-            
-            for(int i = 0; i < listOfBallCoordinates.size(); i++) {
-            	listOfBallCoordinates.set(i, calculateActualCoordinates(listOfBallCoordinates.get(i), "ball"));
-            }
-            
-            // Create a matrix similar to the modified picture
-            if(enableComments) System.out.println("Accessing create_matrix() - example image saved as test3.png");
-            //arrayMap = create_matrix(arrayMap);
-            
-            //System.out.println("| ------------------------ Done ------------------------ |");
-            //System.out.println("        ------ Press 1 to capture new image ------        ");            
-        } // End of while
-        */
-    } // End of main    
+        
+        openDebugGUI();
+        
+    } // End of main()    
     
-	public void runImageRec() {
+	public void runImageRec() 
+	{
+        // Saving the input from the camera capture to the new matrix
+		capture.read(orgMatrix);
 		
-		//if(enableCamera.equals(true)) {
-            // Saving the input from the camera capture to the new matrix
-    		capture.read(matrix);
-    	//}
-    	
+		modMatrix = orgMatrix.clone();
+		
     	/*
-    	//if (enableCamera.equals(false)) {
-	    	// Load an image
-	        matrix = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
-	        // Check if image is loaded correctly
-	        if (matrix.empty()) {
-	            System.out.println("Error opening image!");
-	            System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
-	            System.exit(-1);
-	        }
-    	//}
-    	 * 
-    	 */
-    	
-        // Specifying path for where to save image
-    	if(enableComments) System.out.println("Creating file : test_orig.png");
-        //String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig.png";
-
-        // Saving the original RGB image without any modifications
-        if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
-        imageCodecs.imwrite(default_file, matrix);
-                
-        // Run color detection
-        if(enableComments) System.out.println("Running color detection : saved as test1.png");
+    	// Load an image
+        orgMatrix = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
+        // Check if image is loaded correctly
+        if (orgMatrix.empty()) {
+            System.out.println("Error opening image!");
+            System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
+            System.exit(-1);
+        }
+        */
+		
+        // Running color detection
         Mat isolatedRedColor = new Mat();
-        isolatedRedColor = runColorDetection(matrix);
+        isolatedRedColor = runColorDetection(orgMatrix);
 
         // Edge detection
-        if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
-        String edgeFile = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_1_edges.png";
-        runEdgeDetection(isolatedRedColor, edgeFile);
+        Mat isolatedEdges = new Mat();
+        isolatedEdges = runEdgeDetection(isolatedRedColor);
+        
+        // Estimating corners
+        squareCorners = RunUpdate(orgMatrix);
         
         /*
-        // Estimating corners
-        squareCorners = RunUpdate();
-                    
         // Neutralisering af perspektiv forvrængning (kør igennem metoden : calculateActualCoordinates();
         squareCorners.set(0, calculateActualCoordinates(squareCorners.get(0), "edge"));
         squareCorners.set(1, calculateActualCoordinates(squareCorners.get(1), "edge"));
@@ -254,32 +174,18 @@ public class Billedbehandling
         // Create a new outline for the obstacle course
         //printOutlineToOrigImg(squareCorners);
         */
-        
-        // Extend the cross
-        
+                
         // Running ball detection function.
-        if(enableComments) System.out.println("Running circel detection : saved as test2.png");
-        arrayMap = findBalls(default_file, isolatedRedColor, arrayMap);
+        arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
         
-        /*
-        for(int i = 0; i < listOfBallCoordinates.size(); i++) {
-        	listOfBallCoordinates.set(i, calculateActualCoordinates(listOfBallCoordinates.get(i), "ball"));
-        }
-        */
-        
-        
-        // Estimating Robot Coordinates based on image from webcam
-        
-        //robotCameraPoints = robotCircleCenter(matrix, default_file);
-        
-        robotCameraPoints = newRobotDetect(default_file);
+        // Estimating Robot Coordinates based on image from webcam        
+        robotCameraPoints = newRobotDetect(orgMatrix);
         
         // Calculating the actual coordinates of the first robot marker
         robotBlueMarker = calculateActualCoordinates(robotCameraPoints[0], "robot");
         robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
         
         // Create a matrix similar to the modified picture
-        if(enableComments) System.out.println("Accessing create_matrix() - example image saved as test3.png");
         //arrayMap = create_matrix(arrayMap);
         
         /*
@@ -291,12 +197,14 @@ public class Billedbehandling
         System.out.println("_________________________________________________________");
         */
         
-        //System.out.println("| ------------------------ Done ------------------------ |");
-        //System.out.println("        ------ Press 1 to capture new image ------        ");  		
-	}
+        doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
+  	}
     
-	private static Point[] newRobotDetect(String default_file)
+	private static Point[] newRobotDetect(Mat localOrgMat)
     {
+		Mat src = new Mat();
+		src = localOrgMat.clone();
+		/*
         // Load an image
         Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
  
@@ -306,6 +214,7 @@ public class Billedbehandling
             System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
             System.exit(-1);
         }
+        */
  
         // Creating new matrix to hold grayscale image information
         Mat gray = new Mat();
@@ -329,7 +238,7 @@ public class Billedbehandling
                 25.0, 
                 14.0, 
                 17, 							// Minimum radius
-                21);           					// Maximum radius
+                20);           					// Maximum radius
   
         Point greenCircle = new Point();
         Point blueCircle = new Point();
@@ -369,7 +278,14 @@ public class Billedbehandling
 				blueCircle = centerRobot;
 			}
 			
-            Imgproc.circle(src,       // Circle center
+			Imgproc.circle(modMatrix,       // Circle center
+                    centerRobot, 
+                    1,
+                    new Scalar(0, 0, 0),
+                    2,
+                    0,
+                    0);
+            Imgproc.circle(modMatrix,       // Circle center
                     centerRobot, 
                     radius,
                     new Scalar(0, 0, 0),
@@ -378,8 +294,8 @@ public class Billedbehandling
                     0);
             
             // Saving the image path and writing the new image
-            String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\detect_all_circles.png";
-            imageCodecs.imwrite(file, src);
+            //String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\detect_all_circles.png";
+            //imageCodecs.imwrite(file, src);
         } // End of for loop for each detected circle
         
         /*
@@ -540,7 +456,6 @@ public class Billedbehandling
                     0);
             */
             // ################# END OF TESTING #################
-
             
             // Saving the image path and writing the new image
             String fileBlue = "C:\\Users\\Bruger\\Desktop\\Legobot\\final_Blue.png";
@@ -599,7 +514,7 @@ public class Billedbehandling
     	Boolean enableComments = false;
     	
     	// Calculating how many pixels it takes to get a mm.
-    	double mmToPixel = 1.7;
+    	double mmToPixel = 1.8; // We have calculated the value to 1,7
     	
     	// To load the height of the given object
     	double objectHeight = 0;
@@ -643,18 +558,39 @@ public class Billedbehandling
     			((1-distanceRatio)*localPoint.y + distanceRatio*imageCenter.y) );
 		
     	if(enableComments) {
-    	System.out.println(" -------------------------------------- ");
-    	System.out.println("Center coordinat : x = " + (int)imageCenter.x + " , y = " + (int)imageCenter.y);
-    	System.out.println("Orig coordinates : x = " + localPoint.x + " , y = " + localPoint.y);
-    	System.out.println("Robot coordinate : x = " + pointToBeReturned.x + " , y = " + pointToBeReturned.y);  
-    	System.out.println(" -------------------------------------- ");
-    	System.out.println(" -------------------------------------- ");
+	    	System.out.println(" -------------------------------------- ");
+	    	System.out.println("Center coordinat : x = " + (int)imageCenter.x + " , y = " + (int)imageCenter.y);
+	    	System.out.println("Orig coordinates : x = " + localPoint.x + " , y = " + localPoint.y);
+	    	System.out.println("Robot coordinate : x = " + pointToBeReturned.x + " , y = " + pointToBeReturned.y);  
+	    	System.out.println(" -------------------------------------- ");
+	    	System.out.println(" -------------------------------------- ");
     	}
+    	
+		Imgproc.circle(modMatrix,       // Circle center
+                pointToBeReturned, 
+                10,
+                new Scalar(0, 0, 0),
+                2,
+                0,
+                0);
+    	
+		Imgproc.circle(modMatrix,       // Circle center
+                pointToBeReturned, 
+                1,
+                new Scalar(0, 0, 0),
+                3,
+                0,
+                0);
+
     	
     	// Returning the calculated robot coordinate
     	return pointToBeReturned;
     } // End of robotCalculateCoordinates()
     
+    /**
+     * 
+     * @param localPoints
+     */
     private static void printOutlineToOrigImg(List<Point> localPoints) 
     {
     	// Load an image
@@ -745,23 +681,28 @@ public class Billedbehandling
      * containing the output from the color detection function.
      * @param filename
      * @param default_file
-     * @param frameColor
+     * @param isolatedRedColor
      */
-    private static int[][] findBalls(String default_file, Mat frameColor, int[][] localMap)
+    private static int[][] findBalls(Mat localOrgMatrix, Mat isolatedRedColor, int[][] localMap)
     {
+    	Mat src = new Mat();
+    	src = localOrgMatrix.clone();
+    	
+    	/*
         // Load an image
         Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
- 
+        
         // Check if image is loaded correctly
         if (src.empty()) {
             System.out.println("Error opening image!");
             System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
             System.exit(-1);
         }
+        */
  
         // Creating new matrix to hold grayscale image information
         Mat gray = new Mat();
- 
+         
         // Converting the original image (src) into an grayscale image and saving it as grey
         Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
  
@@ -770,7 +711,10 @@ public class Billedbehandling
  
         // Creating new matrix to hold the detected circles
         Mat circles = new Mat();
- 
+        
+        // Clearing the list of ball center coordiantes
+        listOfBallCoordinates.clear();
+        
         // Detecting circles from the grayscale image and saving it in the circles matrix
         Imgproc.HoughCircles(gray, 
         		circles, 
@@ -784,7 +728,7 @@ public class Billedbehandling
         										// change the last two parameters (orig: 1 , 10)
         										// Latest calibration : 8, 15)
         										// Eclipse calibration : 9, 11)
-  
+          
         for (int x = 0; x < circles.cols(); x++)
         {
             double[] c = circles.get(0, x);
@@ -797,29 +741,13 @@ public class Billedbehandling
             
             // Parsing a double value to an integer
             localMap[(int)center.y][(int)center.x] = 2;
-            //System.out.println("Ball : x = " +center.x+ " y = "+center.y);
+            
+            // Adding ball coordinates to the list of ball center coordinates
             listOfBallCoordinates.add(center);
-            //System.out.println(" Size of ball list : " +listOfBallCoordinates.size());
- 
-            Imgproc.circle(src,            		// Circle center
-                    center,
-                    1,
-                    new Scalar(0, 100, 100),
-                    3,
-                    8,
-                    0);
-             
-            Imgproc.circle(src,              	// Circle outline
-                    center,
-                    (int)radius,
-                    new Scalar(255, 0, 255),
-                    3,
-                    8,
-                    0);
  
             // ---------------------------------------------------------------------------------------------------------
             // Used to write information to the image already containing information about the colored barriers
-            Imgproc.circle(frameColor,       	// Circle center
+            Imgproc.circle(isolatedRedColor,       	// Circle center
                     center, 
                     1,
                     new Scalar(255, 255, 255),
@@ -827,31 +755,49 @@ public class Billedbehandling
                     0,
                     0);
  
-            Imgproc.circle(frameColor,      	// Circle outline
+            Imgproc.circle(isolatedRedColor,      	// Circle outline
                     center,
                     (int)radius,
                     new Scalar(255, 255, 255),
                     1,
                     8,
                     0);
+            
+            Imgproc.circle(modMatrix,       	// Circle center
+                    center, 
+                    1,
+                    new Scalar(0, 0, 0),
+                    2,
+                    0,
+                    0);
+            
+            Imgproc.circle(modMatrix,      	// Circle outline
+                    center,
+                    (int)radius,
+                    new Scalar(0, 0, 0),
+                    2,
+                    8,
+                    0);
  
             // Saving the image path and writing the new image
-            String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test1.png";
-            imageCodecs.imwrite(file, frameColor);
+            //String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test1.png";
+            //imageCodecs.imwrite(file, isolatedRedColor);
             // ---------------------------------------------------------------------------------------------------------
         } // End of for loop for each detected circle
 
         return localMap;
 
     } // End of private static void runOpenCV(...)
-    
 
     /**
      * Takes a frame as input and returns an matrix with only the red color highlighted
      * @param frame
      */
-    private static Mat runColorDetection(Mat frame)
+    private static Mat runColorDetection(Mat localOrgMatrix)
     {
+    	Mat frame = new Mat();
+    	frame = localOrgMatrix.clone();
+    	
         // Initializing color range
         inRange(frame, min, max, frame);
  
@@ -859,23 +805,24 @@ public class Billedbehandling
         Imgproc.blur(frame, frame, new Size(3,3), new Point(-1,-1));
  
         // Saving the image path and writing the new image
-        String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test1.png";
-        imageCodecs.imwrite(file, frame);
+        //String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test1.png";
+        //imageCodecs.imwrite(file, localOrgMatrix);
  
         return frame;
     }
  
+    
     /**
      * Takes the image with the color detected edges and
      * isolates the edges of the red parts of the trakc.
      * @param frame
      * @param file
      */
-    private static void runEdgeDetection(Mat frame, String file)
-    {
-        //Mat temp_mat = Imgcodecs.imread(default_file, 1);
- 
-        Mat gray = new Mat();
+    private static Mat runEdgeDetection(Mat localFrame)
+    {    	
+    	Mat frame = new Mat();
+    	frame = localFrame.clone();
+    	
         Mat draw = new Mat();
         Mat wide = new Mat();
  
@@ -884,39 +831,16 @@ public class Billedbehandling
         int apertureSize = 3;
         boolean L2gradient = false;
  
-        /*
-        Scanner scan = null;
-        try {
-            scan = new Scanner(new File("C:\\Users\\Bruger\\Desktop\\Legobot\\config.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
- 
-        while(scan.hasNextLine())
-        {
-            threshold1 = Integer.parseInt(scan.nextLine());
-            threshold2 = Integer.parseInt(scan.nextLine());
-            apertureSize = Integer.parseInt(scan.nextLine());
- 
-            String line = scan.nextLine();
-            if (line.equals("false")) {
-                L2gradient = false;
-            }
-            else if (line.equals("true")) {
-                L2gradient = true;
-            }
-        }
-        */
- 
         //Imgproc.blur(temp_mat, gray, new Size(3,3));
         Imgproc.Canny(frame, wide, threshold1, threshold2, apertureSize, L2gradient);
         wide.convertTo(draw, CvType.CV_8U);
  
+        return draw;
+        
         // Saving the calculated matrix to the given path name (file)
-        Imgcodecs.imwrite(file, draw);
+        //Imgcodecs.imwrite("C:\\Users\\Bruger\\Desktop\\Legobot\\test_1_edges.png", draw);
     }
 
-    
  
     /**
      * Creates a matrix from the image containing both color and circular detection
@@ -993,28 +917,25 @@ public class Billedbehandling
     }
     */
     
-    private static List<Point> RunUpdate() 
+    private static List<Point> RunUpdate(Mat localsrc) 
     {
+    	Mat src = new Mat();
+    	src = localsrc.clone();
+    	
+    	/*
         String filename = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_1_edges.png";
         src = Imgcodecs.imread(filename);
+    	
         if (src.empty()) {
             System.err.println("Cannot read image: " + filename);
             System.exit(0);
         }
+        */
+    	
         Imgproc.cvtColor(src, srcGray, Imgproc.COLOR_BGR2GRAY);
-        // Create and set up the window.
-        //frame = new JFrame("Shi-Tomasi corner detector demo");
-        //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // Set up the content pane.
-        Image img = HighGui.toBufferedImage(src);
-        //addComponentsToPane(frame.getContentPane(), img);
-        // Use the content pane's default BorderLayout. No need for
-        // setLayout(new BorderLayout());
-        // Display the window.
-        frame.pack();
-        frame.setVisible(true);
         return update();
     }
+    
     
     private static List<Point> update() 
     {
@@ -1025,10 +946,10 @@ public class Billedbehandling
         int blockSize = 3, gradientSize = 3;
         boolean useHarrisDetector = false;
         double k = 0.04;
-        Mat copy = src.clone();
+        Mat copy = orgMatrix.clone();
         Imgproc.goodFeaturesToTrack(srcGray, corners, maxCorners, qualityLevel, minDistance, new Mat(),
                 blockSize, gradientSize, useHarrisDetector, k);
-        System.out.println("** Number of corners detected: " + corners.rows());
+        //System.out.println("** Number of corners detected: " + corners.rows());
         int[] cornersData = new int[(int) (corners.total() * corners.channels())];
         corners.get(0, 0, cornersData);
         int radius = 4;
@@ -1107,12 +1028,11 @@ public class Billedbehandling
         Imgproc.circle(copy, distancepoint_hb, radius,
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
 
-        imgLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(copy)));
-        frame.repaint();
-        
+        //imgLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(copy)));        
         return PointList;
     }
 
+    
     private static boolean checkDistance(double temp_vt, double distance_vt) 
     {
         if (temp_vt < distance_vt)
@@ -1121,6 +1041,7 @@ public class Billedbehandling
         }
         return false;
     }
+    
     
     private static void addComponentsToPane(Container pane, Image img) 
     {
@@ -1141,6 +1062,8 @@ public class Billedbehandling
         pane.add(imgLabel, BorderLayout.CENTER);
     }
 
+    
+    /*
     private void calibrateColor() 
     {
     	BufferedImage buffImg = null;
@@ -1153,12 +1076,12 @@ public class Billedbehandling
     	
         int VT = 0;		int VB = 1;		int HB = 2;		int HT = 3;
 
-        /*
-        Point pVT = null; 
-        Point pVB = null; 
-        Point pHT = null; 
-        Point pHB = null;
-        */
+        
+        // Point pVT = null; 
+        // Point pVB = null; 
+        // Point pHT = null; 
+        // Point pHB = null;
+        
         
         Point pVT = new Point(squareCorners.get(VT).x - 37, squareCorners.get(VT).y - 37);
         Point pVB = new Point(squareCorners.get(VB).x - 37, squareCorners.get(VB).y + 37);
@@ -1220,6 +1143,8 @@ public class Billedbehandling
         
         imageCodecs.imwrite("C:\\Users\\Bruger\\Desktop\\Legobot\\test_dynamic_color.png", cloneMat);
     }
+	*/
+    
     
     public static BufferedImage Mat2BufferedImage(Mat matrix)throws IOException {
         MatOfByte mob=new MatOfByte();
@@ -1230,6 +1155,60 @@ public class Billedbehandling
 	
     public int[][] getGrid() {
 		return arrayMap;
+	}
+
+	public void doFrameReprint(Mat orgMatrix2, Mat modMatrix2, Mat isolatedRedColor2) {
+		
+		
+		label1.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(orgMatrix2)).getImage().getScaledInstance(label1.getWidth(), label1.getHeight(), Image.SCALE_DEFAULT)));
+
+		label2.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(modMatrix2)).getImage().getScaledInstance(label2.getWidth(), label2.getHeight(), Image.SCALE_DEFAULT)));
+		
+
+		label4.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)).getImage().getScaledInstance(label4.getWidth(), label4.getHeight(), Image.SCALE_DEFAULT)));
+		
+
+	
+		
+		
+		//label1.setIcon(new ImageIcon(HighGui.toBufferedImage(orgMatrix2)));
+		//label2.setIcon(new ImageIcon(HighGui.toBufferedImage(modMatrix2)));
+		//label4.setIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)));
+		frame.repaint();
+	}
+
+	public void openDebugGUI() {
+        // Create and set up the window.
+        frame = new JFrame("Gruppe 10 - Debug GUI");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        frame.setPreferredSize(new Dimension(1280, 720));
+       
+        frame.setContentPane(panel);
+        frame.setVisible(true);
+        label1 = new JLabel("1");
+        panel.add(label1);
+        label2 = new JLabel("2");
+        panel.add(label2);
+        label3 = new JLabel("3");
+        panel.add(label3);
+        label4 = new JLabel("4");
+        panel.add(label4);
+        
+       
+        
+        
+        /*
+        // Set up the content pane.
+        Image img = HighGui.toBufferedImage(orgMatrix);
+        addComponentsToPane(frame.getContentPane(), img);
+        // Use the content pane's default BorderLayout. No need for
+        // setLayout(new BorderLayout());
+         * 
+         */
+        // Display the window.
+        frame.pack();
+        frame.setVisible(true);
 	}
     
 } // End of public class Billedbehandling
