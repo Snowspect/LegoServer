@@ -304,7 +304,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		Point nearestBall;
 		while (this.programStillRunning) {
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
-				
+			
+			while(RC.IsRobotExecuting() == true) {}
+			
 			//Get info from imageRec.
 			ImageRec.runImageRec();
 			GetImageInfo();
@@ -315,10 +317,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	        System.out.println("Blue  robot marker : x = " +ImageRec.robotBlueMarker.x+ " y = " +ImageRec.robotBlueMarker.y + 
 	        		"_________________________________________________________");
 		
-			
-			while(RC.IsRobotExecuting() == true) {}
-	
-						
+					
 			List<Point> ballsWithDirectPathFromRobot = BallsWithDirectPathObstacleHazard(robotMiddle, safeBalls);//find all balls with a direct path
 			if(SPINWIN == true)
 			{
@@ -887,6 +886,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 			//keyb.next();
 			CommunicateToServer(commandToSend);
+			
+			try {
+				Thread.sleep(6000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//while(RC.IsRobotExecuting() == true) {}
+			
 			ImageRec.runImageRec();
 			
 			GetImageInfo();
