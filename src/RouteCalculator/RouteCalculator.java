@@ -92,7 +92,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		// If angle > 0: Turn right, else if angle < 0: Turn left
 
 		//calculates the distance the robot needs to drive
-		double dist = calc_Dist(robotFront, destPoint);
+		double dist = calc_Dist(robotFront, destPoint)*0.98;
 //		double dist = calc_Dist(robotMiddle, destPoint);
 		System.out.printf("Distance: %.2f\n\n", dist);
 
@@ -102,7 +102,12 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 //			
 //		}
 //		else 
-			if(dist > 60) {
+		
+		if (calc_Dist(robotMiddle, destPoint) < 5) {
+			
+		}
+		
+		if(dist > 60) {
 			if (angle > 4) {
 				OF = "0F:4;"; //function 4 (right)
 				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
@@ -127,16 +132,17 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				}
 			}
 		}
+		
 		else if(dist < 60){
-			if (angle > 10) {
+			if (angle > 15) {
 				OF = "0F:4;"; //function 4 (right)
 				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
 				OS = "0S:200;";
-			} else if (angle < -10) {
+			} else if (angle < -15) {
 				OF = "0F:3;"; //function 3 (left)
 				OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
 				OS = "0S:200;";
-			} else if (angle >= -10 && angle <= 10) {
+			} else if (angle >= -15 && angle <= 15) {
 				OF = "0F:1;"; //forward is 1
 				if (dist > 300)
 				{
