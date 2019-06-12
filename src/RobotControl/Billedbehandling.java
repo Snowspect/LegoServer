@@ -87,7 +87,7 @@ public class Billedbehandling
 	private static Boolean enableComments = false;
 	private static Boolean enableCamera = true;
     
-    private static String default_file = "C:\\Users\\Oii\\Desktop\\test_orig.png";
+    private static String default_file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig.png";
     
     private static Mat matrix;
     
@@ -143,7 +143,7 @@ public class Billedbehandling
         	
             // Specifying path for where to save image
         	if(enableComments) System.out.println("Creating file : test_orig.png");
-            //String file = "C:\\Users\\Oii\\Desktop\\test_orig.png";
+            //String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig.png";
  
             // Saving the original RGB image without any modifications
             if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
@@ -167,7 +167,7 @@ public class Billedbehandling
  
             // Edge detection
             if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
-            String edgeFile = "C:\\Users\\Oii\\Desktop\\test_1_edges.png";
+            String edgeFile = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_1_edges.png";
             runEdgeDetection(isolatedRedColor, edgeFile);
             
             // Estimating corners
@@ -225,7 +225,7 @@ public class Billedbehandling
     	
         // Specifying path for where to save image
     	if(enableComments) System.out.println("Creating file : test_orig.png");
-        //String file = "C:\\Users\\Oii\\Desktop\\test_orig.png";
+        //String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig.png";
 
         // Saving the original RGB image without any modifications
         if(enableComments) System.out.println("Saving RGB image to : test_orig.png");
@@ -238,7 +238,7 @@ public class Billedbehandling
 
         // Edge detection
         if(enableComments) System.out.println("Running edge detection : saved as test1_edges.png");
-        String edgeFile = "C:\\Users\\Oii\\Desktop\\test_1_edges.png";
+        String edgeFile = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_1_edges.png";
         runEdgeDetection(isolatedRedColor, edgeFile);
         
         /*
@@ -378,7 +378,7 @@ public class Billedbehandling
                     0);
             
             // Saving the image path and writing the new image
-            String file = "C:\\Users\\Oii\\Desktop\\detect_all_circles.png";
+            String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\detect_all_circles.png";
             imageCodecs.imwrite(file, src);
         } // End of for loop for each detected circle
         
@@ -457,9 +457,9 @@ public class Billedbehandling
         Imgproc.medianBlur(frameGreen, frameGreen, 7);
  
         // Saving the image path and writing the new image
-        String fileTestB = "C:\\Users\\Oii\\Desktop\\IdentifyBlue.png";
+        String fileTestB = "C:\\Users\\Bruger\\Desktop\\Legobot\\IdentifyBlue.png";
         imageCodecs.imwrite(fileTestB, frameBlue);
-        String fileTestG = "C:\\Users\\Oii\\Desktop\\IdentifyGreen.png";
+        String fileTestG = "C:\\Users\\Bruger\\Desktop\\Legobot\\IdentifyGreen.png";
         imageCodecs.imwrite(fileTestG, frameGreen);
         
         // Detecting circles from the grayscale image and saving it in the circles matrix
@@ -543,7 +543,7 @@ public class Billedbehandling
 
             
             // Saving the image path and writing the new image
-            String fileBlue = "C:\\Users\\Oii\\Desktop\\final_Blue.png";
+            String fileBlue = "C:\\Users\\Bruger\\Desktop\\Legobot\\final_Blue.png";
             imageCodecs.imwrite(fileBlue, printBlue);
         }
         
@@ -575,8 +575,8 @@ public class Billedbehandling
                     8,
                     0);
             // Saving the image path and writing the new image
-            //String file = "C:\\Users\\Oii\\Desktop\\test_Green.png";
-            String fileGreen = "C:\\Users\\Oii\\Desktop\\final_Green.png";
+            //String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_Green.png";
+            String fileGreen = "C:\\Users\\Bruger\\Desktop\\Legobot\\final_Green.png";
             imageCodecs.imwrite(fileGreen, printGreen);
         }
         
@@ -658,7 +658,7 @@ public class Billedbehandling
     private static void printOutlineToOrigImg(List<Point> localPoints) 
     {
     	// Load an image
-    	String default_file = "C:\\Users\\Oii\\Desktop\\test_orig.png";
+    	String default_file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig.png";
         Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
         
         Mat copy = src.clone();
@@ -670,7 +670,7 @@ public class Billedbehandling
         Imgproc.line(copy, localPoints.get(HB), localPoints.get(VB), new Scalar(200, 200, 0, 255), 1);
         Imgproc.line(copy, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 1);
         
-        imageCodecs.imwrite("C:\\Users\\Oii\\Desktop\\test_orig_mod.png", copy);
+        imageCodecs.imwrite("C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig_mod.png", copy);
     }
     
     /**
@@ -836,7 +836,7 @@ public class Billedbehandling
                     0);
  
             // Saving the image path and writing the new image
-            String file = "C:\\Users\\Oii\\Desktop\\test1.png";
+            String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test1.png";
             imageCodecs.imwrite(file, frameColor);
             // ---------------------------------------------------------------------------------------------------------
         } // End of for loop for each detected circle
@@ -859,7 +859,7 @@ public class Billedbehandling
         Imgproc.blur(frame, frame, new Size(3,3), new Point(-1,-1));
  
         // Saving the image path and writing the new image
-        String file = "C:\\Users\\Oii\\Desktop\\test1.png";
+        String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test1.png";
         imageCodecs.imwrite(file, frame);
  
         return frame;
@@ -887,7 +887,7 @@ public class Billedbehandling
         /*
         Scanner scan = null;
         try {
-            scan = new Scanner(new File("C:\\Users\\Oii\\Desktop\\config.txt"));
+            scan = new Scanner(new File("C:\\Users\\Bruger\\Desktop\\Legobot\\config.txt"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -943,7 +943,7 @@ public class Billedbehandling
         }
  
         // Saving the image path
-        String file = "C:\\Users\\Oii\\Desktop\\test3-matrix-output.png";
+        String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test3-matrix-output.png";
         imageCodecs.imwrite(file, imgMat);
  		*/
         return localGrid;
@@ -957,7 +957,7 @@ public class Billedbehandling
         BufferedImage bi = null;
  
         try {
-            bi = ImageIO.read(new File("C:\\Users\\Oii\\Desktop\\test1.png"));
+            bi = ImageIO.read(new File("C:\\Users\\Bruger\\Desktop\\Legobot\\test1.png"));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to load input image");
@@ -986,7 +986,7 @@ public class Billedbehandling
         }
  
         // Saving the image path
-        String file = "C:\\Users\\Oii\\Desktop\\test3-matrix-output.png";
+        String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test3-matrix-output.png";
         imageCodecs.imwrite(file, imgMat);
  
         return localMap;
@@ -995,7 +995,7 @@ public class Billedbehandling
     
     private static List<Point> RunUpdate() 
     {
-        String filename = "C:\\Users\\Oii\\Desktop\\test_1_edges.png";
+        String filename = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_1_edges.png";
         src = Imgcodecs.imread(filename);
         if (src.empty()) {
             System.err.println("Cannot read image: " + filename);
@@ -1218,7 +1218,7 @@ public class Billedbehandling
                 0,
                 0);
         
-        imageCodecs.imwrite("C:\\Users\\Oii\\Desktop\\test_dynamic_color.png", cloneMat);
+        imageCodecs.imwrite("C:\\Users\\Bruger\\Desktop\\Legobot\\test_dynamic_color.png", cloneMat);
     }
     
     public static BufferedImage Mat2BufferedImage(Mat matrix)throws IOException {

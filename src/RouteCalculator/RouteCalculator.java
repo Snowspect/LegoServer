@@ -98,29 +98,57 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 
 		System.out.println("Angle : " + angle);
 		//
-		if (angle > 8) {
-			OF = "0F:4;"; //function 4 (right)
-			OR = "0R:"+Math.round(angle)*5+";"; //rotate right
-			OS = "0S:200;";
-		} else if (angle < -8) {
-			OF = "0F:3;"; //function 3 (left)
-			OR = "0R:"+Math.round(Math.abs(angle))*5+";"; //rotate left
-			OS = "0S:200;";
-		} else if (angle >= -8 && angle <= 8) {
-			OF = "0F:1;"; //forward is 1
-			if (dist > 300)
-			{
-				//TODO 
-				OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
-				//OR = "0R:200;"; //rotate 200 on both motors
-				OS = "0S:250;"; //speed is 150
-			}
-			else {
-				OS = "0S:250;"; //speed is 50
-//				OR = "0R:200;"; //Hardcoded 200 rotations on motor
-				OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+		if(dist > 60) {
+			if (angle > 4) {
+				OF = "0F:4;"; //function 4 (right)
+				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
+				OS = "0S:200;";
+			} else if (angle < -4) {
+				OF = "0F:3;"; //function 3 (left)
+				OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
+				OS = "0S:200;";
+			} else if (angle >= -4 && angle <= 4) {
+				OF = "0F:1;"; //forward is 1
+				if (dist > 300)
+				{
+					//TODO 
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+					//OR = "0R:200;"; //rotate 200 on both motors
+					OS = "0S:250;"; //speed is 150
+				}
+				else {
+					OS = "0S:250;"; //speed is 50
+//					OR = "0R:200;"; //Hardcoded 200 rotations on motor
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+				}
 			}
 		}
+		else if(dist < 60){
+			if (angle > 10) {
+				OF = "0F:4;"; //function 4 (right)
+				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
+				OS = "0S:200;";
+			} else if (angle < -10) {
+				OF = "0F:3;"; //function 3 (left)
+				OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
+				OS = "0S:200;";
+			} else if (angle >= -10 && angle <= 10) {
+				OF = "0F:1;"; //forward is 1
+				if (dist > 300)
+				{
+					//TODO 
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+					//OR = "0R:200;"; //rotate 200 on both motors
+					OS = "0S:250;"; //speed is 150
+				}
+				else {
+					OS = "0S:250;"; //speed is 50
+//					OR = "0R:200;"; //Hardcoded 200 rotations on motor
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+				}
+			}
+		}
+		
 
 		str.append(OF);
 		str.append(OS);

@@ -305,18 +305,30 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		while (this.programStillRunning) {
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
 			
-			while(RC.IsRobotExecuting() == true) {}
+			/*while(RC.IsRobotExecuting() == true) {
+				
+				System.out.println("I am stuck...");
+			}*/
+			
+			try {
+				Thread.sleep(6000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			//Get info from imageRec.
 			ImageRec.runImageRec();
 			GetImageInfo();
-			for (int i = 0; i < ImageRec.listOfBallCoordinates.size(); i++) {        
+			
+			
+			/*for (int i = 0; i < ImageRec.listOfBallCoordinates.size(); i++) {        
 	        	System.out.println("Ball coordinate : x = " +ImageRec.listOfBallCoordinates.get(i).x+ " y = " +ImageRec.listOfBallCoordinates.get(i).y);
 	        }
 	        System.out.println("Green robot marker : x = " +ImageRec.robotGreenMarker.x+ " y = " +ImageRec.robotGreenMarker.y);
 	        System.out.println("Blue  robot marker : x = " +ImageRec.robotBlueMarker.x+ " y = " +ImageRec.robotBlueMarker.y + 
 	        		"_________________________________________________________");
-		
+			*/
 					
 			List<Point> ballsWithDirectPathFromRobot = BallsWithDirectPathObstacleHazard(robotMiddle, safeBalls);//find all balls with a direct path
 			if(SPINWIN == true)
@@ -777,8 +789,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//checks if two Points coords are equals
 	public boolean checkIfCoordsNear(Point robotMiddle, Point dest)
 	{
-		if(robotMiddle.getX() < dest.getX()+3 && robotMiddle.getX() > dest.getX()-3 &&
-		 robotMiddle.getY() < dest.getY()+3 && robotMiddle.getY() > dest.getY()-3
+		System.out.println("Dif. on x-axis"+(robotMiddle.getX()-dest.getX()));
+		System.out.println("Dif. on y-axis"+(robotMiddle.getY()-dest.getY()));
+		
+		if(robotMiddle.getX() < dest.getX()+20 && robotMiddle.getX() > dest.getX()-20 &&
+		 robotMiddle.getY() < dest.getY()+20 && robotMiddle.getY() > dest.getY()-20
 				) return true;						
 		return false;
 	}
