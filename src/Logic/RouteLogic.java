@@ -903,12 +903,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//Point nearestBall = findNearestBall(robotMiddle, safeBalls);
 		while(!checkIfCoordsNear(robotFront, nearestBall, 15))
 		{
-			if (checkIfCoordsNear(robotMiddle, nearestBall, Calculator.calc_Dist(robotMiddle, robotFront)-15.3)) {
+			/*if (checkIfCoordsNear(robotMiddle, nearestBall, Calculator.calc_Dist(robotMiddle, robotFront)-15.3)) {
 				ImageRec.runImageRec();
 				GetImageInfo();
 				CommunicateToServer("0F:2;0S:250;0R:300;0B:false");
 				nearestBall = findNearestBall(robotFront,safeBalls);
-			}
+			}*/
 			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 			//keyb.next();
 			CommunicateToServer(commandToSend);
@@ -920,14 +920,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 //				e.printStackTrace();
 //			}
 			
-			while(RC.robotExecuting) {
-				System.out.println("We are executing");
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			while(RC.robotExecuting){
+				System.out.print("");
 			}
 			
 			ImageRec.runImageRec();
