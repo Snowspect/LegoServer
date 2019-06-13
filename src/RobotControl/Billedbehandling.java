@@ -27,6 +27,7 @@ import javax.swing.JSlider;
 import javax.swing.plaf.ColorUIResource;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
@@ -110,14 +111,12 @@ public class Billedbehandling
     {
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
     	capture = new VideoCapture(1);
-    	//VideoCapture vCap;
-    	//vCap.open(1);
-    	//capture = new VideoCapture().open(1);
+
         capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
         capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
         
         openDebugGUI();
-
+        
     } // End of main()
 
 	public void runImageRec()
@@ -269,6 +268,8 @@ public class Billedbehandling
 
             readColor = (buffImg.getRGB((int)centerRobot.x, (int)centerRobot.y));
 
+            Color imgColor = new Color(buffImg.getRGB((int)centerRobot.x, (int)centerRobot.y));
+            
             /*
             int counterColor = 0;
             
@@ -290,12 +291,17 @@ public class Billedbehandling
             G = G / counterColor;
             B = B / counterColor;
             */
+            R = imgColor.getRed();
+            G = imgColor.getGreen();
+            B = imgColor.getBlue();
             
-            
+            /*
 			R = (readColor >> 16) & 0xff;
 			G = (readColor >> 8) & 0xff;
 			B = (readColor) & 0xff;
+			*/
 			
+			/*
 			if (R < 100 && G > greenMax && B < 100) {
 				greenMax = G;
 				greenCircle = centerRobot;
@@ -304,11 +310,23 @@ public class Billedbehandling
 				blueMax = B;
 				blueCircle = centerRobot;
 			}
+			*/
+			
+            
+			if (G > greenMax) {
+				greenMax = G;
+				greenCircle = centerRobot;
+			}
+			if (B > blueMax) {
+				blueMax = B;
+				blueCircle = centerRobot;
+			}
+			
 
 			Imgproc.circle(modMatrix,       // Circle center
                     centerRobot,
                     1,
-                    new Scalar(0, 0, 0),
+                    new Scalar(255, 255, 255),
                     3,
                     0,
                     0);
@@ -532,8 +550,11 @@ public class Billedbehandling
      * @param objectType
      * @return point
      */
-    private static Point calculateActualCoordinates(Point localPoint, String objectType)
+    private static Point calculateActualCoordinates(Point inputPoint, String objectType)
     {
+    	Point localPoint = new Point();
+    	localPoint = inputPoint;
+    	
     	// Calculating how many pixels it takes to get a mm.
     	double mmToPixel = 2; // We have calculated the value to 1,7
     	
