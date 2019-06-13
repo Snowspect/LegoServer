@@ -305,17 +305,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		while (this.programStillRunning) {
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
 			
-			/*while(RC.IsRobotExecuting() == true) {
-				
-				System.out.println("I am stuck...");
-			}*/
+			while(RC.robotExecuting) {
+				System.out.print("");
+			}
 			
-			try {
+			/*try {
 				Thread.sleep(6000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 			
 			//Get info from imageRec.
 			ImageRec.runImageRec();
@@ -337,7 +336,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				//this stops the while loop
 				this.programStillRunning = false;
 			}
-			else if(ballsWithDirectPathFromRobot.size() != 0)
+			else if(!ballsWithDirectPathFromRobot.isEmpty())
 			{
 				//finds the safest ball and communicates to the server
 				//counter = 
@@ -931,7 +930,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		CommunicateToServerPickup();
 		
-		System.out.println("Going through");
+		System.out.println("Picked it up!!");
 		
 		//Scenario to get close ball
 /*		if(counter == 0) {
