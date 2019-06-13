@@ -32,6 +32,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	private Point robotMiddle, robotFront;
 	private Point safeHazardPoint, smallGoalSafeSpot, smallGoal, nextCornerToNavigateTo;
 	private Point firstConnection, LastTouchedConnectionPoint, newConnectionPoint, branchOffPoint;
+	private Point LLcorner = x, URcorner = x;
 	private List<Point> Balls, ConnectionPoints, safeBalls, dangerBalls, dangerPickupPoints; 
 	private int[][] ImageGrid;
 	private final int OBSTACLE = 1, HAZARD = 20;
