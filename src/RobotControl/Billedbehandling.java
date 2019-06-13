@@ -158,9 +158,8 @@ public class Billedbehandling
 
         // Running ball detection function.
 
-        //arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
-        arrayMap = findBalls(cropOrgMatrix(), isolatedRedColor, arrayMap);
-
+        arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
+        //arrayMap = findBalls(cropOrgMatrix(), isolatedRedColor, arrayMap);
 
         // Estimating Robot Coordinates based on image from webcam
         robotCameraPoints = newRobotDetect(orgMatrix);
