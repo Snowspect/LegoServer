@@ -8,6 +8,7 @@ import RobotControl.*;
 				//Thread.sleep(1000);
 				//bh.doFrameReprint();
 				bh.runImageRec();
+				bh.getCorners();
 			}
 				
 		}

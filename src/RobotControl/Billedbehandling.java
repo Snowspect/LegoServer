@@ -197,8 +197,8 @@ public class Billedbehandling
                 (double) gray.rows() / 25,  	// change this value to detect circles with different distances to each other (orig: 8)
                 10.0,
                 30.0,
-                12, 							// Minimum radius (16 - old val)
-                17);           					// Maximum radius (20 - old val)
+                13, 							// Minimum radius (16 - old val)
+                20);           					// Maximum radius (20 - old val)
 
         Point greenCircle = new Point();        Point blueCircle = new Point();
         int blueMax = 0, greenMax = 0, readColor = 0;
@@ -542,21 +542,39 @@ public class Billedbehandling
 	    	System.out.println(" -------------------------------------- ");
     	}
 
-		Imgproc.circle(modMatrix,       // Circle center
-                pointToBeReturned,
-                10,
-                new Scalar(255, 255, 255),
-                2,
-                0,
-                0);
+    	if(objectType.equals("robot")) {
+			Imgproc.circle(modMatrix,       // Circle center
+	                pointToBeReturned,
+	                10,
+	                new Scalar(0, 0, 0),
+	                2,
+	                0,
+	                0);
+	
+			Imgproc.circle(modMatrix,       // Circle center
+	                pointToBeReturned,
+	                1,
+	                new Scalar(0, 0, 0),
+	                3,
+	                0,
+	                0);
+    	} else {
+    		Imgproc.circle(modMatrix,       // Circle center
+                    pointToBeReturned,
+                    10,
+                    new Scalar(255, 255, 255),
+                    2,
+                    0,
+                    0);
 
-		Imgproc.circle(modMatrix,       // Circle center
-                pointToBeReturned,
-                1,
-                new Scalar(255, 255, 255),
-                3,
-                0,
-                0);
+    		Imgproc.circle(modMatrix,       // Circle center
+                    pointToBeReturned,
+                    1,
+                    new Scalar(255, 255, 255),
+                    3,
+                    0,
+                    0);
+    	}
 
     	// Returning the calculated robot coordinate
     	return pointToBeReturned;
@@ -709,9 +727,10 @@ public class Billedbehandling
             double radius = Math.round(c[2]);
 
             // Parsing a double value to an integer
-            //localMap[(int)center.y][(int)center.x] = 2;
+            arrayMap[(int)center.y][(int)center.x] = 2;
 
             // Adding ball coordinates to the list of ball center coordinates
+            //System.out.println("Coordinates : x = " +center.x+ " , y = " +center.y);
             listOfBallCoordinates.add(center);
 
             // ---------------------------------------------------------------------------------------------------------
@@ -906,7 +925,7 @@ public class Billedbehandling
 
         Imgproc.goodFeaturesToTrack(src, corners, maxCorners, qualityLevel, minDistance, new Mat(),
                 blockSize, gradientSize, useHarrisDetector, k);
-        System.out.println("** Number of corners detected: " + corners.rows());
+        //System.out.println("** Number of corners detected: " + corners.rows());
         int[] cornersData = new int[(int) (corners.total() * corners.channels())];
         corners.get(0, 0, cornersData);
         int radius = 4;
