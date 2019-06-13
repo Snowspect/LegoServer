@@ -267,8 +267,9 @@ public class Billedbehandling
             Point centerRobot = new Point(Math.round(cRobot[0]), Math.round(cRobot[1]));
             int radius = (int) Math.round(cRobot[2]);
 
-            // readColor = (buffImg.getRGB((int)centerRobot.x, (int)centerRobot.y));
+            readColor = (buffImg.getRGB((int)centerRobot.x, (int)centerRobot.y));
 
+            /*
             int counterColor = 0;
             
             for (int x = (int)centerRobot.x - 1; x < (int)centerRobot.x + 1; x++) 
@@ -288,13 +289,13 @@ public class Billedbehandling
             R = R / counterColor;
             G = G / counterColor;
             B = B / counterColor;
+            */
             
-            /*
+            
 			R = (readColor >> 16) & 0xff;
 			G = (readColor >> 8) & 0xff;
 			B = (readColor) & 0xff;
-			*/
-
+			
 			if (R < 100 && G > greenMax && B < 100) {
 				greenMax = G;
 				greenCircle = centerRobot;
