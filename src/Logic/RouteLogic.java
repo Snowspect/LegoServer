@@ -900,14 +900,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//if the list isn't empty
 		Point nearestBall = findNearestBall(robotFront,safeBalls);
 		//Point nearestBall = findNearestBall(robotMiddle, safeBalls);
-		while(!checkIfCoordsNear(robotFront, nearestBall, 15))
+		while(!checkIfCoordsNear(robotFront, nearestBall, 12))
 		{
-			/*if (checkIfCoordsNear(robotMiddle, nearestBall, Calculator.calc_Dist(robotMiddle, robotFront)-15.3)) {
+			if (checkIfCoordsNear(robotMiddle, nearestBall, Calculator.calc_Dist(robotMiddle, robotFront)-12)) {
+				CommunicateToServer("0F:2;0S:250;0R:1000;0B:false");
+				nearestBall = findNearestBall(robotFront,safeBalls);
 				ImageRec.runImageRec();
 				GetImageInfo();
-				CommunicateToServer("0F:2;0S:250;0R:300;0B:false");
-				nearestBall = findNearestBall(robotFront,safeBalls);
-			}*/
+			}
 			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 			//keyb.next();
 			CommunicateToServer(commandToSend);
