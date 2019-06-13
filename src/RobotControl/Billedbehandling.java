@@ -162,7 +162,7 @@ public class Billedbehandling
         isolatedEdges = runEdgeDetection(isolatedRedColor);
 
         // Estimating corners
-        squareCorners = RunUpdate(orgMatrix);
+        squareCorners = detectCorners(isolatedEdges);
 
         /*
         // Neutralisering af perspektiv forvrï¿½ngning (kï¿½r igennem metoden : calculateActualCoordinates();
@@ -176,8 +176,11 @@ public class Billedbehandling
         */
 
         // Running ball detection function.
-        arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
-
+        
+        //arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
+        arrayMap = findBalls(cropOrgMatrix(), isolatedRedColor, arrayMap);
+        
+        
         // Estimating Robot Coordinates based on image from webcam
         robotCameraPoints = newRobotDetect(orgMatrix);
 
@@ -196,8 +199,11 @@ public class Billedbehandling
         System.out.println("Blue  robot marker : x = " +robotBlueMarker.x+ " y = " +robotBlueMarker.y);
         System.out.println("_________________________________________________________");
         */
+        
+        
 
-        doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
+        //doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
+        doFrameReprint(cropOrgMatrix(), modMatrix, isolatedRedColor);
   	}
 
 	private static Point[] newRobotDetect(Mat localOrgMat)
@@ -917,29 +923,11 @@ public class Billedbehandling
         return localMap;
     }
     */
-
-    private static List<Point> RunUpdate(Mat localsrc)
+    private static List<Point> detectCorners(Mat localsrc)
     {
     	Mat src = new Mat();
     	src = localsrc.clone();
-
-    	/*
-        String filename = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_1_edges.png";
-        src = Imgcodecs.imread(filename);
-
-        if (src.empty()) {
-            System.err.println("Cannot read image: " + filename);
-            System.exit(0);
-        }
-        */
-
-        Imgproc.cvtColor(src, srcGray, Imgproc.COLOR_BGR2GRAY);
-        return update();
-    }
-
-
-    private static List<Point> update()
-    {
+    	
         maxCorners = Math.max(maxCorners, 1);
         MatOfPoint corners = new MatOfPoint();
         double qualityLevel = 0.01;
@@ -948,9 +936,10 @@ public class Billedbehandling
         boolean useHarrisDetector = false;
         double k = 0.04;
         Mat copy = orgMatrix.clone();
-        Imgproc.goodFeaturesToTrack(srcGray, corners, maxCorners, qualityLevel, minDistance, new Mat(),
+        
+        Imgproc.goodFeaturesToTrack(src, corners, maxCorners, qualityLevel, minDistance, new Mat(),
                 blockSize, gradientSize, useHarrisDetector, k);
-        //System.out.println("** Number of corners detected: " + corners.rows());
+        System.out.println("** Number of corners detected: " + corners.rows());
         int[] cornersData = new int[(int) (corners.total() * corners.channels())];
         corners.get(0, 0, cornersData);
         int radius = 4;
@@ -973,7 +962,7 @@ public class Billedbehandling
         List<Point> PointList = new ArrayList<>();
 
         for (int i = 0; i < corners.rows(); i++) {
-            // Tilfï¿½jer points til listen
+            // Tilføjer points til listen
             PointList.add(distancepoint_vt);
             PointList.add(distancepoint_vb);
             PointList.add(distancepoint_ht);
@@ -1015,10 +1004,10 @@ public class Billedbehandling
             }
         }
 
-        Imgproc.circle(copy, new Point(venstreTop[0],venstreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
-        Imgproc.circle(copy, new Point(venstreBund[0],venstreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
-        Imgproc.circle(copy, new Point(hoejreBund[0],hoejreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
-        Imgproc.circle(copy, new Point(hoejreTop[0],hoejreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
+        Imgproc.circle(copy, new Point(venstreTop[0],venstreTop[1]), 10, new Scalar(0, 128, 255), Core.FILLED);
+        Imgproc.circle(copy, new Point(venstreBund[0],venstreBund[1]), 10, new Scalar(0, 128, 255), Core.FILLED);
+        Imgproc.circle(copy, new Point(hoejreBund[0],hoejreBund[1]), 10, new Scalar(0, 128, 255), Core.FILLED);
+        Imgproc.circle(copy, new Point(hoejreTop[0],hoejreTop[1]), 10, new Scalar(0, 128, 255), Core.FILLED);
 
         Imgproc.circle(copy, distancepoint_vt, radius,
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
@@ -1030,6 +1019,9 @@ public class Billedbehandling
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
 
         //imgLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(copy)));
+        
+       
+        
         return PointList;
     }
 
@@ -1210,6 +1202,55 @@ public class Billedbehandling
         // Display the window.
         frame.pack();
         frame.setVisible(true);
+	}
+	
+	private Mat cropOrgMatrix() {		
+    	Mat orgMatrixClone = new Mat();
+    	orgMatrixClone = orgMatrix.clone();
+		
+		//Rect rectCrop = new Rect(squareCorners.get(0), squareCorners.get(2));
+		
+    	
+    	int startX = (int) squareCorners.get(0).x;
+    	//System.out.println("StartX: " + startX);
+    	int startY = (int) squareCorners.get(0).y;
+    	//System.out.println("startY: " + startY);
+    	int width = (int) squareCorners.get(3).x - (int) squareCorners.get(0).x;
+    	//System.out.println("width: " + width);
+    	int height = (int) squareCorners.get(1).y - (int) squareCorners.get(0).y;
+    	//System.out.println("height: " + height);
+    	
+		Rect rectCrop = new Rect(startX,startY,width,height);
+		
+		Mat croppedImage = new Mat(orgMatrixClone, rectCrop);
+		//Mat croppedImage = orgMatrix.clone();
+		
+		
+		/*
+        int[] venstreTop = {525, 230};
+        int[] venstreBund = {525, 830};
+        int[] hoejreBund = {1375, 830};
+        int[] hoejreTop = {1375, 230};
+    	
+        
+        Imgproc.circle(orgMatrixClone, new Point(venstreTop[0],venstreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
+        Imgproc.circle(orgMatrixClone, new Point(venstreBund[0],venstreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
+        Imgproc.circle(orgMatrixClone, new Point(hoejreBund[0],hoejreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
+        Imgproc.circle(orgMatrixClone, new Point(hoejreTop[0],hoejreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
+        
+        
+        Imgproc.circle(orgMatrixClone, squareCorners.get(0), 10, new Scalar(0,0,255), Core.FILLED);
+        Imgproc.circle(orgMatrixClone, squareCorners.get(1), 10, new Scalar(0,0,255), Core.FILLED);
+        Imgproc.circle(orgMatrixClone, squareCorners.get(2), 10, new Scalar(0,0,255), Core.FILLED);
+        Imgproc.circle(orgMatrixClone, squareCorners.get(3), 10, new Scalar(0,0,255), Core.FILLED);
+        */
+	
+        
+    	
+    	Imgproc.rectangle(orgMatrixClone, squareCorners.get(0), squareCorners.get(2), new Scalar(0, 255, 0, 255), 3);
+    	
+    	
+    	return orgMatrixClone;
 	}
 
 } // End of public class Billedbehandling
