@@ -101,7 +101,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	{
 		System.out.println("MADE IT INTO RUNNINGTWO");
 		ImageGrid = new int[1080][1920];
-
+		
+		dangerBalls = new ArrayList<Point>();
+		dangerPickupPoints = new ArrayList<Point>();
+		safeBalls = new ArrayList<Point>();
+		allPickUpPoints = new ArrayList<Point>();		//Safeballs and dangerPickupPoints
+		
+		
 //		this.ConnectionPoints = new ArrayList<Point>();
 //		this.Balls = new ArrayList<Point>();
 
@@ -193,11 +199,18 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		int wallMargin = 200;
 		int pickupDist = 300;
 		int cornerPickupDist = 200;
-		
-		dangerBalls.clear();
-		dangerPickupPoints.clear();
-		safeBalls.clear();
-		allPickUpPoints.clear();
+		if(!dangerBalls.isEmpty()) {
+			dangerBalls.clear();
+		}
+		if(!dangerPickupPoints.isEmpty()) {
+			dangerPickupPoints.clear();
+		}
+		if(!safeBalls.isEmpty()) {
+			safeBalls.clear();
+		}
+		if(!allPickUpPoints.isEmpty()) {
+			allPickUpPoints.clear();
+		}
 		
 		for (Point point : allBalls) {
 			//Close to upper wall
@@ -784,8 +797,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		{
 			if(ImageGrid != null)
 			{
-				if(ImageGrid[(int) p.getY()][(int) p.getX()] == OBSTACLE
-				  || ImageGrid[(int) p.getY()][(int) p.getX()] == HAZARD)
+				if(ImageGrid[(int) p.getY()-1][(int) p.getX()-1] == OBSTACLE
+				  || ImageGrid[(int) p.getY()-1][(int) p.getX()-1] == HAZARD)
 				{
 					return false;
 				}

@@ -13,10 +13,10 @@ public class RouteLogicTest {
 	
 	IRouteLogic logic;
 	
-	@Before
-	public void setUp() throws Exception {
-		logic = new RouteLogic();
-	}
+//	@Before
+//	public void setUp() throws Exception {
+//		logic = new RouteLogic();
+//	}
 
 	@After
 	public void tearDown() throws Exception {
