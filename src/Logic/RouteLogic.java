@@ -349,9 +349,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 //			}
 			else if(safeBalls.isEmpty())
 			{
-				CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+				
 				SPINWIN = true;
-//				HeadForGoalAndUnload();
+				HeadForGoalAndUnload();
+				CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
 			}
 //			else if(safeBalls.isEmpty() && dangerBalls.isEmpty()) //go to goal
 //			{
@@ -414,7 +415,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 		
 		//TODO SOMEHOW TRIGGER checkpoint case 1,2,3 and 4? What if the robot is not on one of those?
-		//ikke initialiseret nogle steder, så altid ende i default?
+		//ikke initialiseret nogle steder, sï¿½ altid ende i default?
 		//case 1 and 2 is deliberately < and > as case 3 and 4 handles <= and >=.
 		switch(checkpoint) {
 			case 1: //runs while start y is less than end y.
@@ -950,26 +951,59 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//heads for goal safe spot and unloads
 	public void HeadForGoalAndUnload()
 	{
-		if(unloadBalls == true)
-		{
-			CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
-			unloadBalls = false;
-			SPINWIN = true;
+		
+		int middleX = (int) ULcorner.getX();
+		int middleY = (int)LLcorner.getY()-(((int)LLcorner.getY()-(int)ULcorner.getY())/2);
+		
+		Point goalMiddle = new Point(middleX, middleY);
+		Point goalPointOne = new Point((int)goalMiddle.getX()+100,middleY);
+		Point goalPointTwo = new Point((int)goalMiddle.getX()+50,middleY);
+		
+		
+		
+		if (checkIfCoordsNear(goalMiddle, goalPointTwo, 5) && Calculator.calc_Angle(robotFront, robotMiddle, goalMiddle) < 3
+				&& Calculator.calc_Angle(robotFront, robotMiddle, goalMiddle) > -3) {
+			return;
 		}
-		else {
-			boolean allowTrip = checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, smallGoalSafeSpot));
-			if(allowTrip == true)
-			{
-				newConnectionPoint = smallGoalSafeSpot;
-				String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
-				CommunicateToServer(commandToSend);
-				if(checkIfCoordsEqual(robotMiddle, newConnectionPoint))
-				{
-					allowTrip = false;
-					unloadBalls = true;
-				}
-			}
+		
+		else if (checkIfCoordsNear(robotMiddle, goalPointTwo, 5)) {
+			Calculator.getDir(robotFront, robotMiddle, goalMiddle);
+			
 		}
+		
+		else if (checkIfCoordsNear(robotMiddle, goalPointOne, 5)) {
+			Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
+			
+		}
+		
+		else if (!checkIfCoordsNear(robotMiddle, goalPointOne, 5)) {
+			Calculator.getDir(robotFront, robotMiddle, goalPointOne);
+			HeadForGoalAndUnload();
+		}
+		
+		
+		
+		CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+//		if(unloadBalls == true)
+//		{
+//			CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+//			unloadBalls = false;
+//			SPINWIN = true;
+//		}
+//		else {
+//			boolean allowTrip = checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, smallGoalSafeSpot));
+//			if(allowTrip == true)
+//			{
+//				newConnectionPoint = smallGoalSafeSpot;
+//				String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+//				CommunicateToServer(commandToSend);
+//				if(checkIfCoordsEqual(robotMiddle, newConnectionPoint))
+//				{
+//					allowTrip = false;
+//					unloadBalls = true;
+//				}
+//			}
+//		}
 	}
 	
 	//checks if a direct path touches hazard zones or obstacles
