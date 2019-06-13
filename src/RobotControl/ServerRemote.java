@@ -63,7 +63,7 @@ public class ServerRemote {
 	public static void main(String[] args) throws IOException {
 		server = new ServerSocket(port);
 		// gyroSensor.reset();
-		Sound.beepSequenceUp();
+		Sound.beep();
 		while (looping) {
 			System.out.println("Awaiting Client..");
 			
@@ -93,11 +93,11 @@ public class ServerRemote {
 			break;
 		case RemoteCarClient.ARMUP:
 			// For activate : F1
-			GrappleArm.rotate(-30, true);
+			GrappleArm.rotate(-500, true);
 			break;
 		case RemoteCarClient.ARMDOWN:
 			// For activate : F2
-			GrappleArm.rotate(30, true);
+			GrappleArm.rotate(500, true);
 			// grappleArmDown();
 			break;
 		case RemoteCarClient.WHEELUP:
