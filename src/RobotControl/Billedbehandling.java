@@ -142,7 +142,7 @@ public class Billedbehandling
         Mat isolatedEdges = new Mat();
         isolatedEdges = runEdgeDetection(isolatedRedColor);
 
-        /*
+        
         // Estimating corners
         squareCorners = detectCorners(isolatedEdges);
 
@@ -154,7 +154,7 @@ public class Billedbehandling
 
         // Create a new outline for the obstacle course
         printOutlineToOrigImg(squareCorners);
-        */
+        
 
         // Running ball detection function.
 
@@ -1208,6 +1208,10 @@ public class Billedbehandling
 
 
     	return orgMatrixClone;
+	}
+
+	public List<Point> getCorners() {
+		return squareCorners;
 	}
 
 } // End of public class Billedbehandling
