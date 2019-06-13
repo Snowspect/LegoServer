@@ -64,7 +64,7 @@ public class Billedbehandling
  
     // Variables to be fetched by the logic
     public static int[][] arrayMap = new int[imageHeight][imageWidth];
-    public static List<Point> squareCorners = new ArrayList<>();
+    public static List<Point> squareCorners;
     public static List<Point> listOfBallCoordinates = new ArrayList<>();
     public static Point robotBlueMarker, robotGreenMarker;
  
@@ -117,6 +117,7 @@ public class Billedbehandling
         robotGreenMarker = new Point();
         orgMatrix = new Mat();
         modMatrix = new Mat();
+        squareCorners = new ArrayList<>();
  
         // Saving the input from the camera capture to the new matrix
         capture.read(orgMatrix);
@@ -154,10 +155,14 @@ public class Billedbehandling
  
         // Create a new outline for the obstacle course
         printOutlineToOrigImg(squareCorners);
+        
+        /*
+        for (int j = 0; j < 4; j++) {
+            System.out.println("Corner " +j+ ": ( " +squareCorners.get(j).x+ " , " +squareCorners.get(j).y+ " )");
+		}
+		*/
        
- 
         // Running ball detection function.
- 
         arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
         //arrayMap = findBalls(cropOrgMatrix(), isolatedRedColor, arrayMap);
  
@@ -727,7 +732,7 @@ public class Billedbehandling
             double radius = Math.round(c[2]);
  
             // Parsing a double value to an integer
-            arrayMap[(int)center.y][(int)center.x] = 2;
+            //arrayMap[(int)center.y][(int)center.x] = 2;
  
             // Adding ball coordinates to the list of ball center coordinates
             //System.out.println("Coordinates : x = " +center.x+ " , y = " +center.y);
@@ -1005,9 +1010,7 @@ public class Billedbehandling
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
  
         //imgLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(copy)));
- 
- 
- 
+         
         return PointList;
     }
  

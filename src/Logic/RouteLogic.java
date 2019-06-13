@@ -27,12 +27,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	
 	//NOT SIMULATION VARIABLES//
 	private int ballvalue = 4;
+	
 	private int checkpoint;
 	private List<Point> coordsOnPath;
 	private Point robotMiddle, robotFront;
 	private Point safeHazardPoint, smallGoalSafeSpot, smallGoal, nextCornerToNavigateTo;
 	private Point firstConnection, LastTouchedConnectionPoint, newConnectionPoint, branchOffPoint;
-	private Point LLcorner = x, URcorner = x;
+	private Point LLcorner = new Point(474,200), ULcorner = new Point(480, 904);
 	private List<Point> Balls, ConnectionPoints, safeBalls, dangerBalls, dangerPickupPoints; 
 	private int[][] ImageGrid;
 	private final int OBSTACLE = 1, HAZARD = 20;
@@ -41,7 +42,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	private RemoteCarClient RC;
 	//private Billedbehandling_27032019 ImageRec;
 	private Billedbehandling ImageRec;
-	private RouteCalculatorInterface Calculator;
+	private RouteCalculator Calculator;
+//	private RouteCalculatorInterface Calculator;
 	Scanner keyb = new Scanner(System.in); //Hvad er det her???
 	
 	public RouteLogic() {
@@ -350,10 +352,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 //			}
 			else if(safeBalls.isEmpty())
 			{
-				
-				SPINWIN = true;
 				HeadForGoalAndUnload();
-				CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+				SPINWIN = true;
+				//CommunicateToServer("0F:12;0R:0;0S:0;0B:true;"); // Smid bolde ud
 			}
 //			else if(safeBalls.isEmpty() && dangerBalls.isEmpty()) //go to goal
 //			{
@@ -791,8 +792,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//checks if two Points coords are equals
 	public boolean checkIfCoordsNear(Point robotMiddle, Point dest, double d)
 	{		
-		System.out.println("Dif. on x-axis"+(robotMiddle.getX()-dest.getX()));
-		System.out.println("Dif. on y-axis"+(robotMiddle.getY()-dest.getY()));
+		//System.out.println("Dif. on x-axis"+(robotMiddle.getX()-dest.getX()));
+		//System.out.println("Dif. on y-axis"+(robotMiddle.getY()-dest.getY()));
 		
 //		if(robotMiddle.getX() < dest.getX()+error_margin && robotMiddle.getX() > dest.getX()-error_margin &&
 //		 robotMiddle.getY() < dest.getY()+error_margin && robotMiddle.getY() > dest.getY()-error_margin
@@ -906,9 +907,15 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		{
 			if (checkIfCoordsNear(robotMiddle, nearestBall, Calculator.calc_Dist(robotMiddle, robotFront)-12)) {
 				CommunicateToServer("0F:2;0S:250;0R:1000;0B:false");
-				nearestBall = findNearestBall(robotFront,safeBalls);
+				
 				ImageRec.runImageRec();
 				GetImageInfo();
+				
+				while(RC.robotExecuting) {
+					System.out.print("");
+				}
+				
+				nearestBall = findNearestBall(robotFront,safeBalls);
 			}
 			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 			//keyb.next();
@@ -952,59 +959,92 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//heads for goal safe spot and unloads
 	public void HeadForGoalAndUnload()
 	{
+		boolean running = true;
+		boolean pointOneReached = false;
+		boolean pointTwoReached = false;
 		
 		int middleX = (int) ULcorner.getX();
-		int middleY = (int)LLcorner.getY()-(((int)LLcorner.getY()-(int)ULcorner.getY())/2);
+		int middleY = (int) LLcorner.getY()-(((int)LLcorner.getY()-(int)ULcorner.getY())/2);
 		
 		Point goalMiddle = new Point(middleX, middleY);
-		Point goalPointOne = new Point((int)goalMiddle.getX()+100,middleY);
-		Point goalPointTwo = new Point((int)goalMiddle.getX()+50,middleY);
+		Point goalPointOne = new Point((int)goalMiddle.getX()+250,middleY);
+		Point goalPointTwo = new Point((int)goalMiddle.getX()+125,middleY);
 		
+		while(running)
+		{
+			while(RC.robotExecuting) {
+				System.out.print("");
+			}
+			
+			ImageRec.runImageRec();
+			GetImageInfo();
+			
+			if(!pointOneReached) {
+				if (checkIfCoordsNear(robotMiddle, goalPointOne, Calculator.calc_Dist(robotMiddle, robotFront)-12)) {
+					CommunicateToServer("0F:2;0S:250;0R:1000;0B:false");
+				}
+			} else if (!pointTwoReached) {
+				if (checkIfCoordsNear(robotMiddle, goalPointTwo, Calculator.calc_Dist(robotMiddle, robotFront)-12)) {
+					CommunicateToServer("0F:2;0S:250;0R:1000;0B:false");
+				}
+			}
+
+			if (checkIfCoordsNear(robotFront, goalPointOne, 20) && pointOneReached == false) {
+				pointOneReached = true;
+				CommunicateToServerPickup();
+			}
+			if (checkIfCoordsNear(robotFront, goalPointTwo, 20) && pointOneReached == true) {
+				pointTwoReached = true;
+				System.out.println("yo, made it to spot two, press ma key man!");
+				keyb.hasNext();
+				CommunicateToServerPickup();
+			}		
+			if (pointTwoReached == true && Calculator.calc_Angle(robotFront, robotMiddle, goalMiddle) < 3
+					&& Calculator.calc_Angle(robotFront, robotMiddle, goalMiddle) > -3) {
+				System.out.println("DONE ! Correct Angle ----------------------------------------");
+				running = false;
+			}		
+			else if (pointOneReached == false) {
+				String command = Calculator.getDir(robotFront, robotMiddle, goalPointOne);
+				CommunicateToServer(command);
+				System.out.println("p1R == false ----------------------------------------");
+			}
+			else if (pointOneReached == true && pointTwoReached != true) {
+				String command = Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
+				System.out.println("p1R == true ----------------------------------------");
+				CommunicateToServer(command);
+			}
+			else if(pointTwoReached == true && Calculator.calc_Angle(robotFront, robotMiddle, goalMiddle) >= 3
+					&& Calculator.calc_Angle(robotFront, robotMiddle, goalMiddle) <= -3) {
+				System.out.println("DONE ! Wrong Angle ----------------------------------------");
+				String command = Calculator.turn(robotFront, robotMiddle, goalMiddle);
+				CommunicateToServer(command);
+			}
+			
+			//CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+	//		if(unloadBalls == true)
+	//		{
+	//			CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+	//			unloadBalls = false;
+	//			SPINWIN = true;
+	//		}
+	//		else {
+	//			boolean allowTrip = checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, smallGoalSafeSpot));
+	//			if(allowTrip == true)
+	//			{
+	//				newConnectionPoint = smallGoalSafeSpot;
+	//				String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+	//				CommunicateToServer(commandToSend);
+	//				if(checkIfCoordsEqual(robotMiddle, newConnectionPoint))
+	//				{
+	//					allowTrip = false;
+	//					unloadBalls = true;
+	//				}
+	//			}
+	//		}
+
 		
-		
-		if (checkIfCoordsNear(goalMiddle, goalPointTwo, 5) && Calculator.calc_Angle(robotFront, robotMiddle, goalMiddle) < 3
-				&& Calculator.calc_Angle(robotFront, robotMiddle, goalMiddle) > -3) {
-			return;
 		}
-		
-		else if (checkIfCoordsNear(robotMiddle, goalPointTwo, 5)) {
-			Calculator.getDir(robotFront, robotMiddle, goalMiddle);
-			HeadForGoalAndUnload();
-		}
-		
-		else if (checkIfCoordsNear(robotMiddle, goalPointOne, 5)) {
-			Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
-			HeadForGoalAndUnload();
-		}
-		
-		else if (!checkIfCoordsNear(robotMiddle, goalPointOne, 5)) {
-			Calculator.getDir(robotFront, robotMiddle, goalPointOne);
-			HeadForGoalAndUnload();
-		}
-		
-		
-		
-		//CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
-//		if(unloadBalls == true)
-//		{
-//			CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
-//			unloadBalls = false;
-//			SPINWIN = true;
-//		}
-//		else {
-//			boolean allowTrip = checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, smallGoalSafeSpot));
-//			if(allowTrip == true)
-//			{
-//				newConnectionPoint = smallGoalSafeSpot;
-//				String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
-//				CommunicateToServer(commandToSend);
-//				if(checkIfCoordsEqual(robotMiddle, newConnectionPoint))
-//				{
-//					allowTrip = false;
-//					unloadBalls = true;
-//				}
-//			}
-//		}
 	}
 	
 	//checks if a direct path touches hazard zones or obstacles
