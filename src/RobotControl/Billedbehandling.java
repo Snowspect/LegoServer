@@ -27,6 +27,7 @@ import javax.swing.JSlider;
 import javax.swing.plaf.ColorUIResource;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
@@ -45,10 +46,6 @@ public class Billedbehandling
     private static int imageWidth = 1920;                		// Image width
     private static int imageHeight = 1080;             			// Image height
 
-    // Color range for detecting RED
-    private static Scalar min = new Scalar(0, 0, 150, 0);      	// BGR-A (NOT RGB!) (Better than original : (0, 0, 130, 0))
-    private static Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!) (Better than original : (140, 110, 255, 0))
-
     // Color range for detecting BLUE circle on robot
     private static Scalar minBlue = new Scalar(110, 0, 0, 0);  	// BGR-A (NOT RGB!)
     private static Scalar maxBlue = new Scalar(255, 100, 100, 0); // BGR-A (NOT RGB!)
@@ -65,33 +62,19 @@ public class Billedbehandling
     private static Scalar minGreenDynamic = new Scalar(0, 100, 0, 0);	// BGR-A (NOT RGB!)
     private static Scalar maxGreenDynamic = new Scalar(90, 255, 90, 0);// BGR-A (NOT RGB!)
 
-    // Measurements (camera, robot, ball and obstacles)
-    private static double cameraHeight = 2000; 					// 2000mm = 200cm
-    private static double robotHeight = 255; 					// 255mm = 25.5cm
-    private static double ballHeight = 40;						// 40mm = 4cm
-    private static double courseEdgeHeight = 74;				// 70mm = 7cm
-    private static double crossHeight = 30;						// 30mm = 3cm
-    private static Point imageCenter = new Point(imageWidth/2, imageHeight/2);
-
 	// Variables to be fetched by the logic
     public static int[][] arrayMap = new int[imageHeight][imageWidth];
     public static List<Point> squareCorners = new ArrayList<>();
     public static List<Point> listOfBallCoordinates = new ArrayList<>();
-    public static Point robotBlueMarker;
-    public static Point robotGreenMarker;
+    public static Point robotBlueMarker, robotGreenMarker;
 
     // Creating an array of points
-    private static Point[] robotCameraPoints = new Point[2];
+    private static Point[] robotCameraPoints;
 
-    // Boolean to enable console comments and camera
-	private static Boolean enableComments = false;
-	private static Boolean enableCamera = true;
-
+    // Default file, change this to your own path
     private static String default_file = "C:\\Users\\Niklas\\Desktop\\test_dots.png";
 
-    private static Mat matrix;
-    private static Mat orgMatrix;
-    private static Mat modMatrix;
+    private static Mat orgMatrix, modMatrix;
 
     private static JLabel label1, label2, label3, label4;
 
@@ -107,7 +90,7 @@ public class Billedbehandling
     static Mat src = new Mat();
     static Mat srcGray = new Mat();
     static JFrame frame;
-    static JPanel panel = new JPanel(new GridLayout(2, 2));
+    static JPanel panel = new JPanel(new GridLayout(0, 2));
     static JLabel imgLabel;
     static final int MAX_THRESHOLD = 100;
     static int maxCorners = 36;
@@ -119,17 +102,9 @@ public class Billedbehandling
     {
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
     	capture = new VideoCapture(1);
-    	//VideoCapture vCap;
-    	//vCap.open(1);
-    	//capture = new VideoCapture().open(1);
+
         capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
         capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
-
-        matrix = new Mat();
-        orgMatrix = new Mat();
-        modMatrix = new Mat();
-        robotBlueMarker = new Point();
-        robotGreenMarker = new Point();
 
         openDebugGUI();
 
@@ -137,6 +112,12 @@ public class Billedbehandling
 
 	public void runImageRec()
 	{
+		robotCameraPoints = new Point[2];
+        robotBlueMarker = new Point();
+        robotGreenMarker = new Point();
+        orgMatrix = new Mat();
+        modMatrix = new Mat();
+
         // Saving the input from the camera capture to the new matrix
 		capture.read(orgMatrix);
 
@@ -161,26 +142,26 @@ public class Billedbehandling
         Mat isolatedEdges = new Mat();
         isolatedEdges = runEdgeDetection(isolatedRedColor);
 
+        /*
         // Estimating corners
         squareCorners = detectCorners(isolatedEdges);
 
-        /*
-        // Neutralisering af perspektiv forvrï¿½ngning (kï¿½r igennem metoden : calculateActualCoordinates();
+        // Neutralization of the corner points
         squareCorners.set(0, calculateActualCoordinates(squareCorners.get(0), "edge"));
         squareCorners.set(1, calculateActualCoordinates(squareCorners.get(1), "edge"));
         squareCorners.set(2, calculateActualCoordinates(squareCorners.get(2), "edge"));
         squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));
 
         // Create a new outline for the obstacle course
-        //printOutlineToOrigImg(squareCorners);
+        printOutlineToOrigImg(squareCorners);
         */
 
         // Running ball detection function.
-        
+
         //arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
         arrayMap = findBalls(cropOrgMatrix(), isolatedRedColor, arrayMap);
-        
-        
+
+
         // Estimating Robot Coordinates based on image from webcam
         robotCameraPoints = newRobotDetect(orgMatrix);
 
@@ -188,39 +169,13 @@ public class Billedbehandling
         robotBlueMarker = calculateActualCoordinates(robotCameraPoints[0], "robot");
         robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
 
-        // Create a matrix similar to the modified picture
-        //arrayMap = create_matrix(arrayMap);
-
-        /*
-        for (int i = 0; i < listOfBallCoordinates.size(); i++) {
-        	System.out.println("Ball coordinate : x = " +listOfBallCoordinates.get(i).x+ " y = " +listOfBallCoordinates.get(i).y);
-        }
-        System.out.println("Green robot marker : x = " +robotGreenMarker.x+ " y = " +robotGreenMarker.y);
-        System.out.println("Blue  robot marker : x = " +robotBlueMarker.x+ " y = " +robotBlueMarker.y);
-        System.out.println("_________________________________________________________");
-        */
-        
-        
-
-        //doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
-        doFrameReprint(cropOrgMatrix(), modMatrix, isolatedRedColor);
+        doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
   	}
 
 	private static Point[] newRobotDetect(Mat localOrgMat)
     {
 		Mat src = new Mat();
 		src = localOrgMat.clone();
-		/*
-        // Load an image
-        Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
-
-        // Check if image is loaded correctly
-        if (src.empty()) {
-            System.out.println("Error opening image!");
-            System.out.println("Program Arguments: [image_name -- default " + default_file + "] \n");
-            System.exit(-1);
-        }
-        */
 
         // Creating new matrix to hold grayscale image information
         Mat gray = new Mat();
@@ -241,19 +196,14 @@ public class Billedbehandling
         		Imgproc.HOUGH_GRADIENT,
         		1.0,
                 (double) gray.rows() / 25,  	// change this value to detect circles with different distances to each other (orig: 8)
-                25.0,
-                14.0,
-                17, 							// Minimum radius
-                20);           					// Maximum radius
+                10.0,
+                30.0,
+                12, 							// Minimum radius (16 - old val)
+                17);           					// Maximum radius (20 - old val)
 
-        Point greenCircle = new Point();
-        Point blueCircle = new Point();
-        int blueMax = 0;
-        int greenMax = 0;
-        int readColor = 0;
-        int R = 0;
-        int G = 0;
-        int B = 0;
+        Point greenCircle = new Point();        Point blueCircle = new Point();
+        int blueMax = 0, greenMax = 0, readColor = 0;
+        int R = 0;        int G = 0;        int B = 0;
 
         BufferedImage buffImg = null;
     	try {
@@ -262,24 +212,42 @@ public class Billedbehandling
 			e.printStackTrace();
 		}
 
-        for (int x = 0; x < circlesRobot.cols(); x++)
+        for (int i = 0; i < circlesRobot.cols(); i++)
         {
-            double[] cRobot = circlesRobot.get(0, x);
+            double[] cRobot = circlesRobot.get(0, i);
             // Calculation center of the circle
             Point centerRobot = new Point(Math.round(cRobot[0]), Math.round(cRobot[1]));
             int radius = (int) Math.round(cRobot[2]);
 
-            readColor = (buffImg.getRGB((int)centerRobot.x, (int)centerRobot.y));
+            Color imgColor = new Color(buffImg.getRGB((int)centerRobot.x, (int)centerRobot.y));
 
-			R = (readColor >> 16) & 0xff;
-			G = (readColor >> 8) & 0xff;
-			B = (readColor) & 0xff;
+            /*
+            int counterColor = 0;
 
-			if (G > greenMax) {
+            for (int x = (int)centerRobot.x - 1; x < (int)centerRobot.x + 1; x++) {
+            	for (int y = (int)centerRobot.y - 1; y < (int)centerRobot.y + 1; y++) {
+            		Color imgColor = new Color(buffImg.getRGB((int)centerRobot.x, (int)centerRobot.y));
+        			R = R + imgColor.getRed();
+            		G = G + imgColor.getGreen();
+            		B = B + imgColor.getBlue();
+
+        			counterColor++;
+            	}
+            }
+            R = R / counterColor;
+            G = G / counterColor;
+            B = B / counterColor;
+            */
+
+            R = imgColor.getRed();
+            G = imgColor.getGreen();
+            B = imgColor.getBlue();
+
+			if (R < 175 && G > greenMax && B < 175) {
 				greenMax = G;
 				greenCircle = centerRobot;
 			}
-			if (B > blueMax) {
+			if (R < 175 && G < 175 && B > blueMax) {
 				blueMax = B;
 				blueCircle = centerRobot;
 			}
@@ -287,8 +255,8 @@ public class Billedbehandling
 			Imgproc.circle(modMatrix,       // Circle center
                     centerRobot,
                     1,
-                    new Scalar(0, 0, 0),
-                    2,
+                    new Scalar(255, 255, 255),
+                    3,
                     0,
                     0);
             Imgproc.circle(modMatrix,       // Circle center
@@ -299,17 +267,7 @@ public class Billedbehandling
                     0,
                     0);
 
-            // Saving the image path and writing the new image
-            //String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\detect_all_circles.png";
-            //imageCodecs.imwrite(file, src);
         } // End of for loop for each detected circle
-
-        /*
-        List<Point> finalPoints = new ArrayList();
-
-        finalPoints.add(greenCircle);
-        finalPoints.add(blueCircle);
-        */
 
         Point[] finalPoints = new Point[2];
         finalPoints[0] = new Point(blueCircle.x, blueCircle.y);
@@ -379,10 +337,10 @@ public class Billedbehandling
         Imgproc.medianBlur(frameGreen, frameGreen, 7);
 
         // Saving the image path and writing the new image
-        String fileTestB = "C:\\Users\\Bruger\\Desktop\\Legobot\\IdentifyBlue.png";
-        imageCodecs.imwrite(fileTestB, frameBlue);
-        String fileTestG = "C:\\Users\\Bruger\\Desktop\\Legobot\\IdentifyGreen.png";
-        imageCodecs.imwrite(fileTestG, frameGreen);
+        //String fileTestB = "C:\\Users\\Bruger\\Desktop\\Legobot\\IdentifyBlue.png";
+        //imageCodecs.imwrite(fileTestB, frameBlue);
+        //String fileTestG = "C:\\Users\\Bruger\\Desktop\\Legobot\\IdentifyGreen.png";
+        //imageCodecs.imwrite(fileTestG, frameGreen);
 
         // Detecting circles from the grayscale image and saving it in the circles matrix
         Imgproc.HoughCircles(frameBlue,
@@ -514,13 +472,24 @@ public class Billedbehandling
      * @param objectType
      * @return point
      */
-    private static Point calculateActualCoordinates(Point localPoint, String objectType)
+    private static Point calculateActualCoordinates(Point inputPoint, String objectType)
     {
-    	// Boolean to enable console comments
-    	Boolean enableComments = false;
+    	Point localPoint = new Point();
+    	localPoint = inputPoint;
 
     	// Calculating how many pixels it takes to get a mm.
-    	double mmToPixel = 1.8; // We have calculated the value to 1,7
+    	double mmToPixel = 2.34; // We have calculated the value to 1,7 at center and 2,34 at the corner
+
+        // Measurements (camera, robot, ball and obstacles)
+        double cameraHeight = 2000 / 2; 					// 2000mm = 200cm
+        double robotHeight = 290; 					// 255mm = 25.5cm
+        double ballHeight = 40;						// 40mm = 4cm
+        double courseEdgeHeight = 74;				// 70mm = 7cm
+        double crossHeight = 30;						// 30mm = 3cm
+        Point imageCenter = new Point(imageWidth/2, imageHeight/2);
+
+    	// Boolean to enable console comments
+    	Boolean enableComments = false;
 
     	// To load the height of the given object
     	double objectHeight = 0;
@@ -535,6 +504,8 @@ public class Billedbehandling
 			case "edge":
 				objectHeight = courseEdgeHeight / mmToPixel;
 				break;
+			case "cross":
+				objectHeight = crossHeight / mmToPixel;
 			default:
 				objectHeight = robotHeight / mmToPixel;
 				System.out.println("No object type recognized");
@@ -575,7 +546,7 @@ public class Billedbehandling
 		Imgproc.circle(modMatrix,       // Circle center
                 pointToBeReturned,
                 10,
-                new Scalar(0, 0, 0),
+                new Scalar(255, 255, 255),
                 2,
                 0,
                 0);
@@ -583,11 +554,10 @@ public class Billedbehandling
 		Imgproc.circle(modMatrix,       // Circle center
                 pointToBeReturned,
                 1,
-                new Scalar(0, 0, 0),
+                new Scalar(255, 255, 255),
                 3,
                 0,
                 0);
-
 
     	// Returning the calculated robot coordinate
     	return pointToBeReturned;
@@ -599,20 +569,13 @@ public class Billedbehandling
      */
     private static void printOutlineToOrigImg(List<Point> localPoints)
     {
-    	// Load an image
-    	String default_file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig.png";
-        Mat src = Imgcodecs.imread(default_file, Imgcodecs.IMREAD_COLOR);
-
-        Mat copy = src.clone();
-
         int VT = 0;		int VB = 1;		int HB = 2;		int HT = 3;
 
-        Imgproc.line(copy, localPoints.get(VT), localPoints.get(HT), new Scalar(200, 200, 0, 255), 1);
-        Imgproc.line(copy, localPoints.get(HT), localPoints.get(HB), new Scalar(200, 200, 0, 255), 1);
-        Imgproc.line(copy, localPoints.get(HB), localPoints.get(VB), new Scalar(200, 200, 0, 255), 1);
-        Imgproc.line(copy, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 1);
+        Imgproc.line(modMatrix, localPoints.get(VT), localPoints.get(HT), new Scalar(200, 200, 0, 255), 1);
+        Imgproc.line(modMatrix, localPoints.get(HT), localPoints.get(HB), new Scalar(200, 200, 0, 255), 1);
+        Imgproc.line(modMatrix, localPoints.get(HB), localPoints.get(VB), new Scalar(200, 200, 0, 255), 1);
+        Imgproc.line(modMatrix, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 1);
 
-        imageCodecs.imwrite("C:\\Users\\Bruger\\Desktop\\Legobot\\test_orig_mod.png", copy);
     }
 
     /**
@@ -747,7 +710,7 @@ public class Billedbehandling
             double radius = Math.round(c[2]);
 
             // Parsing a double value to an integer
-            localMap[(int)center.y][(int)center.x] = 2;
+            //localMap[(int)center.y][(int)center.x] = 2;
 
             // Adding ball coordinates to the list of ball center coordinates
             listOfBallCoordinates.add(center);
@@ -770,7 +733,7 @@ public class Billedbehandling
                     8,
                     0);
 
-            Imgproc.circle(modMatrix,       	// Circle center
+            Imgproc.circle(modMatrix,       		// Circle center
                     center,
                     1,
                     new Scalar(0, 0, 0),
@@ -778,7 +741,7 @@ public class Billedbehandling
                     0,
                     0);
 
-            Imgproc.circle(modMatrix,      	// Circle outline
+            Imgproc.circle(modMatrix,      			// Circle outline
                     center,
                     (int)radius,
                     new Scalar(0, 0, 0),
@@ -796,6 +759,7 @@ public class Billedbehandling
 
     } // End of private static void runOpenCV(...)
 
+
     /**
      * Takes a frame as input and returns an matrix with only the red color highlighted
      * @param frame
@@ -804,6 +768,10 @@ public class Billedbehandling
     {
     	Mat frame = new Mat();
     	frame = localOrgMatrix.clone();
+
+    	// Color range for detecting RED
+        Scalar min = new Scalar(0, 0, 150, 0);      	// BGR-A (NOT RGB!) (Better than original : (0, 0, 130, 0))
+        Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!) (Better than original : (140, 110, 255, 0))
 
         // Initializing color range
         inRange(frame, min, max, frame);
@@ -927,7 +895,7 @@ public class Billedbehandling
     {
     	Mat src = new Mat();
     	src = localsrc.clone();
-    	
+
         maxCorners = Math.max(maxCorners, 1);
         MatOfPoint corners = new MatOfPoint();
         double qualityLevel = 0.01;
@@ -936,7 +904,7 @@ public class Billedbehandling
         boolean useHarrisDetector = false;
         double k = 0.04;
         Mat copy = orgMatrix.clone();
-        
+
         Imgproc.goodFeaturesToTrack(src, corners, maxCorners, qualityLevel, minDistance, new Mat(),
                 blockSize, gradientSize, useHarrisDetector, k);
         System.out.println("** Number of corners detected: " + corners.rows());
@@ -962,7 +930,7 @@ public class Billedbehandling
         List<Point> PointList = new ArrayList<>();
 
         for (int i = 0; i < corners.rows(); i++) {
-            // Tilføjer points til listen
+            // Adding points to the list
             PointList.add(distancepoint_vt);
             PointList.add(distancepoint_vb);
             PointList.add(distancepoint_ht);
@@ -1009,19 +977,19 @@ public class Billedbehandling
         Imgproc.circle(copy, new Point(hoejreBund[0],hoejreBund[1]), 10, new Scalar(0, 128, 255), Core.FILLED);
         Imgproc.circle(copy, new Point(hoejreTop[0],hoejreTop[1]), 10, new Scalar(0, 128, 255), Core.FILLED);
 
-        Imgproc.circle(copy, distancepoint_vt, radius,
+        Imgproc.circle(modMatrix, distancepoint_vt, radius,
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
-        Imgproc.circle(copy, distancepoint_ht, radius,
+        Imgproc.circle(modMatrix, distancepoint_ht, radius,
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
-        Imgproc.circle(copy, distancepoint_vb, radius,
+        Imgproc.circle(modMatrix, distancepoint_vb, radius,
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
-        Imgproc.circle(copy, distancepoint_hb, radius,
+        Imgproc.circle(modMatrix, distancepoint_hb, radius,
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
 
         //imgLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(copy)));
-        
-       
-        
+
+
+
         return PointList;
     }
 
@@ -1153,20 +1121,16 @@ public class Billedbehandling
 	public void doFrameReprint(Mat orgMatrix2, Mat modMatrix2, Mat isolatedRedColor2) {
 
 
-		label1.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(orgMatrix2)).getImage().getScaledInstance(label1.getWidth(), label1.getHeight(), Image.SCALE_DEFAULT)));
+		label1.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(modMatrix2)).getImage().getScaledInstance(label1.getWidth(), label1.getHeight(), Image.SCALE_DEFAULT)));
 
-		label2.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(modMatrix2)).getImage().getScaledInstance(label2.getWidth(), label2.getHeight(), Image.SCALE_DEFAULT)));
+		label2.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)).getImage().getScaledInstance(label2.getWidth(), label2.getHeight(), Image.SCALE_DEFAULT)));
 
-
-		label4.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)).getImage().getScaledInstance(label4.getWidth(), label4.getHeight(), Image.SCALE_DEFAULT)));
-
-
-
-
+		//label4.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)).getImage().getScaledInstance(label4.getWidth(), label4.getHeight(), Image.SCALE_DEFAULT)));
 
 		//label1.setIcon(new ImageIcon(HighGui.toBufferedImage(orgMatrix2)));
 		//label2.setIcon(new ImageIcon(HighGui.toBufferedImage(modMatrix2)));
 		//label4.setIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)));
+
 		frame.repaint();
 	}
 
@@ -1175,21 +1139,15 @@ public class Billedbehandling
         frame = new JFrame("Gruppe 10 - Debug GUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame.setPreferredSize(new Dimension(1280, 720));
+        frame.setPreferredSize(new Dimension(1920, 1080/2));
 
         frame.setContentPane(panel);
         frame.setVisible(true);
         label1 = new JLabel("1");
         panel.add(label1);
+
         label2 = new JLabel("2");
         panel.add(label2);
-        label3 = new JLabel("3");
-        panel.add(label3);
-        label4 = new JLabel("4");
-        panel.add(label4);
-
-
-
 
         /*
         // Set up the content pane.
@@ -1203,14 +1161,14 @@ public class Billedbehandling
         frame.pack();
         frame.setVisible(true);
 	}
-	
-	private Mat cropOrgMatrix() {		
+
+	private Mat cropOrgMatrix() {
     	Mat orgMatrixClone = new Mat();
     	orgMatrixClone = orgMatrix.clone();
-		
+
 		//Rect rectCrop = new Rect(squareCorners.get(0), squareCorners.get(2));
-		
-    	
+
+
     	int startX = (int) squareCorners.get(0).x;
     	//System.out.println("StartX: " + startX);
     	int startY = (int) squareCorners.get(0).y;
@@ -1219,37 +1177,37 @@ public class Billedbehandling
     	//System.out.println("width: " + width);
     	int height = (int) squareCorners.get(1).y - (int) squareCorners.get(0).y;
     	//System.out.println("height: " + height);
-    	
+
 		Rect rectCrop = new Rect(startX,startY,width,height);
-		
+
 		Mat croppedImage = new Mat(orgMatrixClone, rectCrop);
 		//Mat croppedImage = orgMatrix.clone();
-		
-		
+
+
 		/*
         int[] venstreTop = {525, 230};
         int[] venstreBund = {525, 830};
         int[] hoejreBund = {1375, 830};
         int[] hoejreTop = {1375, 230};
-    	
-        
+
+
         Imgproc.circle(orgMatrixClone, new Point(venstreTop[0],venstreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
         Imgproc.circle(orgMatrixClone, new Point(venstreBund[0],venstreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
         Imgproc.circle(orgMatrixClone, new Point(hoejreBund[0],hoejreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
         Imgproc.circle(orgMatrixClone, new Point(hoejreTop[0],hoejreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
-        
-        
+
+
         Imgproc.circle(orgMatrixClone, squareCorners.get(0), 10, new Scalar(0,0,255), Core.FILLED);
         Imgproc.circle(orgMatrixClone, squareCorners.get(1), 10, new Scalar(0,0,255), Core.FILLED);
         Imgproc.circle(orgMatrixClone, squareCorners.get(2), 10, new Scalar(0,0,255), Core.FILLED);
         Imgproc.circle(orgMatrixClone, squareCorners.get(3), 10, new Scalar(0,0,255), Core.FILLED);
         */
-	
-        
-    	
+
+
+
     	Imgproc.rectangle(orgMatrixClone, squareCorners.get(0), squareCorners.get(2), new Scalar(0, 255, 0, 255), 3);
-    	
-    	
+
+
     	return orgMatrixClone;
 	}
 

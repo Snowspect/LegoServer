@@ -305,17 +305,16 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		while (this.programStillRunning) {
 			//if (RC.GetSendingStatus() == false) { //if the sending status returned is false	
 			
-			/*while(RC.IsRobotExecuting() == true) {
-				
-				System.out.println("I am stuck...");
-			}*/
+			while(RC.robotExecuting) {
+				System.out.print("");
+			}
 			
-			try {
+			/*try {
 				Thread.sleep(6000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 			
 			//Get info from imageRec.
 			ImageRec.runImageRec();
@@ -331,13 +330,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			*/
 					
 			List<Point> ballsWithDirectPathFromRobot = BallsWithDirectPathObstacleHazard(robotMiddle, safeBalls);//find all balls with a direct path
-			if(SPINWIN == true)
+			if(SPINWIN)
 			{
 				CommunicateToServer("0F:3;0R:1500;0S:300;0B:true");
 				//this stops the while loop
 				this.programStillRunning = false;
 			}
-			else if(ballsWithDirectPathFromRobot.size() != 0)
+			else if(!ballsWithDirectPathFromRobot.isEmpty())
 			{
 				//finds the safest ball and communicates to the server
 				//counter = 
@@ -350,7 +349,9 @@ public class RouteLogic implements IRouteLogic, Runnable {
 //			}
 			else if(safeBalls.isEmpty())
 			{
-				HeadForGoalAndUnload();
+				CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+				SPINWIN = true;
+//				HeadForGoalAndUnload();
 			}
 //			else if(safeBalls.isEmpty() && dangerBalls.isEmpty()) //go to goal
 //			{
@@ -358,7 +359,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 //				HeadForGoalAndUnload();
 //			}
 			//We are at a point and can't reach any safe balls
-			else if(checkIfCoordsNear(robotMiddle, newConnectionPoint)) { //sets the new connectionPoint
+			else if(checkIfCoordsNear(robotMiddle, newConnectionPoint, 15)) { //sets the new connectionPoint
 				//all this gets triggered if the robot has reached the newConnection point
 				newConnectionPoint = nextConnPoint(robotMiddle, ConnectionPoints);
 			}
@@ -668,14 +669,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	 */
 	public boolean checkDirectPath(List<Point> directpath)
 	{
-		boolean bøv = true;
 		for (Point p : directpath)
 		{
 			if(ImageGrid != null)
 			{
 				if(ImageGrid[(int) p.getX()][(int) p.getY()] == OBSTACLE)
 				{
-					bøv = false;
+					return false;
 				}
 			}
 			//checks if the simulatedGrid is initialized or if the actual grid is.
@@ -683,11 +683,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			{
 				if(SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE)
 				{
-					bøv = false;
+					return false;
 				}
 			}
 		}
-		return bøv;
+		return true;
 	}
 
  
@@ -787,16 +787,18 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		return false;
 	}
 	//checks if two Points coords are equals
-	public boolean checkIfCoordsNear(Point robotMiddle, Point dest)
-	{
-		int error_margin = 20;
-		
+	public boolean checkIfCoordsNear(Point robotMiddle, Point dest, double d)
+	{		
 		System.out.println("Dif. on x-axis"+(robotMiddle.getX()-dest.getX()));
 		System.out.println("Dif. on y-axis"+(robotMiddle.getY()-dest.getY()));
 		
-		if(robotMiddle.getX() < dest.getX()+error_margin && robotMiddle.getX() > dest.getX()-error_margin &&
-		 robotMiddle.getY() < dest.getY()+error_margin && robotMiddle.getY() > dest.getY()-error_margin
-				) return true;						
+//		if(robotMiddle.getX() < dest.getX()+error_margin && robotMiddle.getX() > dest.getX()-error_margin &&
+//		 robotMiddle.getY() < dest.getY()+error_margin && robotMiddle.getY() > dest.getY()-error_margin
+//				) return true;
+		
+		if(robotMiddle.getX() < dest.getX()+d && robotMiddle.getX() > dest.getX()-d &&
+				 robotMiddle.getY() < dest.getY()+d && robotMiddle.getY() > dest.getY()-d
+						) return true;
 		return false;
 	}
 	
@@ -893,13 +895,19 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	}
 
 	//picks up the nearest ball
-	public int NearestSafeBallPickupAlgorithm(List<Point> safeBalls, int counter)
+	public Double NearestSafeBallPickupAlgorithm(List<Point> safeBalls, double counter)
 	{		
 		//if the list isn't empty
 		Point nearestBall = findNearestBall(robotFront,safeBalls);
 		//Point nearestBall = findNearestBall(robotMiddle, safeBalls);
-		while(!checkIfCoordsNear(robotFront, nearestBall))
+		while(!checkIfCoordsNear(robotFront, nearestBall, 15))
 		{
+			/*if (checkIfCoordsNear(robotMiddle, nearestBall, Calculator.calc_Dist(robotMiddle, robotFront)-15.3)) {
+				ImageRec.runImageRec();
+				GetImageInfo();
+				CommunicateToServer("0F:2;0S:250;0R:300;0B:false");
+				nearestBall = findNearestBall(robotFront,safeBalls);
+			}*/
 			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 			//keyb.next();
 			CommunicateToServer(commandToSend);
@@ -911,17 +919,18 @@ public class RouteLogic implements IRouteLogic, Runnable {
 //				e.printStackTrace();
 //			}
 			
-			while(RC.robotExecuting) {
-				System.out.println("We are executing");
+			while(RC.robotExecuting){
+				System.out.print("");
 			}
 			
 			ImageRec.runImageRec();
 			
 			GetImageInfo();
 		}
+		
 		CommunicateToServerPickup();
 		
-		System.out.println("Going through");
+		System.out.println("Picked it up!!");
 		
 		//Scenario to get close ball
 /*		if(counter == 0) {

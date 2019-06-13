@@ -26,7 +26,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		double hypDist = Math.sqrt(SqHyp);
 
 
-		System.out.println("Dist_calc: " + Math.pow(colDist, 2) + " + "+ Math.sqrt(Math.pow(rowDist, 2)));
+		//System.out.println("Dist_calc: " + Math.pow(colDist, 2) + " + "+ Math.sqrt(Math.pow(rowDist, 2)));
 		return hypDist;
 	}
 
@@ -39,14 +39,14 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		double posRow = posPoint.getX(), posCol = posPoint.getY();
 		double conRow = conPoint.getX(), conCol = conPoint.getY();
 		
-		System.out.println("Centerpoint : "+ posPoint.getX() + " , " +posPoint.getY());
-		System.out.println("Front : "+ conPoint.getX() + " , " +conPoint.getY());
-		System.out.println("Destination : "+ destPoint.getX() + " , " +destPoint.getY());
-		
+//		System.out.println("Centerpoint : "+ posPoint.getX() + " , " +posPoint.getY());
+//		System.out.println("Front : "+ conPoint.getX() + " , " +conPoint.getY());
+//		System.out.println("Destination : "+ destPoint.getX() + " , " +destPoint.getY());
+//		
 		double angle1 = Math.atan2((conRow - posRow), (conCol - posCol)) * 180/Math.PI;
 		double angle2 = Math.atan2((destRow - posRow), (destCol - posCol)) * 180/Math.PI;
-		System.out.println("ControlAngle efter beregning: " + angle1);
-		System.out.println("DestAngle: efter beregning" + angle2);
+		//System.out.println("ControlAngle efter beregning: " + angle1);
+		//System.out.println("DestAngle: efter beregning" + angle2);
 		//System.out.println("angle3: " + (angle2 - angle1) + "\n");
 		double angle = angle2 - angle1;
 			return angle;
@@ -92,9 +92,9 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		// If angle > 0: Turn right, else if angle < 0: Turn left
 
 		//calculates the distance the robot needs to drive
-		double dist = calc_Dist(robotFront, destPoint);
+		double dist = calc_Dist(robotFront, destPoint)*0.98;
 //		double dist = calc_Dist(robotMiddle, destPoint);
-		System.out.printf("Distance: %.2f\n\n", dist);
+//		System.out.printf("Distance: %.2f\n\n", dist);
 
 		System.out.println("Angle : " + angle);
 		//
@@ -102,7 +102,12 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 //			
 //		}
 //		else 
-			if(dist > 60) {
+		
+		if (calc_Dist(robotMiddle, destPoint) < 5) {
+			
+		}
+		if (dist > 200) {
+			System.out.println("Driving fast: "+dist);
 			if (angle > 4) {
 				OF = "0F:4;"; //function 4 (right)
 				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
@@ -113,42 +118,65 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				OS = "0S:200;";
 			} else if (angle >= -4 && angle <= 4) {
 				OF = "0F:1;"; //forward is 1
-				if (dist > 300)
-				{
-					//TODO 
-					OR = "0R:" + Math.round(Math.abs(dist*5.81)-30) + ";"; //rotate 200 on both motors
-					//OR = "0R:200;"; //rotate 200 on both motors
-					OS = "0S:250;"; //speed is 150
-				}
-				else {
-					OS = "0S:250;"; //speed is 50
-//					OR = "0R:200;"; //Hardcoded 200 rotations on motor
-					OR = "0R:" + Math.round(Math.abs(dist*5.81)-30) + ";"; //rotate 200 on both motors
-				}
+				//TODO 
+				OR = "0R:" + Math.round(Math.abs(dist*5.81)-50) + ";"; //rotate 200 on both motors
+				//OR = "0R:200;"; //rotate 200 on both motors
+				OS = "0S:500;"; //speed
+				
 			}
 		}
-		else if(dist < 60){
-			if (angle > 10) {
+		
+		
+		else if(dist > 60) {
+			System.out.println("Driving slow: "+dist);
+			if (angle > 3) {
 				OF = "0F:4;"; //function 4 (right)
 				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
-				OS = "0S:200;";
-			} else if (angle < -10) {
+				OS = "0S:100;";
+			} else if (angle < -3) {
 				OF = "0F:3;"; //function 3 (left)
 				OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
-				OS = "0S:200;";
-			} else if (angle >= -10 && angle <= 10) {
+				OS = "0S:100;";
+			} else if (angle >= -3 && angle <= 3) {
 				OF = "0F:1;"; //forward is 1
 				if (dist > 300)
 				{
 					//TODO 
-					OR = "0R:" + Math.round(Math.abs(dist*5.81)-30) + ";"; //rotate 200 on both motors
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
 					//OR = "0R:200;"; //rotate 200 on both motors
 					OS = "0S:250;"; //speed is 150
 				}
 				else {
 					OS = "0S:250;"; //speed is 50
 //					OR = "0R:200;"; //Hardcoded 200 rotations on motor
-					OR = "0R:" + Math.round(Math.abs(dist*5.81)-30) + ";"; //rotate 200 on both motors
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+				}
+			}
+		}
+		
+		else if(dist < 60){
+			System.out.println("Almost there: "+dist);
+			if (angle > 15) {
+				OF = "0F:4;"; //function 4 (right)
+				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
+				OS = "0S:200;";
+			} else if (angle < -15) {
+				OF = "0F:3;"; //function 3 (left)
+				OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
+				OS = "0S:200;";
+			} else if (angle >= -15 && angle <= 15) {
+				OF = "0F:1;"; //forward is 1
+				if (dist > 300)
+				{
+					//TODO 
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
+					//OR = "0R:200;"; //rotate 200 on both motors
+					OS = "0S:250;"; //speed is 150
+				}
+				else {
+					OS = "0S:250;"; //speed is 50
+//					OR = "0R:200;"; //Hardcoded 200 rotations on motor
+					OR = "0R:" + Math.round(Math.abs(dist*5.81)) + ";"; //rotate 200 on both motors
 				}
 			}
 		}

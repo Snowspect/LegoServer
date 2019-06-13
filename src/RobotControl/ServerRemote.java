@@ -1,5 +1,6 @@
 package RobotControl;
 
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.net.Socket;
 import lejos.hardware.Button;
 import lejos.hardware.Key;
 import lejos.hardware.KeyListener;
+import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
 import lejos.hardware.port.MotorPort;
@@ -61,8 +63,10 @@ public class ServerRemote {
 	public static void main(String[] args) throws IOException {
 		server = new ServerSocket(port);
 		// gyroSensor.reset();
+		Sound.beep();
 		while (looping) {
 			System.out.println("Awaiting Client..");
+			
 			new ServerRemote(server.accept()).run();
 			System.out.println("Connection was established");
 		}
@@ -89,11 +93,11 @@ public class ServerRemote {
 			break;
 		case RemoteCarClient.ARMUP:
 			// For activate : F1
-			GrappleArm.rotate(-30, true);
+			GrappleArm.rotate(-500, true);
 			break;
 		case RemoteCarClient.ARMDOWN:
 			// For activate : F2
-			GrappleArm.rotate(30, true);
+			GrappleArm.rotate(500, true);
 			// grappleArmDown();
 			break;
 		case RemoteCarClient.WHEELUP:
