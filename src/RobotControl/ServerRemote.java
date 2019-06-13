@@ -40,8 +40,8 @@ public class ServerRemote {
 	private static ServerSocket server;
 	private static RegulatedMotor motorLeft = new EV3LargeRegulatedMotor(MotorPort.A);
 	private static RegulatedMotor motorRight = new EV3LargeRegulatedMotor(MotorPort.B);
-	private static RegulatedMotor GrappleArm = new EV3MediumRegulatedMotor(MotorPort.C);
-	private static RegulatedMotor ArmWheelMoter = new EV3MediumRegulatedMotor(MotorPort.D);
+	private static RegulatedMotor GrappleArm = new EV3MediumRegulatedMotor(MotorPort.D);
+	private static RegulatedMotor ArmWheelMoter = new EV3MediumRegulatedMotor(MotorPort.C);
 	// private static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
 	/// VARIABLES END ///
 
