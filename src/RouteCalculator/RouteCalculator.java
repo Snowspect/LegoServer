@@ -106,8 +106,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		if (calc_Dist(robotMiddle, destPoint) < 5) {
 			
 		}
-		
-		if(dist > 60) {
+		if (dist > 500) {
 			if (angle > 4) {
 				OF = "0F:4;"; //function 4 (right)
 				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
@@ -117,6 +116,26 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 				OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
 				OS = "0S:200;";
 			} else if (angle >= -4 && angle <= 4) {
+				OF = "0F:1;"; //forward is 1
+				//TODO 
+				OR = "0R:" + Math.round(Math.abs(dist*5.81)-100) + ";"; //rotate 200 on both motors
+				//OR = "0R:200;"; //rotate 200 on both motors
+				OS = "0S:500;"; //speed
+				
+			}
+		}
+		
+		
+		else if(dist > 60) {
+			if (angle > 2) {
+				OF = "0F:4;"; //function 4 (right)
+				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
+				OS = "0S:100;";
+			} else if (angle < -2) {
+				OF = "0F:3;"; //function 3 (left)
+				OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
+				OS = "0S:100;";
+			} else if (angle >= -2 && angle <= 2) {
 				OF = "0F:1;"; //forward is 1
 				if (dist > 300)
 				{
