@@ -968,12 +968,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		else if (checkIfCoordsNear(robotMiddle, goalPointTwo, 5)) {
 			Calculator.getDir(robotFront, robotMiddle, goalMiddle);
-			
+			HeadForGoalAndUnload();
 		}
 		
 		else if (checkIfCoordsNear(robotMiddle, goalPointOne, 5)) {
 			Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
-			
+			HeadForGoalAndUnload();
 		}
 		
 		else if (!checkIfCoordsNear(robotMiddle, goalPointOne, 5)) {
@@ -983,7 +983,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		
 		
-		CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+		//CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
 //		if(unloadBalls == true)
 //		{
 //			CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
