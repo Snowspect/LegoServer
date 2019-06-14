@@ -113,12 +113,12 @@ public class Billedbehandling
     {
         // Initializing video capture | the image needs to be in a 1920x1080 form factor
     	capture = new VideoCapture(1);
-
+    	
         capture.set(Videoio.CAP_PROP_FRAME_WIDTH, imageWidth);
         capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, imageHeight);
 
         openDebugGUI();
-
+        
     } // End of main()
 
 	public void runImageRec()
@@ -153,9 +153,7 @@ public class Billedbehandling
         Mat isolatedEdges = new Mat();
         isolatedEdges = runEdgeDetection(isolatedRedColor);
 
-        
         // Estimating corners
-        //squareCorners = detectCorners(isolatedEdges);
         squareCorners = detectCorners();
         
         /* DO NOT CALC NEW COORDINATES IF INNER CORNERS IS ALREADY USED
@@ -172,6 +170,13 @@ public class Billedbehandling
         // Running ball detection method.
         arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
         
+        // Calculating "actual" coordinates for each ball.
+        for (int i = 0; i < listOfBallCoordinates.size(); i++) {
+        	Point temp = new Point();
+        	temp = calculateActualCoordinates(listOfBallCoordinates.get(i), "ball");
+        	listOfBallCoordinates.set(i, temp);
+		}
+        
         // Delete balls outside of course (square)
         evaluateBallLocation();
 
@@ -185,8 +190,8 @@ public class Billedbehandling
         doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
   	}
 
-	private List<Point> detectCorners() {
-			    
+	private List<Point> detectCorners() 
+	{
 		/*
 		Point VT = new Point(venstreTop[0],venstreTop[1]);
 		Point VB = new Point(venstreBund[0],venstreBund[1]);
@@ -634,7 +639,6 @@ public class Billedbehandling
         Imgproc.line(modMatrix, localPoints.get(HT), localPoints.get(HB), new Scalar(200, 200, 0, 255), 1);
         Imgproc.line(modMatrix, localPoints.get(HB), localPoints.get(VB), new Scalar(200, 200, 0, 255), 1);
         Imgproc.line(modMatrix, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 1);
-
     }
 
     /**
@@ -982,8 +986,6 @@ public class Billedbehandling
                 new Scalar(rng.nextInt(256), rng.nextInt(256), rng.nextInt(256)), Core.FILLED);
 
         //imgLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(copy)));
-
-
 
         System.out.println("distancepoint_vt:");
         System.out.println("x: " + distancepoint_vt.x + " y:" + distancepoint_vt.y);
