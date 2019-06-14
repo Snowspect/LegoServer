@@ -158,20 +158,22 @@ public class Billedbehandling
         //squareCorners = detectCorners(isolatedEdges);
         squareCorners = detectCorners();
         
+        /* DO NOT CALC NEW COORDINATES IF INNER CORNERS IS ALREADY USED
         // Neutralization of the corner points
         squareCorners.set(0, calculateActualCoordinates(squareCorners.get(0), "edge"));
         squareCorners.set(1, calculateActualCoordinates(squareCorners.get(1), "edge"));
         squareCorners.set(2, calculateActualCoordinates(squareCorners.get(2), "edge"));
         squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));
+        */
 
         // Create a new outline for the obstacle course
         printOutlineToOrigImg(squareCorners);
         
-
-        // Running ball detection function.
-
+        // Running ball detection method.
         arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
-        //arrayMap = findBalls(cropOrgMatrix(), isolatedRedColor, arrayMap);
+        
+        // Delete balls outside of course (square)
+        evaluateBallLocation();
 
         // Estimating Robot Coordinates based on image from webcam
         robotCameraPoints = newRobotDetect(orgMatrix);
@@ -818,6 +820,11 @@ public class Billedbehandling
     } // End of private static void runOpenCV(...)
 
 
+	private static void evaluateBallLocation() {
+		
+	} // End of evaluateBallLocation()
+    
+	
     /**
      * Takes a frame as input and returns an matrix with only the red color highlighted
      * @param frame
@@ -874,82 +881,6 @@ public class Billedbehandling
         //Imgcodecs.imwrite("C:\\Users\\Bruger\\Desktop\\Legobot\\test_1_edges.png", draw);
     }
 
-
-    /**
-     * Creates a matrix from the image containing both color and circular detection
-     * The function creates an image as output and saves it on the computer
-     */
-    private static int[][] create_matrix(int[][] localGrid)
-    {
-    	/*
-        int[] pixel;
-
-        for (int row = 0; row < bi.getHeight(); row++) {
-            for (int col = 0; col < bi.getWidth(); col++) {
-                pixel = bi.getRaster().getPixel(col, row, new int[3]); // Brug new int[3] hvis sort/hvid (grå)-billede. Brug int[4] hvis farve
-
-                if (pixel[0] == 255) {
-                	localGrid[col][row] = 1;        	// An edge
-                }
-
-                if (pixel[0] == 0 && pixel[1] == 255 && pixel[2] == 0) {
-                	localGrid[col][row] = 2;        	// A ball
-                }
-
-            }
-        }
-
-        // Saving the image path
-        String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test3-matrix-output.png";
-        imageCodecs.imwrite(file, imgMat);
- 		*/
-        return localGrid;
-
-    } // End of create_matrix()
-
-    /*
-    private static void showGridAsImage(int[][] localGrid)
-    {
-        Mat imgMat = new Mat( imageHeight, imageWidth, CvType.CV_8U );   // CvType.CV_8U : Unsigned 8bit (the same as an image pixel)
-        BufferedImage bi = null;
-
-        try {
-            bi = ImageIO.read(new File("C:\\Users\\Bruger\\Desktop\\Legobot\\test1.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Failed to load input image");
-        }
-
-        int[] pixel;
-        //int[][] localMap = new int[imageWidth][imageHeight];
-
-        for (int row = 0; row < bi.getHeight(); row++) {
-            for (int col = 0; col < bi.getWidth(); col++) {
-                pixel = bi.getRaster().getPixel(col, row, new int[3]); // Brug new int[3] hvis sort/hvid (grå)-billede. Brug int[4] hvis farve
-
-                if (pixel[0] == 255) {
-                    //System.out.println(pixel[0] + " - " + pixel[1] + " - " + pixel[2] + " - " + (bi.getWidth() * y + x));
-                    //System.out.println(x + ", " + y);
-                	localGrid[col][row] = 1;        	// An edge
-                    imgMat.put(row, col, 255);    	// Prints a white spot on the Mat to check that the two-dimensional array is correct
-                }
-
-                if (pixel[0] == 0 && pixel[1] == 255 && pixel[2] == 0) {
-                	localGrid[col][row] = 2;        	// A ball
-                    imgMat.put(row, col, 255);    	// Prints a white spot on the Mat to check that the two-dimensional array is correct
-                }
-
-            }
-        }
-
-        // Saving the image path
-        String file = "C:\\Users\\Bruger\\Desktop\\Legobot\\test3-matrix-output.png";
-        imageCodecs.imwrite(file, imgMat);
-
-        return localMap;
-    }
-    */
-    
     /*
     private static List<Point> detectCorners(Mat localsrc)
     {
@@ -1077,10 +1008,9 @@ public class Billedbehandling
 
     private static boolean checkDistance(double temp_vt, double distance_vt)
     {
-        if (temp_vt < distance_vt)
-        {
+        if (temp_vt < distance_vt) {
             return true;
-        }
+        } 
         return false;
     }
 
@@ -1199,45 +1129,28 @@ public class Billedbehandling
 		return arrayMap;
 	}
 
-	public void doFrameReprint(Mat orgMatrix2, Mat modMatrix2, Mat isolatedRedColor2) {
-
-
+	public void doFrameReprint(Mat orgMatrix2, Mat modMatrix2, Mat isolatedRedColor2) 
+	{
 		label1.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(modMatrix2)).getImage().getScaledInstance(label1.getWidth(), label1.getHeight(), Image.SCALE_DEFAULT)));
-
 		//label2.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)).getImage().getScaledInstance(label2.getWidth(), label2.getHeight(), Image.SCALE_DEFAULT)));
-
 		//label4.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)).getImage().getScaledInstance(label4.getWidth(), label4.getHeight(), Image.SCALE_DEFAULT)));
-
-		//label1.setIcon(new ImageIcon(HighGui.toBufferedImage(orgMatrix2)));
-		//label2.setIcon(new ImageIcon(HighGui.toBufferedImage(modMatrix2)));
-		//label4.setIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)));
-
 		frame.repaint();
 	}
 
-	public void openDebugGUI() {
+	public void openDebugGUI() 
+	{
         // Create and set up the window.
         frame = new JFrame("Gruppe 10 - Debug GUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         frame.setPreferredSize(new Dimension(1920, 1080));
-
         frame.setContentPane(panel);
         frame.setVisible(true);
+        
         label1 = new JLabel("1");
         panel.add(label1);
-
         //label2 = new JLabel("2");
         //panel.add(label2);
 
-        /*
-        // Set up the content pane.
-        Image img = HighGui.toBufferedImage(orgMatrix);
-        addComponentsToPane(frame.getContentPane(), img);
-        // Use the content pane's default BorderLayout. No need for
-        // setLayout(new BorderLayout());
-         *
-         */
         // Display the window.
         frame.pack();
         frame.setVisible(true);
@@ -1248,7 +1161,6 @@ public class Billedbehandling
     	orgMatrixClone = orgMatrix.clone();
 
 		//Rect rectCrop = new Rect(squareCorners.get(0), squareCorners.get(2));
-
 
     	int startX = (int) squareCorners.get(0).x;
     	//System.out.println("StartX: " + startX);
@@ -1271,12 +1183,10 @@ public class Billedbehandling
         int[] hoejreBund = {1375, 830};
         int[] hoejreTop = {1375, 230};
 
-
         Imgproc.circle(orgMatrixClone, new Point(venstreTop[0],venstreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
         Imgproc.circle(orgMatrixClone, new Point(venstreBund[0],venstreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
         Imgproc.circle(orgMatrixClone, new Point(hoejreBund[0],hoejreBund[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
         Imgproc.circle(orgMatrixClone, new Point(hoejreTop[0],hoejreTop[1]), 10, new Scalar(0, 128, 0), Core.FILLED);
-
 
         Imgproc.circle(orgMatrixClone, squareCorners.get(0), 10, new Scalar(0,0,255), Core.FILLED);
         Imgproc.circle(orgMatrixClone, squareCorners.get(1), 10, new Scalar(0,0,255), Core.FILLED);
@@ -1284,10 +1194,7 @@ public class Billedbehandling
         Imgproc.circle(orgMatrixClone, squareCorners.get(3), 10, new Scalar(0,0,255), Core.FILLED);
         */
 
-
-
     	Imgproc.rectangle(orgMatrixClone, squareCorners.get(0), squareCorners.get(2), new Scalar(0, 255, 0, 255), 3);
-
 
     	return orgMatrixClone;
 	}
@@ -1296,6 +1203,4 @@ public class Billedbehandling
 		return squareCorners;
 	}
 	
-	
-
 } // End of public class Billedbehandling
