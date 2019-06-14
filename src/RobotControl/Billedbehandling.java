@@ -79,7 +79,18 @@ public class Billedbehandling
     private static JLabel label1, label2, label3, label4;
 
     private VideoCapture capture;
-
+    
+    // Corners
+	private static int[] venstreTop = {448, 184};
+	private static int[] venstreBund = {440, 911};
+	private static int[] hoejreBund = {1440, 906};
+	private static int[] hoejreTop = {1435, 181};
+    
+	private static int[] iVT = {464, 198};
+	private static int[] iVB= {456, 900};
+	private static int[] iHB = {1423, 894};
+	private static int[] iHT = {1419, 195};
+	
     // Instantiating the imgcodecs class
     static Imgcodecs imageCodecs = new Imgcodecs();
 
@@ -90,7 +101,7 @@ public class Billedbehandling
     static Mat src = new Mat();
     static Mat srcGray = new Mat();
     static JFrame frame;
-    static JPanel panel = new JPanel(new GridLayout(0, 2));
+    static JPanel panel = new JPanel(new GridLayout(0, 1));
     static JLabel imgLabel;
     static final int MAX_THRESHOLD = 100;
     static int maxCorners = 36;
@@ -144,8 +155,9 @@ public class Billedbehandling
 
         
         // Estimating corners
-        squareCorners = detectCorners(isolatedEdges);
-
+        //squareCorners = detectCorners(isolatedEdges);
+        squareCorners = detectCorners();
+        
         // Neutralization of the corner points
         squareCorners.set(0, calculateActualCoordinates(squareCorners.get(0), "edge"));
         squareCorners.set(1, calculateActualCoordinates(squareCorners.get(1), "edge"));
@@ -170,6 +182,34 @@ public class Billedbehandling
 
         doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
   	}
+
+	private List<Point> detectCorners() {
+			    
+		/*
+		Point VT = new Point(venstreTop[0],venstreTop[1]);
+		Point VB = new Point(venstreBund[0],venstreBund[1]);
+		Point HT = new Point(hoejreBund[0],hoejreBund[1]);
+		Point HB = new Point(hoejreTop[0],hoejreTop[1]);
+		*/
+		
+		Point VT = new Point(iVT[0],iVT[1]);
+		Point VB = new Point(iVB[0],iVB[1]);
+		Point HT = new Point(iHB[0],iHB[1]);
+		Point HB = new Point(iHT[0],iHT[1]);
+		
+        Imgproc.circle(modMatrix, VT, 2, new Scalar(0, 128, 255), Core.FILLED);
+        Imgproc.circle(modMatrix, VB, 2, new Scalar(0, 128, 255), Core.FILLED);
+        Imgproc.circle(modMatrix, HT, 2, new Scalar(0, 128, 255), Core.FILLED);
+        Imgproc.circle(modMatrix, HB, 2, new Scalar(0, 128, 255), Core.FILLED);
+	    
+		List<Point> CornersList = new ArrayList();
+	    CornersList.add(VT);
+	    CornersList.add(VB);
+	    CornersList.add(HT);
+	    CornersList.add(HB);
+	    
+		return CornersList;
+	}
 
 	private static Point[] newRobotDetect(Mat localOrgMat)
     {
@@ -909,6 +949,8 @@ public class Billedbehandling
         return localMap;
     }
     */
+    
+    /*
     private static List<Point> detectCorners(Mat localsrc)
     {
     	Mat src = new Mat();
@@ -948,6 +990,10 @@ public class Billedbehandling
         List<Point> PointList = new ArrayList<>();
 
         for (int i = 0; i < corners.rows(); i++) {
+        	
+        	 Imgproc.circle(modMatrix, new Point(cornersData[i * 2], cornersData[i * 2 + 1]), 3, new Scalar(215, 120, 0), Core.FILLED);
+        	 
+        	
             // Adding points to the list
             PointList.add(distancepoint_vt);
             PointList.add(distancepoint_vb);
@@ -1008,8 +1054,25 @@ public class Billedbehandling
 
 
 
+        System.out.println("distancepoint_vt:");
+        System.out.println("x: " + distancepoint_vt.x + " y:" + distancepoint_vt.y);
+
+
+        System.out.println("distancepoint_vb:");
+        System.out.println("x: " + distancepoint_vb.x + " y:" + distancepoint_vb.y);
+
+
+        System.out.println("distancepoint_ht:");
+        System.out.println("x: " + distancepoint_ht.x + " y:" + distancepoint_ht.y);
+
+
+        System.out.println("distancepoint_hb:");
+        System.out.println("x: " + distancepoint_hb.x + " y:" + distancepoint_hb.y);
+        
+        
         return PointList;
     }
+    */
 
 
     private static boolean checkDistance(double temp_vt, double distance_vt)
@@ -1123,7 +1186,7 @@ public class Billedbehandling
         imageCodecs.imwrite("C:\\Users\\Bruger\\Desktop\\Legobot\\test_dynamic_color.png", cloneMat);
     }
 	*/
-
+    
 
     public static BufferedImage Mat2BufferedImage(Mat matrix)throws IOException {
         MatOfByte mob=new MatOfByte();
@@ -1141,7 +1204,7 @@ public class Billedbehandling
 
 		label1.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(modMatrix2)).getImage().getScaledInstance(label1.getWidth(), label1.getHeight(), Image.SCALE_DEFAULT)));
 
-		label2.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)).getImage().getScaledInstance(label2.getWidth(), label2.getHeight(), Image.SCALE_DEFAULT)));
+		//label2.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)).getImage().getScaledInstance(label2.getWidth(), label2.getHeight(), Image.SCALE_DEFAULT)));
 
 		//label4.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedRedColor2)).getImage().getScaledInstance(label4.getWidth(), label4.getHeight(), Image.SCALE_DEFAULT)));
 
@@ -1157,15 +1220,15 @@ public class Billedbehandling
         frame = new JFrame("Gruppe 10 - Debug GUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame.setPreferredSize(new Dimension(1920, 1080/2));
+        frame.setPreferredSize(new Dimension(1920, 1080));
 
         frame.setContentPane(panel);
         frame.setVisible(true);
         label1 = new JLabel("1");
         panel.add(label1);
 
-        label2 = new JLabel("2");
-        panel.add(label2);
+        //label2 = new JLabel("2");
+        //panel.add(label2);
 
         /*
         // Set up the content pane.
@@ -1232,5 +1295,7 @@ public class Billedbehandling
 	public List<Point> getCorners() {
 		return squareCorners;
 	}
+	
+	
 
 } // End of public class Billedbehandling
