@@ -969,12 +969,59 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		Point goalMiddle = new Point(middleX, middleY);
 		Point goalPointOne = new Point((int)goalMiddle.getX()+250,middleY);
 		Point goalPointTwo = new Point((int)goalMiddle.getX()+125,middleY);
+
+		//initialiing points (should not be a problem)
 		
+		//task 1 is to get to goalspot 1.
+		//we want to keep going until we have reached that point
 		while(running)
 		{
-			while(RC.robotExecuting) {
-				System.out.print("");
+			//loop until we reached point one
+			while(!checkIfCoordsNear(robotFront, goalPointOne, 20)) {
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, goalPointOne);
+				CommunicateToServer(commandToSend);
+				System.out.println("Going For One ----------------------------------------");
+				while(RC.robotExecuting) {
+					System.out.print("");
+				}
+				/*
+				if(checkIfCoordsNear(robotFront, goalPointOne, 30))
+				{
+					CommunicateToServer("0F:2;0S:250;0R:1000;0B:false");
+					
+					ImageRec.runImageRec();
+					GetImageInfo();
+					
+					while(RC.robotExecuting) {
+						System.out.print("");
+					}
+				}*/
+				ImageRec.runImageRec();
+				GetImageInfo();
 			}
+			// loop until we reached point two
+			while(!checkIfCoordsNear(robotFront,goalPointTwo, 20))
+			{
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
+				CommunicateToServer(commandToSend);
+				System.out.println("Going For Two ----------------------------------------");
+				while(RC.robotExecuting) {
+					System.out.print("");
+				}				
+				ImageRec.runImageRec();
+				GetImageInfo();
+	
+				//has larger margin, so the robot should start unloading
+				if(checkIfCoordsNear(robotFront, goalPointTwo, 25))
+				{
+					SPINWIN = true;
+					CommunicateToServer("0F:12;0R:0;0S:0;0B:true;"); // Smid bolde ud
+				}
+			}
+		}
+
+		
+			/*
 			
 			ImageRec.runImageRec();
 			GetImageInfo();
@@ -1003,11 +1050,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 					&& Calculator.calc_Angle(robotFront, robotMiddle, goalMiddle) > -3) {
 				System.out.println("DONE ! Correct Angle ----------------------------------------");
 				running = false;
-			}		
-			else if (pointOneReached == false) {
-				String command = Calculator.getDir(robotFront, robotMiddle, goalPointOne);
-				CommunicateToServer(command);
-				System.out.println("p1R == false ----------------------------------------");
 			}
 			else if (pointOneReached == true && pointTwoReached != true) {
 				String command = Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
@@ -1021,6 +1063,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				CommunicateToServer(command);
 			}
 			
+			*/
 			//CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
 	//		if(unloadBalls == true)
 	//		{
@@ -1044,7 +1087,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//		}
 
 		
-		}
+	//	}
 	}
 	
 	//checks if a direct path touches hazard zones or obstacles
