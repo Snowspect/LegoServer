@@ -151,6 +151,7 @@ public class ServerRemote {
 			stopWheels();
 			break;
 		case 6: // arm up
+			
 			grappleArmUp();
 			break;
 		case 7: // arm down
@@ -171,6 +172,8 @@ public class ServerRemote {
 		case 12: // unloadFunction
 			unload();
 			break;
+		case 13: //All the way up
+			allTheWayUp();
 
 		}
 		robotFeedback();
@@ -361,7 +364,16 @@ public class ServerRemote {
 	 * moves the arm up
 	 */
 	private void grappleArmUp() {
-		GrappleArm.rotate(-500);
+		GrappleArm.rotate(-250);
+	}
+	
+	private void grappleArmDown() throws IOException {
+		GrappleArm.rotate(250);
+	}
+	
+	private void allTheWayUp()
+	{
+		GrappleArm.rotate(-300);
 	}
 
 	/**
@@ -369,9 +381,7 @@ public class ServerRemote {
 	 * 
 	 * @throws IOException
 	 */
-	private void grappleArmDown() throws IOException {
-		GrappleArm.rotate(500);
-	}
+	
 
 	/**
 	 * Sends feedback from robot after execution of command

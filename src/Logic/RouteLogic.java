@@ -902,24 +902,38 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	{		
 		//if the list isn't empty
 		Point nearestBall = findNearestBall(robotFront,safeBalls);
+		boolean skip = false;
 		//Point nearestBall = findNearestBall(robotMiddle, safeBalls);
-		while(!checkIfCoordsNear(robotFront, nearestBall, 12))
+		while(!checkIfCoordsNear(robotFront, nearestBall, 12) && !skip)
 		{
 			if (checkIfCoordsNear(robotMiddle, nearestBall, Calculator.calc_Dist(robotMiddle, robotFront)-12)) {
-				CommunicateToServer("0F:2;0S:250;0R:1000;0B:false");
 				
-				ImageRec.runImageRec();
-				GetImageInfo();
+				CommunicateToServerPickup();
 				
 				while(RC.robotExecuting) {
 					System.out.print("");
 				}
 				
-				nearestBall = findNearestBall(robotFront,safeBalls);
+				CommunicateToServer("0F:2;0S:250;0R:1000;0B:false");
+				
+				while(RC.robotExecuting) {
+					System.out.print("");
+				}
+				
+				skip = true;
+				
+				//ImageRec.runImageRec();
+				//GetImageInfo();
+				
+				//nearestBall = findNearestBall(robotFront,safeBalls);
 			}
-			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
-			//keyb.next();
-			CommunicateToServer(commandToSend);
+			if(!skip)
+			{
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
+				//keyb.next();
+				CommunicateToServer(commandToSend);
+			}
+
 			
 //			try {
 //				Thread.sleep(6000);
@@ -968,7 +982,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		Point goalMiddle = new Point(middleX, middleY);
 		Point goalPointOne = new Point((int)goalMiddle.getX()+250,middleY);
-		Point goalPointTwo = new Point((int)goalMiddle.getX()+125,middleY);
+		Point goalPointTwo = new Point((int)goalMiddle.getX()+90,middleY);
 
 		//initialiing points (should not be a problem)
 		
@@ -1014,7 +1028,15 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				//has larger margin, so the robot should start unloading
 				if(checkIfCoordsNear(robotFront, goalPointTwo, 25))
 				{
-					SPINWIN = true;
+					String command = Calculator.turn(robotFront, robotMiddle, goalMiddle);
+					CommunicateToServer(command);
+					
+					while(RC.robotExecuting) {
+						System.out.print("");
+					}	
+					
+					//SPINWIN = true;
+					CommunicateToServer("0F:13;0R:600;0S:100;0B:true"); // Kør armen helt op!
 					CommunicateToServer("0F:12;0R:0;0S:0;0B:true;"); // Smid bolde ud
 				}
 			}
