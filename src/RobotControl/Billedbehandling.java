@@ -170,12 +170,14 @@ public class Billedbehandling
         // Running ball detection method.
         arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
         
+        /*
         // Calculating "actual" coordinates for each ball.
         for (int i = 0; i < listOfBallCoordinates.size(); i++) {
         	Point temp = new Point();
         	temp = calculateActualCoordinates(listOfBallCoordinates.get(i), "ball");
         	listOfBallCoordinates.set(i, temp);
 		}
+		*/
         
         // Delete balls outside of course (square)
         evaluateBallLocation();
