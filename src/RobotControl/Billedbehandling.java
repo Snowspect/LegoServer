@@ -527,11 +527,11 @@ public class Billedbehandling
     	double mmToPixel = 2.34; // We have calculated the value to 1,7 at center and 2,34 at the corner
 
         // Measurements (camera, robot, ball and obstacles)
-        double cameraHeight = 2000 / 2; 					// 2000mm = 200cm
-        double robotHeight = 290; 					// 255mm = 25.5cm
-        double ballHeight = 40;						// 40mm = 4cm
-        double courseEdgeHeight = 74;				// 70mm = 7cm
-        double crossHeight = 30;						// 30mm = 3cm
+        double cameraHeight = 2000 / 2; 		// 2000mm = 200cm
+        double robotHeight = 290; 				// 255mm = 25.5cm
+        double ballHeight = 25;					// 40mm = 4cm
+        double courseEdgeHeight = 74;			// 70mm = 7cm
+        double crossHeight = 30;				// 30mm = 3cm
         Point imageCenter = new Point(imageWidth/2, imageHeight/2);
 
     	// Boolean to enable console comments
@@ -641,6 +641,7 @@ public class Billedbehandling
         Imgproc.line(modMatrix, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 1);
     }
 
+    
     /**
      * Takes filename of picture as input.
      * Calculates the average distance between three balls.
