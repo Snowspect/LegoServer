@@ -63,10 +63,10 @@ public class ServerRemote {
 	public static void main(String[] args) throws IOException {
 		server = new ServerSocket(port);
 		// gyroSensor.reset();
-		Sound.beep();
 		while (looping) {
 			System.out.println("Awaiting Client..");
-			
+			Sound.beepSequenceUp();
+			Sound.beepSequence();
 			new ServerRemote(server.accept()).run();
 			System.out.println("Connection was established");
 		}
@@ -170,6 +170,8 @@ public class ServerRemote {
 		case 12: // unloadFunction
 			unload();
 			break;
+		case 13: //All the way up
+			allTheWayUp();
 
 		}
 		robotFeedback();
@@ -356,20 +358,17 @@ public class ServerRemote {
 		ArmWheelMoter.stop();
 	}
 
-	/**
-	 * moves the arm up
-	 */
 	private void grappleArmUp() {
-		GrappleArm.rotate(-500);
+		GrappleArm.rotate(-250);
 	}
-
-	/**
-	 * moves the arm down
-	 * 
-	 * @throws IOException
-	 */
+	
 	private void grappleArmDown() throws IOException {
-		GrappleArm.rotate(500);
+		GrappleArm.rotate(250);
+	}
+	
+	private void allTheWayUp()
+	{
+		GrappleArm.rotate(-300);
 	}
 
 	/**

@@ -206,6 +206,51 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 	public String returnToFix(Point conPoint, Point posPoint) {
 		return getDir(conPoint, posPoint, this.returnPoint);
 	}
+	
+	public String turn(Point robotFront, Point robotMiddle, Point destPoint) {
+		StringBuilder str = new StringBuilder();
+		
+		//readies string parts
+		String OF = "0F:0;"; //F is FunctionInt
+		String OS = "0S:0;"; //S is speed
+		String OR = "0R:0;"; //LR is left rotate
+//		String RR = "LR:0;"; //LR is left rotate
+//		String RR = "RR:0;"; //RR is right rotate
+		String OB = "0B:false"; // B is boolean 
+
+		//calculates angle for robot to turn
+		double angle = -calc_Angle(robotFront, robotMiddle, destPoint);
+		
+		if(angle > 180) {
+			angle = -(360-angle);
+		}
+		else if(angle < -180) {
+			angle = 360+angle;
+		}
+		
+		if (angle > 8) {
+			OF = "0F:4;"; //function 4 (right)
+			OR = "0R:"+Math.round(angle*5)+";"; //rotate right
+			OS = "0S:100;";
+		} else if (angle <= -8) {
+			OF = "0F:3;"; //function 3 (left)
+			OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
+			OS = "0S:100;";
+		}
+		str.append(OF);
+		str.append(OS);
+		str.append(OR);
+//		str.append(LR);
+//		str.append(RR);
+		str.append(OB);
+
+		String COMMAND = str.toString();
+
+		System.out.println("COMMAND: "+ COMMAND);
+
+		return COMMAND;
+		
+	}
 
 	
 }
