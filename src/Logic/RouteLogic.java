@@ -42,7 +42,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	private RemoteCarClient RC;
 	//private Billedbehandling_27032019 ImageRec;
 	private Billedbehandling ImageRec;
-	private RouteCalculatorInterface Calculator;
+	private RouteCalculator Calculator;
 	Scanner keyb = new Scanner(System.in); //Hvad er det her???
 	
 
@@ -262,6 +262,17 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		allPickUpPoints.addAll(safeBalls);
 		allPickUpPoints.addAll(dangerPickupPoints);
+		
+		System.out.println("SAFEBALLS");
+		for (Point point: safeBalls)
+			System.out.println(point.getX() + ", " + point.getY());
+		System.out.println("DANGERBALLS");
+		for (Point point: dangerBalls)
+			System.out.println(point.getX() + ", " + point.getY());
+		System.out.println("DANGERBALLS PICKUPPOINT");
+		for (Point point: dangerPickupPoints)
+			System.out.println(point.getX() + ", " + point.getY());
+		keyb.next();
 	}
 	
 	
@@ -763,31 +774,80 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	//heads for goal safe spot and unloads
 	public void HeadForGoalAndUnload()
 	{
-		Point goalPointOne = new Point(100,(int)LLcorner.getY()-(((int)LLcorner.getY()-(int)ULcorner.getY())/2));
+		//OUR OLD VERSION
+		/*Point goalPointOne = new Point(100,(int)LLcorner.getY()-(((int)LLcorner.getY()-(int)ULcorner.getY())/2));
 		Point goalPointTwo = new Point(50,(int)LLcorner.getY()-(((int)LLcorner.getY()-(int)ULcorner.getY())/2));
 		
-		CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+		CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");*/
 		
-		/*if(unloadBalls == true)
+		boolean running = true;
+		boolean pointOneReached = false;
+		boolean pointTwoReached = false;
+		
+		int middleX = (int) ULcorner.getX();
+		int middleY = (int) LLcorner.getY()-(((int)LLcorner.getY()-(int)ULcorner.getY())/2);
+		
+		Point goalMiddle = new Point(middleX, middleY);
+		Point goalPointOne = new Point((int)goalMiddle.getX()+250,middleY);
+		Point goalPointTwo = new Point((int)goalMiddle.getX()+90,middleY);
+
+		//initialiing points (should not be a problem)
+		
+		//task 1 is to get to goalspot 1.
+		//we want to keep going until we have reached that point
+		while(running)
 		{
-			CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
-			unloadBalls = false;
-			SPINWIN = true;
-		}
-		else {
-			boolean allowTrip = checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, smallGoalSafeSpot));
-			if(allowTrip == true)
-			{
-				newConnectionPoint = smallGoalSafeSpot;
-				String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
+			//loop until we reached point one
+			while(!checkIfCoordsNear(robotFront, goalPointOne, 20)) {
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, goalPointOne);
 				CommunicateToServer(commandToSend);
-				if(checkIfCoordsEqual(robotMiddle, newConnectionPoint))
+				System.out.println("Going For One ----------------------------------------");
+				while(RC.robotExecuting) {
+					System.out.print("");
+				}
+				/*
+				if(checkIfCoordsNear(robotFront, goalPointOne, 30))
 				{
-					allowTrip = false;
-					unloadBalls = true;
+					CommunicateToServer("0F:2;0S:250;0R:1000;0B:false");
+					
+					ImageRec.runImageRec();
+					GetImageInfo();
+					
+					while(RC.robotExecuting) {
+						System.out.print("");
+					}
+				}*/
+				ImageRec.runImageRec();
+				GetImageInfo();
+			}
+			// loop until we reached point two
+			while(!checkIfCoordsNear(robotFront,goalPointTwo, 20))
+			{
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
+				CommunicateToServer(commandToSend);
+				System.out.println("Going For Two ----------------------------------------");
+				while(RC.robotExecuting) {
+					System.out.print("");
+				}				
+				ImageRec.runImageRec();
+				GetImageInfo();
+	
+				//has larger margin, so the robot should start unloading
+				if(checkIfCoordsNear(robotFront, goalPointTwo, 25))
+				{
+					String command = Calculator.turn(robotFront, robotMiddle, goalMiddle);
+					CommunicateToServer(command);
+					
+					while(RC.robotExecuting) {
+						System.out.print("");
+					}	
+					
+					//SPINWIN = true;
+					CommunicateToServer("0F:13;0R:600;0S:100;0B:true"); // K?r armen helt op!
+					CommunicateToServer("0F:12;0R:0;0S:0;0B:true;"); // Smid bolde ud
 				}
 			}
-		}*/
+		}
 	}
 	
 	//checks if a direct path touches hazard zones or obstacles
