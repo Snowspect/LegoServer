@@ -194,10 +194,13 @@ public class Billedbehandling
         // Detect Cross
         detectCross(isolatedRedColor);
 
-        doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
+        doFrameReprint(orgMatrix, modMatrix, isolatedRedColor, isolatedEdges);
   	}
 
 	private void detectCross(Mat isolatedRed) {
+		
+
+		
 		Mat isolatedRedLocal = new Mat();
 		isolatedRedLocal = isolatedRed.clone();
         MatOfPoint corners = new MatOfPoint();
@@ -209,13 +212,16 @@ public class Billedbehandling
 
         int p1x = (int) getCorners().get(0).x;
         int p1y = (int) getCorners().get(0).y;
-        int p4x = (int) getCorners().get(2).x;
-        int p4y = (int) getCorners().get(2).y;
+        int p4x = (int) getCorners().get(3).x;
+        int p4y = (int) getCorners().get(3).y;
 
 
         //Rect rectCrop = new Rect(p1x, p1y , (p4x-p1x+1), (p4y-p1y+1));
         Rect rectCrop = new Rect(new Point(p1x, p1y), new Point(p4x, p4y));
         Mat isolatedRedLocalCropped = isolatedRedLocal.submat(rectCrop);
+        
+        Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smoothRED.png", isolatedRedLocalCropped);
+        
     	Imgproc.equalizeHist(isolatedRedLocalCropped, isolatedRedLocalCropped);
         Imgproc.goodFeaturesToTrack(blur(isolatedRedLocalCropped, 30), corners, 4, qualityLevel, minDistance, new Mat(),
                     blockSize, gradientSize, false, k);
@@ -235,6 +241,16 @@ public class Billedbehandling
 
 
         Line2D L1 = new Line2D.Double();
+        
+        // Quick Fix :O
+        
+        if (crossPoints.isEmpty())
+        {
+    		crossPoints.add(new Point(0,0));
+    		crossPoints.add(new Point(0,0));
+    		crossPoints.add(new Point(0,0));
+    		crossPoints.add(new Point(0,0));
+        }
 
 
         double x0 = crossPoints.get(0).x;
@@ -362,14 +378,12 @@ public class Billedbehandling
 	    return angle;
 	}
 
-	private List<Point> detectCorners()
-	{
-		/*
-		Point VT = new Point(venstreTop[0],venstreTop[1]);
-		Point VB = new Point(venstreBund[0],venstreBund[1]);
-		Point HT = new Point(hoejreBund[0],hoejreBund[1]);
-		Point HB = new Point(hoejreTop[0],hoejreTop[1]);
-		*/
+	private static List<Point> dynamicCornerDetection(Mat src) 
+	{			
+		Point dVT = new Point(600,300);
+		Point dVB = new Point(600,700);
+		Point dHB = new Point(1300,300);
+		Point dHT = new Point(1300,700);
 
 		double tempX = 0;
 		double tempY = 0;
