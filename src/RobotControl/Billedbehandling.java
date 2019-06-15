@@ -10,6 +10,7 @@ import org.opencv.videoio.Videoio;
 import java.io.*;
 import java.math.*;
 import java.awt.geom.*;
+import java.awt.geom.Line2D.Double;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,6 +67,8 @@ public class Billedbehandling
     public static int[][] arrayMap = new int[imageHeight][imageWidth];
     public static List<Point> squareCorners = new ArrayList<>();
     public static List<Point> listOfBallCoordinates = new ArrayList<>();
+    public static List<Point> crossPoints = new ArrayList<>(0);
+    public static List<Point> crossPointsList = new ArrayList<>(0);
     public static Point robotBlueMarker, robotGreenMarker;
 
     // Creating an array of points
@@ -188,9 +191,177 @@ public class Billedbehandling
         // Calculating the actual coordinates of the first robot marker
         robotBlueMarker = calculateActualCoordinates(robotCameraPoints[0], "robot");
         robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
-
+        
+        // Detect Cross
+        detectCross(isolatedRedColor);
+     
         doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
   	}
+
+	private void detectCross(Mat isolatedRed) {
+		Mat isolatedRedLocal = new Mat();
+		isolatedRedLocal = isolatedRed.clone();
+        MatOfPoint corners = new MatOfPoint();
+        double qualityLevel = 0.01; // 0.01 org
+        double minDistance = 68;
+        int blockSize = 3, gradientSize = 3;
+        double k = 0.04;
+        
+        
+        int p1x = (int) getCorners().get(0).x;
+        int p1y = (int) getCorners().get(0).y;
+        int p4x = (int) getCorners().get(2).x;
+        int p4y = (int) getCorners().get(2).y;
+        
+        
+        //Rect rectCrop = new Rect(p1x, p1y , (p4x-p1x+1), (p4y-p1y+1));
+        Rect rectCrop = new Rect(new Point(p1x, p1y), new Point(p4x, p4y));      
+        Mat isolatedRedLocalCropped = isolatedRedLocal.submat(rectCrop);
+    	Imgproc.equalizeHist(isolatedRedLocalCropped, isolatedRedLocalCropped);
+        Imgproc.goodFeaturesToTrack(blur(isolatedRedLocalCropped, 30), corners, 4, qualityLevel, minDistance, new Mat(),
+                    blockSize, gradientSize, false, k);
+            
+        
+        int[] cornersData = new int[(int) (corners.total() * corners.channels())];
+        corners.get(0, 0, cornersData);
+    	
+        for (int i = 0; i < corners.rows(); i++) {
+        	crossPoints.add(new Point(cornersData[i * 2]+p1x, cornersData[i * 2 + 1]+p1y));  	
+        }
+        
+        for (int i = 0; i < corners.rows(); i++) {
+        	Imgproc.circle(modMatrix, new Point(cornersData[i * 2]+p1x, cornersData[i * 2 + 1]+p1y), 3, new Scalar(200, 200, 200), Core.FILLED);      	
+        } 
+        //****** ******//
+        
+        
+        Line2D L1 = new Line2D.Double();
+       
+        
+        double x0 = crossPoints.get(0).x;
+        double x1 = crossPoints.get(1).x;
+        double x2 = crossPoints.get(2).x;
+        double x3 = crossPoints.get(3).x;
+        
+        double y0 = crossPoints.get(0).y;
+        double y1 = crossPoints.get(1).y;
+        double y2 = crossPoints.get(2).y;
+        double y3 = crossPoints.get(3).y;
+
+        // Qucik Fix :O
+        crossPointsList.add(crossPoints.get(0));
+        crossPointsList.add(crossPoints.get(0));
+        crossPointsList.add(crossPoints.get(0));
+        crossPointsList.add(crossPoints.get(0));
+
+        
+
+        if (L1.linesIntersect(x0, y0, x1, y1, x2, y2, x3, y3))
+        {
+            
+            if (calculateAngle(x0, y0, x1, y1) >= 180 )
+            {
+            	// 
+            	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
+            	// 
+            	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
+            	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
+
+            	
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
+            	
+            	crossPointsList.set(0, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
+            	crossPointsList.set(1, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
+            	
+            }
+            else
+            {
+            	//
+                //System.out.println("First: " + calculateAngle(x0, y0, x1, y1));
+                
+            	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
+            	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
+            	
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
+            	
+            	crossPointsList.set(0, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
+            	crossPointsList.set(1, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
+            }
+            
+            if (calculateAngle(x2, y2, x3, y3) >= 180)
+            {
+            	// 
+            	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
+            	// 
+            	Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 5, new Scalar(255,255,0), Core.FILLED); // CYAN
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 5, new Scalar(0,0,255), Core.FILLED); // RED
+            	
+            	crossPointsList.set(2, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
+            	crossPointsList.set(3, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
+            }
+            else
+            {
+            	// 
+            	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
+            	// 
+            	Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));            	
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 5, new Scalar(255,255,0), Core.FILLED); // CYAN
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 5, new Scalar(0,0,255), Core.FILLED); // RED
+            	
+            	crossPointsList.set(2, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
+            	crossPointsList.set(3, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
+            }
+        	
+        }
+        
+        
+        
+        Imgproc.circle(modMatrix, getCrossCenterPoint(), 10, new Scalar(255,255,0), Core.FILLED); // CYAN
+        
+        /*
+        if (L1.linesIntersect(x0, y0, x2, y2, x1, y1, x3, y3))
+        {
+        	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(2), new Scalar(59,226,9));
+        	//Imgproc.line(modMatrix, crossPoints.get(1), crossPoints.get(3), new Scalar(59,226,9));
+        }
+        
+        if (L1.linesIntersect(x0, y0, x3, y3, x2, y2, x1, y1))
+        {
+        	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(3), new Scalar(9,34,226));
+        	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(1), new Scalar(9,34,226));
+        }
+         */
+        
+        crossPoints.clear();
+	}
+	
+
+
+	
+	public Mat blur(Mat input, int numberOfTimes){
+        Mat sourceImage = new Mat();
+        Mat destImage = input.clone();
+         
+        for(int i=0;i<numberOfTimes;i++){
+            sourceImage = destImage.clone(); 
+            Imgproc.medianBlur(sourceImage, destImage, 3);
+            Imgproc.blur(sourceImage, destImage, new Size(3.0, 3.0));
+        }   
+        Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smooth" + numberOfTimes + ".png", destImage);
+        return destImage;
+    }
+	
+	public static double calculateAngle(double x1, double y1, double x2, double y2)
+	{
+	    double angle = Math.toDegrees(Math.atan2(x2 - x1, y2 - y1));
+	    // Keep angle between 0 and 360
+	    angle = angle + Math.ceil( -angle / 360 ) * 360;
+
+	    return angle;
+	}
 
 	private List<Point> detectCorners() 
 	{
@@ -839,8 +1010,11 @@ public class Billedbehandling
     private static Mat runColorDetection(Mat localOrgMatrix)
     {
     	Mat frame = new Mat();
+    	
+    	
     	frame = localOrgMatrix.clone();
 
+    	
     	// Color range for detecting RED
         Scalar min = new Scalar(0, 0, 150, 0);      	// BGR-A (NOT RGB!) (Better than original : (0, 0, 130, 0))
         Scalar max = new Scalar(80, 100, 255, 0);  	// BGR-A (NOT RGB!) (Better than original : (140, 110, 255, 0))
@@ -1018,6 +1192,13 @@ public class Billedbehandling
         } 
         return false;
     }
+    
+    
+    public double calculateDistanceBetweenPoints(double x1, double y1, double x2, double y2) 
+    {       
+        return Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+    }
+    
 
 
     private static void addComponentsToPane(Container pane, Image img)
@@ -1160,6 +1341,86 @@ public class Billedbehandling
         frame.pack();
         frame.setVisible(true);
 	}
+	
+
+	private void findRectangle(Mat src) throws Exception {
+		Mat blurred = src.clone();
+		Imgproc.medianBlur(src, blurred, 9);
+
+		Mat gray0 = new Mat(blurred.size(), CvType.CV_8U), gray = new Mat();
+
+		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+
+		List<Mat> blurredChannel = new ArrayList<Mat>();
+		blurredChannel.add(blurred);
+		List<Mat> gray0Channel = new ArrayList<Mat>();
+		gray0Channel.add(gray0);
+
+		MatOfPoint2f approxCurve;
+
+		double maxArea = 0;
+		int maxId = -1;
+
+		for (int c = 0; c < 3; c++) {
+			int ch[] = { c, 0 };
+			Core.mixChannels(blurredChannel, gray0Channel, new MatOfInt(ch));
+
+			int thresholdLevel = 1;
+			for (int t = 0; t < thresholdLevel; t++) {
+				if (t == 0) {
+					Imgproc.Canny(gray0, gray, 10, 20, 3, true); // true ?
+					Imgproc.dilate(gray, gray, new Mat(), new Point(-1, -1), 1); // 1
+					// ?
+				} else {
+					Imgproc.adaptiveThreshold(gray0, gray, thresholdLevel,
+							Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,
+							Imgproc.THRESH_BINARY,
+							(src.width() + src.height()) / 200, t);
+				}
+
+				Imgproc.findContours(gray, contours, new Mat(),
+						Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+
+				for (MatOfPoint contour : contours) {
+					MatOfPoint2f temp = new MatOfPoint2f(contour.toArray());
+
+					double area = Imgproc.contourArea(contour);
+					approxCurve = new MatOfPoint2f();
+					Imgproc.approxPolyDP(temp, approxCurve,
+							Imgproc.arcLength(temp, true) * 0.02, true);
+
+					if (approxCurve.total() == 4 && area >= maxArea) {
+						double maxCosine = 0;
+
+						List<Point> curves = approxCurve.toList();
+						for (int j = 2; j < 5; j++) {
+
+							double cosine = Math.abs(angle(curves.get(j % 4),
+									curves.get(j - 2), curves.get(j - 1)));
+							maxCosine = Math.max(maxCosine, cosine);
+						}
+
+						if (maxCosine < 0.3) {
+							maxArea = area;
+							maxId = contours.indexOf(contour);
+						}
+					}
+				}
+			}
+		}
+
+		if (maxId >= 0) {
+			Imgproc.drawContours(src, contours, maxId, new Scalar(255, 0, 0, .8), 8);
+		}
+	}
+
+	private double angle(Point p1, Point p2, Point p0) {
+		double dx1 = p1.x - p0.x;
+		double dy1 = p1.y - p0.y;
+		double dx2 = p2.x - p0.x;
+		double dy2 = p2.y - p0.y;
+		return (dx1 * dx2 + dy1 * dy2) / Math.sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10);
+	}
 
 	private Mat cropOrgMatrix() {
     	Mat orgMatrixClone = new Mat();
@@ -1206,6 +1467,25 @@ public class Billedbehandling
 
 	public List<Point> getCorners() {
 		return squareCorners;
+	}
+	
+	public List<Point> getCrossPoints() {
+		return crossPointsList;
+	}
+	
+	public Point getCrossCenterPoint() {
+		
+		double meanx = 0.0;
+		double meany = 0.0;
+		
+		if (!crossPointsList.isEmpty())
+		{
+			meanx = (crossPointsList.get(0).x + crossPointsList.get(1).x + crossPointsList.get(2).x + crossPointsList.get(3).x)/4;
+			meany = (crossPointsList.get(0).y + crossPointsList.get(1).y + crossPointsList.get(2).y + crossPointsList.get(3).y)/4;
+		}
+
+		
+		return new Point (meanx,meany);
 	}
 	
 } // End of public class Billedbehandling
