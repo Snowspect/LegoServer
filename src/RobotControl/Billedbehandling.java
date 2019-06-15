@@ -171,12 +171,14 @@ public class Billedbehandling
         // Delete balls outside of square | Do this before calibration
         evaluateBallLocation();
         
+        /*
         // Calculating "actual" coordinates for each ball.
         for (int i = 0; i < listOfBallCoordinates.size(); i++) {
         	Point temp = new Point();
         	temp = calculateActualCoordinates(listOfBallCoordinates.get(i), "ball");
         	listOfBallCoordinates.set(i, temp);
 		}
+		*/
 		
 
         // Estimating Robot Coordinates based on image from webcam
