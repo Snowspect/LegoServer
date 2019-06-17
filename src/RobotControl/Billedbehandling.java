@@ -122,7 +122,7 @@ public class Billedbehandling
 
         openDebugGUI();
         
-        // ONLY TO BE CALCULATED ONCE
+        // ----------------------- ONLY TO BE CALCULATED ONCE ---------------------------
         orgMatrix = new Mat();
         modMatrix = new Mat();
 
@@ -142,8 +142,16 @@ public class Billedbehandling
         squareCorners.set(0, calculateActualCoordinates(squareCorners.get(0), "edge"));
         squareCorners.set(1, calculateActualCoordinates(squareCorners.get(1), "edge"));
         squareCorners.set(2, calculateActualCoordinates(squareCorners.get(2), "edge"));
-        squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));    
-
+        squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));
+        
+        // Detect Cross
+        Boolean succesfullRun = false;
+        while(!succesfullRun) {
+        	succesfullRun = detectCross(isolatedRedColor);
+        }
+        
+        doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
+        
     } // End of main()
 
 	public void runImageRec()
@@ -214,19 +222,19 @@ public class Billedbehandling
         robotBlueMarker = calculateActualCoordinates(robotCameraPoints[0], "robot");
         robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
 
-        // Detect Cross
-        //detectCross(isolatedRedColor);
-
-        doFrameReprint(orgMatrix, modMatrix, isolatedRedColor, isolatedEdges);
+        doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
   	}
 	
 	
-	private void detectCross(Mat isolatedRed) 
-	{
-		Mat isolatedRedLocal = new Mat();
-		isolatedRedLocal = isolatedRed.clone();
-        MatOfPoint corners = new MatOfPoint();
-        double qualityLevel = 0.01; // 0.01 org
+	private Boolean detectCross(Mat isolatedRed) 
+	{		
+		Boolean successful = false;					// Boolean to be turned true if all corners is detected.
+		
+		Mat isolatedRedLocal = new Mat();			
+		isolatedRedLocal = isolatedRed.clone();		// Making sure that we are not making any changes to the orig Mat
+		
+        MatOfPoint corners = new MatOfPoint();		// List of points for each detected corner
+        double qualityLevel = 0.01; 				// 0.01 org
         double minDistance = 68;
         int blockSize = 3, gradientSize = 3;
         double k = 0.04;
@@ -239,13 +247,9 @@ public class Billedbehandling
         //Rect rectCrop = new Rect(p1x, p1y , (p4x-p1x+1), (p4y-p1y+1));
         Rect rectCrop = new Rect(new Point(p1x, p1y), new Point(p4x, p4y));
         Mat isolatedRedLocalCropped = isolatedRedLocal.submat(rectCrop);
-        
-        //Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smoothRED.png", isolatedRedLocalCropped);
-        
+                
     	Imgproc.equalizeHist(isolatedRedLocalCropped, isolatedRedLocalCropped);
-        Imgproc.goodFeaturesToTrack(blur(isolatedRedLocalCropped, 30), corners, 4, qualityLevel, minDistance, new Mat(),
-                    blockSize, gradientSize, false, k);
-
+        Imgproc.goodFeaturesToTrack(blur(isolatedRedLocalCropped, 30), corners, 4, qualityLevel, minDistance, new Mat(), blockSize, gradientSize, false, k);
 
         int[] cornersData = new int[(int) (corners.total() * corners.channels())];
         corners.get(0, 0, cornersData);
@@ -261,25 +265,29 @@ public class Billedbehandling
 
         Line2D L1 = new Line2D.Double();
         
-        // Quick Fix :O
+        double x0 = 0, x1 = 0, x2 = 0, x3 = 0;
+        double y0 = 0, y1 = 0, y2 = 0, y3 = 0;
         
-        if (crossPoints.isEmpty())
-        {
+        // Quick Fix :O
+        if (crossPoints.isEmpty()) {
     		crossPoints.add(new Point(0,0));
     		crossPoints.add(new Point(0,0));
     		crossPoints.add(new Point(0,0));
     		crossPoints.add(new Point(0,0));
+    		return false;
+        } else if (crossPoints.size() == 4) {
+            x0 = crossPoints.get(0).x;
+            x1 = crossPoints.get(1).x;
+            x2 = crossPoints.get(2).x;
+            x3 = crossPoints.get(3).x;
+            y0 = crossPoints.get(0).y;
+            y1 = crossPoints.get(1).y;
+            y2 = crossPoints.get(2).y;
+            y3 = crossPoints.get(3).y;
+            successful = true;
+        } else {
+        	return false;
         }
-
-        double x0 = crossPoints.get(0).x;
-        double x1 = crossPoints.get(1).x;
-        double x2 = crossPoints.get(2).x;
-        double x3 = crossPoints.get(3).x;
-
-        double y0 = crossPoints.get(0).y;
-        double y1 = crossPoints.get(1).y;
-        double y2 = crossPoints.get(2).y;
-        double y3 = crossPoints.get(3).y;
 
         // Qucik Fix :O
         crossPointsList.add(crossPoints.get(0));
@@ -289,9 +297,7 @@ public class Billedbehandling
 
         if (L1.linesIntersect(x0, y0, x1, y1, x2, y2, x3, y3))
         {
-
-            if (calculateAngle(x0, y0, x1, y1) >= 180 )
-            {
+            if (calculateAngle(x0, y0, x1, y1) >= 180 ) {
             	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
             	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
             	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
@@ -301,7 +307,6 @@ public class Billedbehandling
 
             	crossPointsList.set(0, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
             	crossPointsList.set(1, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
-
             } else {
                 //System.out.println("First: " + calculateAngle(x0, y0, x1, y1));
 
@@ -351,8 +356,14 @@ public class Billedbehandling
         	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(1), new Scalar(9,34,226));
         }
          */
-
+        
+        //Point test = new Point (crossPoints.get(3).x, crossPoints.get(3).y);
+        
+        //Rect dangerZone = new Rect();
+        
         crossPoints.clear();
+        
+        return successful;
 	}
 
 	public Mat blur(Mat input, int numberOfTimes){
@@ -1233,7 +1244,7 @@ public class Billedbehandling
         return ImageIO.read(new ByteArrayInputStream(mob.toArray()));
     }
 
-	public void doFrameReprint(Mat orgMatrix2, Mat modMatrix2, Mat isolatedRedColor2, Mat isolatedEdges2)
+	public void doFrameReprint(Mat orgMatrix2, Mat modMatrix2, Mat isolatedRedColor2)
 	{
 		label1.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(modMatrix2)).getImage().getScaledInstance(label1.getWidth(), label1.getHeight(), Image.SCALE_DEFAULT)));
 		//label2.setIcon(new ImageIcon(new ImageIcon(HighGui.toBufferedImage(isolatedEdges2)).getImage().getScaledInstance(label2.getWidth(), label2.getHeight(), Image.SCALE_DEFAULT)));
