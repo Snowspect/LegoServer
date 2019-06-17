@@ -40,8 +40,8 @@ public class ServerRemote {
 	private static ServerSocket server;
 	private static RegulatedMotor motorLeft = new EV3LargeRegulatedMotor(MotorPort.A);
 	private static RegulatedMotor motorRight = new EV3LargeRegulatedMotor(MotorPort.B);
-	private static RegulatedMotor GrappleArm = new EV3MediumRegulatedMotor(MotorPort.D);
-	private static RegulatedMotor ArmWheelMoter = new EV3MediumRegulatedMotor(MotorPort.C);
+	private static RegulatedMotor GrappleArm = new EV3MediumRegulatedMotor(MotorPort.C);
+	private static RegulatedMotor ArmWheelMoter = new EV3MediumRegulatedMotor(MotorPort.D);
 	// private static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
 	/// VARIABLES END ///
 
@@ -172,8 +172,14 @@ public class ServerRemote {
 			break;
 		case 13: //All the way up
 			allTheWayUp();
-
-		}
+			break;
+		case 14:
+			xArmdown();
+			break;
+		case 15:
+			xArmAlldown();
+			break;
+		}	
 		robotFeedback();
 	}
 
@@ -350,7 +356,7 @@ public class ServerRemote {
 		}
 		grappleArmUp();
 		try {
-			Thread.sleep(500);
+			Thread.sleep(250);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -359,16 +365,35 @@ public class ServerRemote {
 	}
 
 	private void grappleArmUp() {
-		GrappleArm.rotate(-250);
+		GrappleArm.rotate(-300);
 	}
 	
 	private void grappleArmDown() throws IOException {
-		GrappleArm.rotate(250);
+		GrappleArm.rotate(300);
 	}
 	
 	private void allTheWayUp()
 	{
 		GrappleArm.rotate(-300);
+	}
+	
+	private void xArmdown() {
+		ArmWheelMoter.forward();
+		GrappleArm.rotate(-170); //Set xArm	
+	}
+	private void xArmAlldown() {
+		GrappleArm.rotate(-130);
+		
+		grappleArmUp();
+		
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArmWheelMoter.stop();
 	}
 
 	/**
@@ -387,6 +412,7 @@ public class ServerRemote {
 	 * moves wheel on arm inwards (so the balls get pushed out)
 	 */
 	private void unload() {
+		ArmWheelMoter.setSpeed(600);
 		ArmWheelMoter.backward();
 		try {
 			Thread.sleep(15000);
