@@ -228,11 +228,11 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 			angle = 360+angle;
 		}
 		
-		if (angle > 8) {
+		if (angle > 2) {
 			OF = "0F:4;"; //function 4 (right)
 			OR = "0R:"+Math.round(angle*5)+";"; //rotate right
 			OS = "0S:100;";
-		} else if (angle <= -8) {
+		} else if (angle <= -2) {
 			OF = "0F:3;"; //function 3 (left)
 			OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
 			OS = "0S:100;";
