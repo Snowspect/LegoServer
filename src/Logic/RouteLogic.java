@@ -165,12 +165,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			 * "_________________________________________________________");
 			 */
 
-			List<Point> ballsWithDirectPathFromRobot = allPickUpPoints;// BallsWithDirectPathFunc(robotMiddle, allPickUpPoints);// find all
-																												// balls
-																												// with
-																												// a
-																												// direct
-																												// path
+			
+			
+			List<Point> ballsWithDirectPathFromRobot = allPickUpPoints;
+			/*BallsWithDirectPathFunc(robotMiddle, allPickUpPoints);*/
+			// find all balls with a direct path
+			
 			if (SPINWIN) {
 				// CommunicateToServer("0F:3;0R:1500;0S:300;0B:true");
 				// this stops the while loop
@@ -332,7 +332,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				dangerBalls.add(new Point((int) point.getX() - wallCorrectionDist, (int) point.getY()));
 				dangerPickupPoints.add(new Point((int) point.getX() - pickupDist, (int) point.getY()));
 			}
-			// tilføj flere else if til krydset i midten
+			// tilfï¿½j flere else if til krydset i midten
 			else {
 				safeBalls.add(point);
 			}
@@ -480,7 +480,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 		// TODO SOMEHOW TRIGGER checkpoint case 1,2,3 and 4? What if the robot is not on
 		// one of those?
-		// ikke initialiseret nogle steder, så altid ende i default?
+		// ikke initialiseret nogle steder, sï¿½ altid ende i default?
 		// case 1 and 2 is deliberately < and > as case 3 and 4 handles <= and >=.
 		switch (checkpoint) {
 		case 1: // runs while start y is less than end y.
@@ -984,6 +984,17 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		}
 	}
 
+	public boolean checkForObstacles(Point robotMiddle, Point dest, Point xMiddle, int radius) {
+		double Slope = (dest.getY() - robotMiddle.getY()) / (dest.getX() - robotMiddle.getX());
+		double Intercept = robotMiddle.getY() - Slope * robotMiddle.getX();
+		
+		double dist = Math.abs(Slope * xMiddle.getX() - Intercept - xMiddle.getY())/Math.sqrt(Math.pow(Slope, 2) + 1);
+		
+		if (radius >= dist) return true;
+		
+		else return false;
+	}
+	
 	// checks if a direct path touches hazard zones or obstacles
 	public boolean checkDirectPathObstacleHazard(List<Point> directpath) {
 		for (Point p : directpath) {
@@ -1033,7 +1044,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	}
 
 	public void xPickup() {
-		// Kør arm lidt ned
+		// Kï¿½r arm lidt ned
 		CommunicateToServer("OF:14;OR:0;OS:0;OB:true");
 		while (RC.robotExecuting) {
 			System.out.print("");
