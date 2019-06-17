@@ -206,11 +206,6 @@ public class Billedbehandling
 		}
 		*/
         
-        // Detect Cross
-        Boolean succesfullRun = false;
-        while(!succesfullRun) {
-        	succesfullRun = detectCross(isolatedRedColor);
-        }
 
         // Estimating Robot Coordinates based on image from webcam
         robotCameraPoints = newRobotDetect(orgMatrix);
