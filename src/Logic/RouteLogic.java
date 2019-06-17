@@ -34,7 +34,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	private Point ULcorner, LLcorner, URcorner, LRcorner;
 	private Point safeHazardPoint, smallGoalSafeSpot, smallGoal, nextCornerToNavigateTo;
 	private Point firstConnection, LastTouchedConnectionPoint, newConnectionPoint;
-	private List<Point> ConnectionPoints, allBalls, dangerBalls, safeBalls, dangerPickupPoints, allPickUpPoints, corners; 
+	private List<Point> ConnectionPoints, allBalls, cornerBalls, cornerPickupPoints, dangerBalls, safeBalls, dangerPickupPoints, allPickUpPoints, corners; 
 	private int[][] ImageGrid;
 	private final int OBSTACLE = 1, HAZARD = 20;
 	boolean firstConnectionFound,firstConnectionTouched, programStillRunning, readyToNavigateToAHazardPoint, pickupBall;
@@ -169,7 +169,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 //			}
 			else if(allBalls.isEmpty())
 			{
-				CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
+				//CommunicateToServer("0F:12;0R:0;0S:0;0B:true;");
 				//SPINWIN = true;
 				HeadForGoalAndUnload();
 			}
@@ -196,9 +196,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	private void findAllPickupPoints() {
 		//FIND ALL PICKUPPOINTS
 		
-		int wallMargin = 200;
-		int pickupDist = 300;
-		int cornerPickupDist = 200;
+		int wallMargin = 40;
+		int pickupDist = 90;
+		int wallCorrectionDist = 10;
+		int cornerPickupDist = 100;
+		int cornerCorrectionDist = 11;
+		
 		if(!dangerBalls.isEmpty()) {
 			dangerBalls.clear();
 		}
@@ -211,46 +214,55 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		if(!allPickUpPoints.isEmpty()) {
 			allPickUpPoints.clear();
 		}
+		if(!cornerPickupPoints.isEmpty()) {
+			cornerPickupPoints.clear();
+		}
 		
 		for (Point point : allBalls) {
 			//Close to upper wall
 			if(point.getY() < upperWall+wallMargin) {
-				dangerBalls.add(point);
+				
 				//ULcorner
 				if(point.getX()<leftWall+wallMargin) {
-					dangerPickupPoints.add(new Point((int)point.getX()+cornerPickupDist,(int)point.getY()+cornerPickupDist));
+					cornerPickupPoints.add(new Point((int)point.getX()+cornerPickupDist,(int)point.getY()+cornerPickupDist));
+					cornerBalls.add(new Point((int)point.getX()+cornerCorrectionDist,(int)point.getY()+cornerCorrectionDist));
 				}
 				//URcorner
-				else if(point.getX()<rightWall+wallMargin) {
-					dangerPickupPoints.add(new Point((int)point.getX()-cornerPickupDist,(int)point.getY()+cornerPickupDist));
+				else if(point.getX()>rightWall-wallMargin) {
+					cornerPickupPoints.add(new Point((int)point.getX()-cornerPickupDist,(int)point.getY()+cornerPickupDist));
+					cornerBalls.add(new Point((int)point.getX()-cornerCorrectionDist,(int)point.getY()+cornerCorrectionDist));
 				}
 				else {
+					dangerBalls.add(new Point((int)point.getX(),(int)point.getY()+wallCorrectionDist));
 					dangerPickupPoints.add(new Point((int)point.getX(),(int)point.getY()+pickupDist));
 				}
 			}
 			//Close to lower wall
 			else if (point.getY() > lowerWall-wallMargin) {
-				dangerBalls.add(point);
-				//ULcorner
+				
+				//LLcorner
 				if(point.getX()<leftWall+wallMargin) {
-					dangerPickupPoints.add(new Point((int)point.getX()+cornerPickupDist,(int)point.getY()-cornerPickupDist));
+					cornerPickupPoints.add(new Point((int)point.getX()+cornerPickupDist,(int)point.getY()-cornerPickupDist));
+					cornerBalls.add(new Point((int)point.getX()+cornerCorrectionDist,(int)point.getY()-cornerCorrectionDist));
 				}
-				//URcorner
-				else if(point.getX()<rightWall+wallMargin) {
-					dangerPickupPoints.add(new Point((int)point.getX()-cornerPickupDist,(int)point.getY()-cornerPickupDist));
+				//LRcorner
+				else if(point.getX()>rightWall-wallMargin) {
+					cornerPickupPoints.add(new Point((int)point.getX()-cornerPickupDist,(int)point.getY()-cornerPickupDist));
+					cornerBalls.add(new Point((int)point.getX()-cornerCorrectionDist,(int)point.getY()-cornerCorrectionDist));
 				}
 				else {
+					dangerBalls.add(new Point((int)point.getX(),(int)point.getY()-wallCorrectionDist));
 					dangerPickupPoints.add(new Point((int)point.getX(),(int)point.getY()-pickupDist));
 				}
 			}
 			//Close to leftside wall
 			else if(point.getX() < leftWall+wallMargin) {
-				dangerBalls.add(point);
+				dangerBalls.add(new Point((int)point.getX()+wallCorrectionDist,(int)point.getY()));
 				dangerPickupPoints.add(new Point((int)point.getX()+pickupDist,(int)point.getY()));
 			}
 			//Close to rightside wall
 			else if(point.getX() > rightWall-wallMargin) {
-				dangerBalls.add(point);
+				dangerBalls.add(new Point((int)point.getX()-wallCorrectionDist,(int)point.getY()));
 				dangerPickupPoints.add(new Point((int)point.getX()-pickupDist,(int)point.getY()));
 			}
 			//tilføj flere else if til krydset i midten
@@ -262,17 +274,27 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		allPickUpPoints.addAll(safeBalls);
 		allPickUpPoints.addAll(dangerPickupPoints);
+		allPickUpPoints.addAll(cornerPickupPoints);
 		
-		System.out.println("SAFEBALLS");
-		for (Point point: safeBalls)
-			System.out.println(point.getX() + ", " + point.getY());
-		System.out.println("DANGERBALLS");
-		for (Point point: dangerBalls)
-			System.out.println(point.getX() + ", " + point.getY());
-		System.out.println("DANGERBALLS PICKUPPOINT");
-		for (Point point: dangerPickupPoints)
-			System.out.println(point.getX() + ", " + point.getY());
-		keyb.next();
+//		System.out.println("Upperwall: "+upperWall);
+//		System.out.println("Lowerwall: "+lowerWall);
+//		System.out.println("Rightwall: "+rightWall);
+//		System.out.println("Leftwall: "+leftWall);
+		
+//		System.out.println("ALLBALLS");
+//		for (Point point: allBalls)
+//			System.out.println(point.getX() + ", " + point.getY());
+//		
+//		System.out.println("SAFEBALLS");
+//		for (Point point: safeBalls)
+//			System.out.println(point.getX() + ", " + point.getY());
+//		System.out.println("DANGERBALLS");
+//		for (Point point: dangerBalls)
+//			System.out.println(point.getX() + ", " + point.getY());
+//		System.out.println("DANGERBALLS PICKUPPOINT");
+//		for (Point point: dangerPickupPoints)
+//			System.out.println(point.getX() + ", " + point.getY());
+//		keyb.next();
 	}
 	
 	
@@ -283,11 +305,15 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		robotFront = ConvertPoint(ImageRec.robotBlueMarker);
 		allBalls = ConvertPoint(ImageRec.listOfBallCoordinates);
 		
-
-		ULcorner = new Point(407,166);
-		LLcorner = new Point(410,896);
-		URcorner = new Point(1401,171);
-		LRcorner = new Point(1400,888);
+		List<Point> corners = ConvertPoint(ImageRec.getCorners());
+//		ULcorner = new Point(407,166);
+//		LLcorner = new Point(410,896);
+//		URcorner = new Point(1401,171);
+//		LRcorner = new Point(1400,888);
+		ULcorner = corners.get(0);
+		LLcorner = corners.get(1);
+		URcorner = corners.get(3);
+		LRcorner = corners.get(2);
 		
 		if(ULcorner.getX()>LLcorner.getX()) {
 			leftWall = ULcorner.getX();
@@ -307,14 +333,14 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			upperWall = ULcorner.getY();
 		}
 		else {
-			upperWall = URcorner.getX();
+			upperWall = URcorner.getY();
 		}
 		
 		if(LLcorner.getY()>LRcorner.getY()) {
 			lowerWall = LRcorner.getY();
 		}
 		else {
-			lowerWall = LLcorner.getX();
+			lowerWall = LLcorner.getY();
 		}
 		
 		
@@ -697,7 +723,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		//if the list isn't empty
 		Point nearestBall = findNearestBall(robotFront,Balls);
 		//Point nearestBall = findNearestBall(robotMiddle, safeBalls);
-		while(!checkIfCoordsNear(robotFront, nearestBall, 12))
+		while(!checkIfCoordsNear(robotFront, nearestBall, 10)) //old 12
 		{
 			/*if (checkIfCoordsNear(robotMiddle, nearestBall, Calculator.calc_Dist(robotMiddle, robotFront)-15.3)) {
 				ImageRec.runImageRec();
@@ -727,19 +753,15 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		
 		if(safeBalls.contains(nearestBall)) {
 			CommunicateToServerPickup();
+			while(RC.robotExecuting){
+				System.out.print("");
+			}
 		}
 		else if(dangerPickupPoints.contains(nearestBall)){
 			nearestBall = dangerBalls.get(dangerPickupPoints.indexOf(nearestBall));
-			while(!checkIfCoordsNear(robotFront, nearestBall, 12)){
+			while(!checkIfCoordsNear(robotFront, nearestBall, 8)){
 				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 				CommunicateToServer(commandToSend);
-				
-//				try {
-//					Thread.sleep(6000);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
 				while(RC.robotExecuting){
 					System.out.print("");
 				}
@@ -748,8 +770,35 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				GetImageInfo();
 			}
 			CommunicateToServerPickup();
+			while(RC.robotExecuting){
+				System.out.print("");
+			}
 			CommunicateToServer("0F:2;0R:720;0S:200;0B:true;");
+			while(RC.robotExecuting){
+				System.out.print("");
+			}
 			
+		}
+		else if (cornerPickupPoints.contains(nearestBall)) {
+			nearestBall = cornerBalls.get(cornerPickupPoints.indexOf(nearestBall));
+			while(!checkIfCoordsNear(robotFront, nearestBall, 8)){
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
+				CommunicateToServer(commandToSend);
+				while(RC.robotExecuting){
+					System.out.print("");
+				}
+				
+				ImageRec.runImageRec();
+				GetImageInfo();
+			}
+			CommunicateToServerPickup();
+			while(RC.robotExecuting){
+				System.out.print("");
+			}
+			CommunicateToServer("0F:2;0R:720;0S:200;0B:true;");
+			while(RC.robotExecuting){
+				System.out.print("");
+			}
 		}
 		
 		
