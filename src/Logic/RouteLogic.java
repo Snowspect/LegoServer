@@ -165,7 +165,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			 * "_________________________________________________________");
 			 */
 
-			List<Point> ballsWithDirectPathFromRobot = BallsWithDirectPathFunc(robotMiddle, allPickUpPoints);// find all
+			List<Point> ballsWithDirectPathFromRobot = allPickUpPoints;// BallsWithDirectPathFunc(robotMiddle, allPickUpPoints);// find all
 																												// balls
 																												// with
 																												// a
@@ -255,7 +255,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 		int wallMargin = 40;
 		int pickupDist = 90;
-		int wallCorrectionDist = 3;
+		int wallCorrectionDist = 5;
 		int cornerPickupDist = 100;
 		int cornerCorrectionDist = 0;
 
@@ -387,12 +387,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 			int connectionDist = 150;
 			
-			xCenter = ConvertPoint(ImageRec.getCrossCenterPoint());
-			
-			for(Point point: markX(xCenter.getX(),xCenter.getY(),200)) {
-				ImageGrid[(int)point.getX()-1][(int)point.getY()-1] = 1;
-			}
-			
+//			xCenter = ConvertPoint(ImageRec.getCrossCenterPoint());
+//			
+//			for(Point point: markX(xCenter.getX(),xCenter.getY(),200)) {
+//				ImageGrid[(int)point.getX()-1][(int)point.getY()-1] = 1;
+//			}
+//			
 
 			newConnectionpoints = new ArrayList<Point>(4);
 
