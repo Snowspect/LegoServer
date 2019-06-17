@@ -183,7 +183,6 @@ public class Billedbehandling
 		}
 		*/
 
-
         // Estimating Robot Coordinates based on image from webcam
         robotCameraPoints = newRobotDetect(orgMatrix);
 
@@ -192,15 +191,13 @@ public class Billedbehandling
         robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
 
         // Detect Cross
-        detectCross(isolatedRedColor);
+        //detectCross(isolatedRedColor);
 
         doFrameReprint(orgMatrix, modMatrix, isolatedRedColor, isolatedEdges);
   	}
 
-	private void detectCross(Mat isolatedRed) {
-		
-
-		
+	private void detectCross(Mat isolatedRed) 
+	{
 		Mat isolatedRedLocal = new Mat();
 		isolatedRedLocal = isolatedRed.clone();
         MatOfPoint corners = new MatOfPoint();
@@ -209,18 +206,16 @@ public class Billedbehandling
         int blockSize = 3, gradientSize = 3;
         double k = 0.04;
 
-
         int p1x = (int) getCorners().get(0).x;
         int p1y = (int) getCorners().get(0).y;
         int p4x = (int) getCorners().get(3).x;
         int p4y = (int) getCorners().get(3).y;
 
-
         //Rect rectCrop = new Rect(p1x, p1y , (p4x-p1x+1), (p4y-p1y+1));
         Rect rectCrop = new Rect(new Point(p1x, p1y), new Point(p4x, p4y));
         Mat isolatedRedLocalCropped = isolatedRedLocal.submat(rectCrop);
         
-        Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smoothRED.png", isolatedRedLocalCropped);
+        //Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smoothRED.png", isolatedRedLocalCropped);
         
     	Imgproc.equalizeHist(isolatedRedLocalCropped, isolatedRedLocalCropped);
         Imgproc.goodFeaturesToTrack(blur(isolatedRedLocalCropped, 30), corners, 4, qualityLevel, minDistance, new Mat(),
@@ -239,7 +234,6 @@ public class Billedbehandling
         }
         //****** ******//
 
-
         Line2D L1 = new Line2D.Double();
         
         // Quick Fix :O
@@ -251,7 +245,6 @@ public class Billedbehandling
     		crossPoints.add(new Point(0,0));
     		crossPoints.add(new Point(0,0));
         }
-
 
         double x0 = crossPoints.get(0).x;
         double x1 = crossPoints.get(1).x;
@@ -269,19 +262,14 @@ public class Billedbehandling
         crossPointsList.add(crossPoints.get(0));
         crossPointsList.add(crossPoints.get(0));
 
-
-
         if (L1.linesIntersect(x0, y0, x1, y1, x2, y2, x3, y3))
         {
 
             if (calculateAngle(x0, y0, x1, y1) >= 180 )
             {
-            	//
             	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
-            	//
             	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
             	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
-
 
             	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
             	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
@@ -289,10 +277,7 @@ public class Billedbehandling
             	crossPointsList.set(0, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
             	crossPointsList.set(1, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
 
-            }
-            else
-            {
-            	//
+            } else {
                 //System.out.println("First: " + calculateAngle(x0, y0, x1, y1));
 
             	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
@@ -304,9 +289,8 @@ public class Billedbehandling
             	crossPointsList.set(0, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
             	crossPointsList.set(1, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
             }
-
-            if (calculateAngle(x2, y2, x3, y3) >= 180)
-            {
+            
+            if (calculateAngle(x2, y2, x3, y3) >= 180) {
             	//
             	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
             	//
@@ -316,12 +300,8 @@ public class Billedbehandling
 
             	crossPointsList.set(2, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
             	crossPointsList.set(3, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
-            }
-            else
-            {
-            	//
+            } else {
             	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
-            	//
             	Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
             	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 5, new Scalar(255,255,0), Core.FILLED); // CYAN
             	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 5, new Scalar(0,0,255), Core.FILLED); // RED
@@ -329,10 +309,7 @@ public class Billedbehandling
             	crossPointsList.set(2, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
             	crossPointsList.set(3, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
             }
-
-        }
-
-
+        } // End of if(linesintersect)
 
         Imgproc.circle(modMatrix, getCrossCenterPoint(), 10, new Scalar(255,255,0), Core.FILLED); // CYAN
 
@@ -353,9 +330,6 @@ public class Billedbehandling
         crossPoints.clear();
 	}
 
-
-
-
 	public Mat blur(Mat input, int numberOfTimes){
         Mat sourceImage = new Mat();
         Mat destImage = input.clone();
@@ -365,7 +339,7 @@ public class Billedbehandling
             Imgproc.medianBlur(sourceImage, destImage, 3);
             Imgproc.blur(sourceImage, destImage, new Size(3.0, 3.0));
         }
-        Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smooth" + numberOfTimes + ".png", destImage);
+        //Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smooth" + numberOfTimes + ".png", destImage);
         return destImage;
     }
 
@@ -378,6 +352,7 @@ public class Billedbehandling
 	    return angle;
 	}
 
+	
 	private static List<Point> dynamicCornerDetection(Mat src) 
 	{			
 		Point dVT = new Point(600,300);
@@ -577,7 +552,7 @@ public class Billedbehandling
 
         // Measurements (camera, robot, ball and obstacles)
         double cameraHeight = 2000 / 2; 		// 2000mm = 200cm
-        double robotHeight = 290; 				// 255mm = 25.5cm
+        double robotHeight = 297; 				// 297mm = 29.7cm
         double ballHeight = 25;					// 40mm = 4cm
         double courseEdgeHeight = 74;			// 70mm = 7cm
         double crossHeight = 30;				// 30mm = 3cm
@@ -678,10 +653,6 @@ public class Billedbehandling
     } // End of robotCalculateCoordinates()
 
 
-    /**
-     *
-     * @param localPoints
-     */
     private static void printOutlineToOrigImg(List<Point> localPoints)
     {
         int VT = 0;		int VB = 1;		int HT = 2;		int HB = 3;
@@ -691,7 +662,6 @@ public class Billedbehandling
         Imgproc.line(modMatrix, localPoints.get(HB), localPoints.get(VB), new Scalar(200, 200, 0, 255), 2);
         Imgproc.line(modMatrix, localPoints.get(VB), localPoints.get(VT), new Scalar(200, 200, 0, 255), 2);
     }
-
 
 
     /**
@@ -759,6 +729,7 @@ public class Billedbehandling
         System.out.println("One pixel is " +pixel_mm_converter+ "mm");
 
     } // End of findPixelSize()
+    
 
     /**
      * The function runOpenCV takes a file for the original image.
@@ -886,11 +857,14 @@ public class Billedbehandling
 
 		//Rect rVTHB = new Rect((int)dVT.x, (int)dVT.y, ((int)dHT.x - (int)dVT.x), ((int)dVB.y - (int)dVT.y));
 		Rect rVTHB = new Rect(HB, VT);
+		Rect rVBHT = new Rect(HT, VB);
 
 		List<Point> validBalls = new ArrayList<>();
 
 		for (Point p : listOfBallCoordinates) {
 			if(rVTHB.contains(p)) {
+				validBalls.add(p);
+			} else if (rVBHT.contains(p)) {
 				validBalls.add(p);
 			}
 		}
