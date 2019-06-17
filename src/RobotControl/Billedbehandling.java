@@ -1,5 +1,4 @@
 package RobotControl;
-import org.jfree.chart.block.GridArrangement;
 import org.opencv.core.*;
 import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -10,33 +9,25 @@ import org.opencv.videoio.Videoio;
 import java.io.*;
 import java.math.*;
 import java.awt.geom.*;
-import java.awt.geom.Line2D.Double;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
 import javax.imageio.ImageIO;
-import javax.sound.sampled.Line;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.plaf.ColorUIResource;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.awt.Image;
-import java.awt.Robot;
-import java.io.File;
 import java.io.IOException;
 
 import static org.opencv.core.Core.inRange;
@@ -46,7 +37,7 @@ public class Billedbehandling
     // The camera has a maximum resolution of 1920x1080
     private static int imageWidth = 1920;                		// Image width
     private static int imageHeight = 1080;             			// Image height
-
+ 
     // Color range for detecting BLUE circle on robot
     private static Scalar minBlue = new Scalar(110, 0, 0, 0);  	// BGR-A (NOT RGB!)
     private static Scalar maxBlue = new Scalar(255, 100, 100, 0); // BGR-A (NOT RGB!)
@@ -214,6 +205,12 @@ public class Billedbehandling
         	listOfBallCoordinates.set(i, temp);
 		}
 		*/
+        
+        // Detect Cross
+        Boolean succesfullRun = false;
+        while(!succesfullRun) {
+        	succesfullRun = detectCross(isolatedRedColor);
+        }
 
         // Estimating Robot Coordinates based on image from webcam
         robotCameraPoints = newRobotDetect(orgMatrix);
@@ -244,7 +241,6 @@ public class Billedbehandling
         int p4x = (int) getCorners().get(3).x;
         int p4y = (int) getCorners().get(3).y;
 
-        //Rect rectCrop = new Rect(p1x, p1y , (p4x-p1x+1), (p4y-p1y+1));
         Rect rectCrop = new Rect(new Point(p1x, p1y), new Point(p4x, p4y));
         Mat isolatedRedLocalCropped = isolatedRedLocal.submat(rectCrop);
                 
@@ -261,9 +257,6 @@ public class Billedbehandling
         for (int i = 0; i < corners.rows(); i++) {
         	Imgproc.circle(modMatrix, new Point(cornersData[i * 2]+p1x, cornersData[i * 2 + 1]+p1y), 3, new Scalar(200, 200, 200), Core.FILLED);
         }
-        //****** ******//
-
-        Line2D L1 = new Line2D.Double();
         
         double x0 = 0, x1 = 0, x2 = 0, x3 = 0;
         double y0 = 0, y1 = 0, y2 = 0, y3 = 0;
@@ -295,54 +288,43 @@ public class Billedbehandling
         crossPointsList.add(crossPoints.get(0));
         crossPointsList.add(crossPoints.get(0));
 
-        if (L1.linesIntersect(x0, y0, x1, y1, x2, y2, x3, y3))
+        if (Line2D.linesIntersect(x0, y0, x1, y1, x2, y2, x3, y3))
         {
             if (calculateAngle(x0, y0, x1, y1) >= 180 ) {
             	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
             	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
-            	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
-
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
-
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 3, new Scalar(0,255,255), Core.FILLED); 	// YELLOW
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 3, new Scalar(255,0,0), Core.FILLED); 	// BLUE
             	crossPointsList.set(0, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
             	crossPointsList.set(1, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
             } else {
                 //System.out.println("First: " + calculateAngle(x0, y0, x1, y1));
-
             	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
-            	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
-
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
-
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 3, new Scalar(0,255,255), Core.FILLED); 	// YELLOW
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 3, new Scalar(255,0,0), Core.FILLED); 	// BLUE
             	crossPointsList.set(0, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
             	crossPointsList.set(1, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
             }
             
             if (calculateAngle(x2, y2, x3, y3) >= 180) {
-            	//
             	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
-            	//
             	Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 5, new Scalar(255,255,0), Core.FILLED); // CYAN
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 5, new Scalar(0,0,255), Core.FILLED); // RED
-
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 3, new Scalar(255,255,0), Core.FILLED); 	// CYAN
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 3, new Scalar(0,0,255), Core.FILLED); 	// RED
             	crossPointsList.set(2, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
             	crossPointsList.set(3, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
             } else {
             	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
             	Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 5, new Scalar(255,255,0), Core.FILLED); // CYAN
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 5, new Scalar(0,0,255), Core.FILLED); // RED
-
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 3, new Scalar(255,255,0), Core.FILLED); 	// CYAN
+            	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 3, new Scalar(0,0,255), Core.FILLED); 	// RED
             	crossPointsList.set(2, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
             	crossPointsList.set(3, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
             }
-        } // End of if(linesintersect)
+        } // End of if(linesIntersect)
 
         Imgproc.circle(modMatrix, getCrossCenterPoint(), 10, new Scalar(255,255,0), Core.FILLED); // CYAN
-
+        
         /*
         if (L1.linesIntersect(x0, y0, x2, y2, x1, y1, x3, y3))
         {
@@ -357,10 +339,28 @@ public class Billedbehandling
         }
          */
         
-        //Point test = new Point (crossPoints.get(3).x, crossPoints.get(3).y);
+        // Blue		= Top left
+        // Cyan 	= Top right
+        // Red 		= Lower left
+        // Yellow	= Lower right
         
-        //Rect dangerZone = new Rect();
+        Point blue = new Point(crossPoints.get(1).x, crossPoints.get(1).y);
+        Point cyan = new Point(crossPoints.get(2).x, crossPoints.get(2).y);
+        Point red = new Point(crossPoints.get(3).x, crossPoints.get(3).y);
+        Point yellow = new Point(crossPoints.get(0).x, crossPoints.get(0).y);
         
+        Rect dangerZone = new Rect(yellow, blue);
+        Rect zone1 = new Rect(yellow, red);
+        Rect zone2 = new Rect(yellow, cyan);
+        Rect zone3 = new Rect(cyan, blue);
+        Rect zone4 = new Rect(red, blue);
+        
+        Imgproc.rectangle(modMatrix, dangerZone, new Scalar(200, 200, 0, 255), 1);
+        Imgproc.rectangle(modMatrix, zone1, new Scalar(0, 128, 255), 1);
+        Imgproc.rectangle(modMatrix, zone2, new Scalar(0, 128, 255), 1);
+        Imgproc.rectangle(modMatrix, zone3, new Scalar(0, 128, 255), 1);
+        Imgproc.rectangle(modMatrix, zone4, new Scalar(0, 128, 255), 1);
+
         crossPoints.clear();
         
         return successful;
