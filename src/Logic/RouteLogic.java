@@ -915,7 +915,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				while (RC.robotExecuting) {
 					System.out.print("");
 				}
-
 				ImageRec.runImageRec();
 				GetImageInfo();
 			}

@@ -158,7 +158,7 @@ public class Billedbehandling
         }
         
         // Detect balls within cross, and their safe pickup
-        isInside(listOfBallCoordinates, 100);
+        //isInside(listOfBallCoordinates, 100);
         calculateSafePoints();
 
         /*
@@ -234,11 +234,15 @@ public class Billedbehandling
 	
 	private void calculateSafePoints()
 	{
-		for (int i = 0; i < listOfCircleBalls.size(); i++) {
-			listOfCircleBallsPickup.add(new Point());
-		}
+		listOfCircleBalls.clear();
+		listOfCircleBallsPickup.clear();
+		Point circle = getCrossCenterPoint();
 		
-		for (int i = 0; i < listOfCircleBalls.size(); i++)
+//		for (int i = 0; i < listOfCircleBalls.size(); i++) {
+//			listOfCircleBallsPickup.add(new Point());
+//		}
+		
+		for (int i = 0; i < listOfBallCoordinates.size(); i++)
 		{
 			double minDist = 10000000;
 			int smallestDistance = 0;
@@ -248,47 +252,52 @@ public class Billedbehandling
 			List<Point> tempCrossPoints = new ArrayList<>();
 			tempCrossPoints.addAll(crossPoints);
 			
-			for (int j = 0; j < tempCrossPoints.size(); j++) 
-			{
-				double tempDist = calculateDistanceBetweenPoints(tempCrossPoints.get(j).x, tempCrossPoints.get(j).y, listOfCircleBalls.get(i).x, listOfCircleBalls.get(i).y);
-				if (tempDist < minDist) {
-					minDist = tempDist;
-					closePoint1 = tempCrossPoints.get(j);
-					smallestDistance = j;
-				} 
-			}
-			
-			tempCrossPoints.remove(smallestDistance);
-			minDist = 10000000;
-			
-			for (int j = 0; j < tempCrossPoints.size(); j++) 
-			{
-				double tempDist = calculateDistanceBetweenPoints(tempCrossPoints.get(j).x, tempCrossPoints.get(j).y, listOfCircleBalls.get(i).x, listOfCircleBalls.get(i).y);
-				if (tempDist < minDist) {
-					minDist = tempDist;
-					closePoint2 = tempCrossPoints.get(j);
+			if (calculateDistanceBetweenPoints(listOfBallCoordinates.get(i).x, listOfBallCoordinates.get(i).y, circle.x, circle.y) < 100.0) {
+				listOfCircleBalls.add(listOfBallCoordinates.get(i));
+				Imgproc.circle(modMatrix, listOfBallCoordinates.get(i), 8, new Scalar(0,255,255), Core.FILLED);
+				
+				for (int j = 0; j < tempCrossPoints.size(); j++) 
+				{
+					double tempDist = calculateDistanceBetweenPoints(tempCrossPoints.get(j).x, tempCrossPoints.get(j).y, listOfBallCoordinates.get(i).x, listOfBallCoordinates.get(i).y);
+					if (tempDist < minDist) {
+						minDist = tempDist;
+						closePoint1 = tempCrossPoints.get(j);
+						smallestDistance = j;
+					} 
 				}
+				
+				tempCrossPoints.remove(smallestDistance);
+				minDist = 10000000;
+				
+				for (int j = 0; j < tempCrossPoints.size(); j++) 
+				{
+					double tempDist = calculateDistanceBetweenPoints(tempCrossPoints.get(j).x, tempCrossPoints.get(j).y, listOfBallCoordinates.get(i).x, listOfBallCoordinates.get(i).y);
+					if (tempDist < minDist) {
+						minDist = tempDist;
+						closePoint2 = tempCrossPoints.get(j);
+					}
+				}
+				
+				Imgproc.circle(modMatrix, closePoint1, 3, new Scalar(0, 128, 255), Core.FILLED);
+				Imgproc.circle(modMatrix, closePoint2, 3, new Scalar(0, 0, 255), Core.FILLED);
+										
+				double distanceRatio = 0.5;
+		    	Point betweenCrossLegs = new Point(
+		    			((1-distanceRatio)*closePoint1.x + distanceRatio*closePoint2.x) ,
+		    			((1-distanceRatio)*closePoint1.y + distanceRatio*closePoint2.y) );
+				
+		    	Imgproc.circle(modMatrix, betweenCrossLegs, 5, new Scalar(255, 255, 255), Core.FILLED);
+		    	Point crossCenter = getCrossCenterPoint();
+		    	
+		    	distanceRatio = 3;
+		    	Point safePickupPoint = new Point(
+		    			((1-distanceRatio)*crossCenter.x + distanceRatio*betweenCrossLegs.x) ,
+		    			((1-distanceRatio)*crossCenter.y + distanceRatio*betweenCrossLegs.y) );
+
+		    	Imgproc.circle(modMatrix, safePickupPoint, 5, new Scalar(255, 255, 255));
+
+		    	listOfCircleBallsPickup.add(safePickupPoint);
 			}
-			
-			Imgproc.circle(modMatrix, closePoint1, 3, new Scalar(0, 128, 255), Core.FILLED);
-			Imgproc.circle(modMatrix, closePoint2, 3, new Scalar(0, 0, 255), Core.FILLED);
-									
-			double distanceRatio = 0.5;
-	    	Point betweenCrossLegs = new Point(
-	    			((1-distanceRatio)*closePoint1.x + distanceRatio*closePoint2.x) ,
-	    			((1-distanceRatio)*closePoint1.y + distanceRatio*closePoint2.y) );
-			
-	    	Imgproc.circle(modMatrix, betweenCrossLegs, 5, new Scalar(255, 255, 255), Core.FILLED);
-	    	Point crossCenter = getCrossCenterPoint();
-	    	
-	    	distanceRatio = 3;
-	    	Point safePickupPoint = new Point(
-	    			((1-distanceRatio)*crossCenter.x + distanceRatio*betweenCrossLegs.x) ,
-	    			((1-distanceRatio)*crossCenter.y + distanceRatio*betweenCrossLegs.y) );
-
-	    	Imgproc.circle(modMatrix, safePickupPoint, 5, new Scalar(255, 255, 255));
-
-	    	listOfCircleBallsPickup.set(i, safePickupPoint);
 	    	
 		}
 	}
