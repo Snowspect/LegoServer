@@ -69,6 +69,7 @@ public class Billedbehandling
     public static List<Point> listOfBallCoordinates = new ArrayList<>();
     public static List<Point> crossPoints = new ArrayList<>(0);
     public static List<Point> crossPointsList = new ArrayList<>(0);
+    public static List<Point> listOfCircleBalls = new ArrayList<>(0);
     public static Point robotBlueMarker, robotGreenMarker;
 
     // Creating an array of points
@@ -198,15 +199,15 @@ public class Billedbehandling
   	}
 
 	private void detectCross(Mat isolatedRed) {
-		
-
-		
+			
+		crossPoints.clear();
 		Mat isolatedRedLocal = new Mat();
 		isolatedRedLocal = isolatedRed.clone();
         MatOfPoint corners = new MatOfPoint();
-        double qualityLevel = 0.01; // 0.01 org
+        double qualityLevel = 0.06; // 0.01 org
         double minDistance = 68;
-        int blockSize = 3, gradientSize = 3;
+        int blockSize = 15; 
+        int gradientSize = 15;
         double k = 0.04;
 
 
@@ -220,15 +221,17 @@ public class Billedbehandling
         Rect rectCrop = new Rect(new Point(p1x, p1y), new Point(p4x, p4y));
         Mat isolatedRedLocalCropped = isolatedRedLocal.submat(rectCrop);
         
-        Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smoothRED.png", isolatedRedLocalCropped);
+        //Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smoothRED.png", isolatedRedLocalCropped);
         
     	Imgproc.equalizeHist(isolatedRedLocalCropped, isolatedRedLocalCropped);
-        Imgproc.goodFeaturesToTrack(blur(isolatedRedLocalCropped, 30), corners, 4, qualityLevel, minDistance, new Mat(),
+        Imgproc.goodFeaturesToTrack(blur(isolatedRedLocalCropped, 10), corners, 4, qualityLevel, minDistance, new Mat(),
                     blockSize, gradientSize, false, k);
 
 
         int[] cornersData = new int[(int) (corners.total() * corners.channels())];
         corners.get(0, 0, cornersData);
+        
+
 
         for (int i = 0; i < corners.rows(); i++) {
         	crossPoints.add(new Point(cornersData[i * 2]+p1x, cornersData[i * 2 + 1]+p1y));
@@ -239,119 +242,222 @@ public class Billedbehandling
         }
         //****** ******//
 
-
-        Line2D L1 = new Line2D.Double();
         
-        // Quick Fix :O
-        
-        if (crossPoints.isEmpty())
+        if (corners.rows() == 4)
         {
-    		crossPoints.add(new Point(0,0));
-    		crossPoints.add(new Point(0,0));
-    		crossPoints.add(new Point(0,0));
-    		crossPoints.add(new Point(0,0));
+	        double x0 = crossPoints.get(0).x;
+	        double x1 = crossPoints.get(1).x;
+	        double x2 = crossPoints.get(2).x;
+	        double x3 = crossPoints.get(3).x;
+
+	        double y0 = crossPoints.get(0).y;
+	        double y1 = crossPoints.get(1).y;
+	        double y2 = crossPoints.get(2).y;
+	        double y3 = crossPoints.get(3).y;
+	        
+        	//runCrossCalc(x0, x1, x2, x3, y0, y1, y2, y3);
+	        
+	        makeCircle();
+	        
+	        listOfCircleBalls = isInside(listOfBallCoordinates, 100);
+	        findangles(listOfCircleBalls, x0, x1, x2, x3, y0, y1, y2, y3);
+	        
         }
+        else
+        {
+        	crossPoints.clear();
+        	// Vi må prøve igen
+        }
+        
+       
+	}
+	
+	private void findangles(List<Point> LocalListOfCircleBalls, double x0, double x1, double x2, double x3, double y0, double y1, double y2, double y3) {
+			
+		
+		
+		for (int i = 0; i < listOfCircleBalls.size(); i++)
+		{
+			double minDistance = 1000.0;
+			double realMinDistance = 999.0;
+			
+			System.out.println(crossPoints.size());
+			
+			for (int j = 0; j < crossPoints.size()-1; j++)
+			{
+				double temp = calculateDistanceBetweenPoints(crossPoints.get(j).x, crossPoints.get(j).y, listOfCircleBalls.get(i).x, listOfCircleBalls.get(i).y);
+				
+				if (temp < realMinDistance)
+				{
+					realMinDistance = temp;
+				}
+				
+				if (temp < minDistance && temp != realMinDistance)
+				{
+					minDistance = temp;
+				}
+			}
+			System.out.println("Bold: " + realMinDistance + " : " + minDistance);
+		}
+	}
 
-
-        double x0 = crossPoints.get(0).x;
-        double x1 = crossPoints.get(1).x;
-        double x2 = crossPoints.get(2).x;
-        double x3 = crossPoints.get(3).x;
-
-        double y0 = crossPoints.get(0).y;
-        double y1 = crossPoints.get(1).y;
-        double y2 = crossPoints.get(2).y;
-        double y3 = crossPoints.get(3).y;
-
+	public void makeCircle() {
+		
+		
+		double meanx = (crossPoints.get(0).x + crossPoints.get(1).x + crossPoints.get(2).x + crossPoints.get(3).x)/4;
+		double meany = (crossPoints.get(0).y + crossPoints.get(1).y + crossPoints.get(2).y + crossPoints.get(3).y)/4;
+		
+		Imgproc.circle(modMatrix, new Point(meanx, meany), 100, new Scalar(255,255,0)); // CYAN
+		
+	}
+	
+	public List<Point> isInside(List<Point> balls, double rad) 
+	{ 	
+		double meanx = (crossPoints.get(0).x + crossPoints.get(1).x + crossPoints.get(2).x + crossPoints.get(3).x)/4;
+		double meany = (crossPoints.get(0).y + crossPoints.get(1).y + crossPoints.get(2).y + crossPoints.get(3).y)/4;
+		
+		listOfCircleBalls.clear();
+		Point circle = new Point(meanx, meany);
+		
+		
+		for (int i = 0; i < listOfBallCoordinates.size(); i++)
+		{
+			//System.out.println(calculateDistanceBetweenPoints(listOfBallCoordinates.get(i).x, listOfBallCoordinates.get(i).y, circle.x, circle.y));
+			if (calculateDistanceBetweenPoints(listOfBallCoordinates.get(i).x, listOfBallCoordinates.get(i).y, circle.x, circle.y) < rad)
+			{
+				listOfCircleBalls.add(listOfBallCoordinates.get(i));
+				Imgproc.circle(modMatrix, listOfCircleBalls.get(i), 8, new Scalar(0,255,255), Core.FILLED); // YELLOW
+				
+			}
+		}
+		return listOfCircleBalls;
+	}
+	
+	
+	/*
+	public void runCrossCalc(double x0, double x1, double x2, double x3, double y0, double y1, double y2, double y3)
+	{
         // Qucik Fix :O
         crossPointsList.add(crossPoints.get(0));
         crossPointsList.add(crossPoints.get(0));
         crossPointsList.add(crossPoints.get(0));
         crossPointsList.add(crossPoints.get(0));
+        
+        
+		Line2D L1 = new Line2D.Double();
+		
+		if (L1.linesIntersect(x0, y0, x1, y1, x2, y2, x3, y3))
+	    {
+			// Kun til debug
+			System.out.println("Line intersect 1");
+			if (calculateAngle(x0, y0, x1, y1) >= 180 )
+	        {
+				System.out.println("Vej 1");
+				Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
+	            	
+	            Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
+	            Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
+
+	            crossPointsList.set(0, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
+	            crossPointsList.set(1, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
+	        }
+	        else
+	        {
+	        	System.out.println("Vej 2");
+	        	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
+	            
+	            Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
+	            Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
+
+	            crossPointsList.set(0, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
+	            crossPointsList.set(1, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
+	        }
+
+	        if (calculateAngle(x2, y2, x3, y3) >= 180)
+	        {
+	        	System.out.println("Vej 3");
+	           	Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
+	        
+	           	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 5, new Scalar(255,255,0), Core.FILLED); // CYAN
+	           	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 5, new Scalar(0,0,255), Core.FILLED); // RED
+
+	            crossPointsList.set(2, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
+	            crossPointsList.set(3, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
+	        }
+	        else
+	        {
+	        	System.out.println("Vej 4");
+	           	Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
+	        
+	           	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 5, new Scalar(255,255,0), Core.FILLED); // CYAN
+	            Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 5, new Scalar(0,0,255), Core.FILLED); // RED
+
+	            crossPointsList.set(2, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
+	            crossPointsList.set(3, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
+	        }
+	    }
+
+	  
+	    else if (L1.linesIntersect(x0, y0, x2, y2, x1, y1, x3, y3))
+	    {
+	    	// Kun til debug
+	    	System.out.println("Line intersect 2");
+	        	
+	        if (calculateAngle(x0, y0, x1, y1) >= 180 )
+	        {
+	        	System.out.println("Vej 1");
+	           	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
+	           	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
+	           	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
+	        }
+	        else
+	        {
+	        	System.out.println("Vej 2");
+	           	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
+	           	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
+	           	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
+	        }
+	        	
+	        
+	        // Kun til debug
+	        Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smoothRED_yes.png", modMatrix);
+	    }
+	    else if (L1.linesIntersect(x0, y0, x3, y3, x2, y2, x1, y1))
+	    {
+	    	// Kun til debug
+	    	System.out.println("Line intersect 3");
+	        	
+	        // Kun til debug	
+	       	Imgcodecs.imwrite("C:\\Users\\Niklas\\Desktop\\output_smoothRED_no.png", modMatrix);
+	    }
+	    else
+	    {
+	    	System.out.println("Line intersect 4");
+	    }
+	                
+		
+		Imgproc.circle(modMatrix, getCrossCenterPoint(), 10, new Scalar(255,255,0), Core.FILLED); // CYAN
+		crossPoints.clear();
 
 
-
-        if (L1.linesIntersect(x0, y0, x1, y1, x2, y2, x3, y3))
-        {
-
-            if (calculateAngle(x0, y0, x1, y1) >= 180 )
-            {
-            	//
-            	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
-            	//
-            	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
-            	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
+	    /*
+	    if (crossPoints.isEmpty() || crossPoints.size() < 4)
+	    {
+	    	crossPoints.add(new Point(0,0));
+	    	crossPoints.add(new Point(0,0));
+	    	crossPoints.add(new Point(0,0));
+	    	crossPoints.add(new Point(0,0));
+	    }
 
 
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
-
-            	crossPointsList.set(0, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
-            	crossPointsList.set(1, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
-
-            }
-            else
-            {
-            	//
-                //System.out.println("First: " + calculateAngle(x0, y0, x1, y1));
-
-            	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(1), new Scalar(255,204,0));
-            	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
-
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(1).x, crossPoints.get(1).y), 5, new Scalar(0,255,255), Core.FILLED); // YELLOW
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(0).x, crossPoints.get(0).y), 5, new Scalar(255,0,0), Core.FILLED); // BLUE
-
-            	crossPointsList.set(0, new Point (crossPoints.get(1).x, crossPoints.get(1).y));
-            	crossPointsList.set(1, new Point (crossPoints.get(0).x, crossPoints.get(0).y));
-            }
-
-            if (calculateAngle(x2, y2, x3, y3) >= 180)
-            {
-            	//
-            	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
-            	//
-            	Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 5, new Scalar(255,255,0), Core.FILLED); // CYAN
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 5, new Scalar(0,0,255), Core.FILLED); // RED
-
-            	crossPointsList.set(2, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
-            	crossPointsList.set(3, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
-            }
-            else
-            {
-            	//
-            	//System.out.println("Last: " + (calculateAngle(x0, y0, x1, y1)-180));
-            	//
-            	Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(3), new Scalar(255,204,0));
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(3).x, crossPoints.get(3).y), 5, new Scalar(255,255,0), Core.FILLED); // CYAN
-            	Imgproc.circle(modMatrix, new Point (crossPoints.get(2).x, crossPoints.get(2).y), 5, new Scalar(0,0,255), Core.FILLED); // RED
-
-            	crossPointsList.set(2, new Point (crossPoints.get(3).x, crossPoints.get(3).y));
-            	crossPointsList.set(3, new Point (crossPoints.get(2).x, crossPoints.get(2).y));
-            }
-
-        }
-
-
-
-        Imgproc.circle(modMatrix, getCrossCenterPoint(), 10, new Scalar(255,255,0), Core.FILLED); // CYAN
-
-        /*
-        if (L1.linesIntersect(x0, y0, x2, y2, x1, y1, x3, y3))
-        {
-        	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(2), new Scalar(59,226,9));
-        	//Imgproc.line(modMatrix, crossPoints.get(1), crossPoints.get(3), new Scalar(59,226,9));
-        }
-
-        if (L1.linesIntersect(x0, y0, x3, y3, x2, y2, x1, y1))
-        {
-        	Imgproc.line(modMatrix, crossPoints.get(0), crossPoints.get(3), new Scalar(9,34,226));
-        	//Imgproc.line(modMatrix, crossPoints.get(2), crossPoints.get(1), new Scalar(9,34,226));
-        }
-         */
-
-        crossPoints.clear();
+	    // Qucik Fix :O
+	    crossPointsList.add(crossPoints.get(0));
+	    crossPointsList.add(crossPoints.get(0));
+	    crossPointsList.add(crossPoints.get(0));
+	    crossPointsList.add(crossPoints.get(0));
+	    
 	}
+    */
 
 
 
