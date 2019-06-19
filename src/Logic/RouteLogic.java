@@ -167,8 +167,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 			
 			
-			List<Point> ballsWithDirectPathFromRobot = allPickUpPoints;
-			/*BallsWithDirectPathFunc(robotMiddle, allPickUpPoints);*/
+			List<Point> ballsWithDirectPathFromRobot = BallsWithDirectPathFunc(robotMiddle, allPickUpPoints);
 			// find all balls with a direct path
 			
 			if (SPINWIN) {
@@ -387,7 +386,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 			int connectionDist = 150;
 			
-//			xCenter = ConvertPoint(ImageRec.getCrossCenterPoint());
+			xCenter = ConvertPoint(ImageRec.getCrossCenterPoint());
 //			
 //			for(Point point: markX(xCenter.getX(),xCenter.getY(),200)) {
 //				ImageGrid[(int)point.getX()-1][(int)point.getY()-1] = 1;
@@ -986,13 +985,19 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 	public boolean isPathClear(Point robotMiddle, Point dest, Point xMiddle) {
 		double Slope = (dest.getY() - robotMiddle.getY()) / (dest.getX() - robotMiddle.getX());
+		System.out.println("Slope: " + Slope);
 		double Intercept = robotMiddle.getY() - Slope * robotMiddle.getX();
+		System.out.println("Intercept" + Intercept);
 		
-		double dist = Math.abs(Slope * xMiddle.getX() - Intercept - xMiddle.getY())/Math.sqrt(Math.pow(Slope, 2) + 1);
+		double distanceFromPathToCross = Math.abs(Slope * xMiddle.getX() + Intercept - xMiddle.getY())/Math.sqrt(Math.pow(Slope, 2) + 1);
+		System.out.println("Robotmiddle: " + robotMiddle.getX() + ", " + robotMiddle.getY() + "\n"
+				+ "robotFront: " + robotFront.getX() + ", " + robotFront.getY() + "\n"
+						+ "Cross: " + xMiddle.getX() + ", " + xMiddle.getY() + "\n"
+								+ "dest: " + dest.getX() + ", " + dest.getY() + "\n"
+									+ "" +"Distance from cross: " + distanceFromPathToCross);
+		if (RADIUS >= distanceFromPathToCross) return false;
 		
-		if (RADIUS >= dist) return true;
-		
-		else return false;
+		else return true;
 	}
 	
 	// checks if a direct path touches hazard zones or obstacles
@@ -1023,8 +1028,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		// for each ball, check its path and put it into a list if no obstacles
 		for (Point ballPoint : balls) {
 			if (isPathClear(robotMiddle, ballPoint, xCenter)) {
+				System.out.println("is path clear? YES IT IS");
 				ballsWithDirectPath.add(ballPoint);
 			}
+			keyb.next();
 		}
 		return ballsWithDirectPath;
 	}
