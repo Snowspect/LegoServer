@@ -41,7 +41,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			safeBalls, dangerPickupPoints, allPickUpPoints, corners;
 	private List<Point> xPoints, newConnectionpoints;
 	private int[][] ImageGrid;
-	private final int OBSTACLE = 1, HAZARD = 20;
+	private final int OBSTACLE = 1, RADIUS = 100;
 	boolean firstConnectionFound, firstConnectionTouched, programStillRunning, readyToNavigateToAHazardPoint,
 			pickupBall;
 	private boolean returnToPrevHazardPoint, unloadBalls, SPINWIN, NavigateToNextConnectionPoint;
@@ -984,46 +984,45 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		}
 	}
 
-	public boolean checkForObstacles(Point robotMiddle, Point dest, Point xMiddle, int radius) {
+	public boolean isPathClear(Point robotMiddle, Point dest, Point xMiddle) {
 		double Slope = (dest.getY() - robotMiddle.getY()) / (dest.getX() - robotMiddle.getX());
 		double Intercept = robotMiddle.getY() - Slope * robotMiddle.getX();
 		
 		double dist = Math.abs(Slope * xMiddle.getX() - Intercept - xMiddle.getY())/Math.sqrt(Math.pow(Slope, 2) + 1);
 		
-		if (radius >= dist) return true;
+		if (RADIUS >= dist) return true;
 		
 		else return false;
 	}
 	
 	// checks if a direct path touches hazard zones or obstacles
-	public boolean checkDirectPathObstacleHazard(List<Point> directpath) {
-		for (Point p : directpath) {
-			if (ImageGrid != null) {
-				if (ImageGrid[(int) p.getX() - 1][(int) p.getY() - 1] == OBSTACLE
-						|| ImageGrid[(int) p.getX() - 1][(int) p.getY() - 1] == HAZARD) {
-					return false;
-				}
-			}
-			// checks if the simulatedGrid is initialized or if the actual grid is.
-//			else if(SimulatedGrid != null)
-//			{
-//				if((SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE) 
-//				   || SimulatedGrid[(int)p.getX()][(int)p.getY()] == HAZARD)
-//				{
+//	public boolean checkDirectPathObstacleHazard(List<Point> directpath) {
+//		for (Point p : directpath) {
+//			if (ImageGrid != null) {
+//				if (ImageGrid[(int) p.getX() - 1][(int) p.getY() - 1] == OBSTACLE
+//						|| ImageGrid[(int) p.getX() - 1][(int) p.getY() - 1] == HAZARD) {
 //					return false;
 //				}
 //			}
-		}
-		return true;
-	}
+//			// checks if the simulatedGrid is initialized or if the actual grid is.
+////			else if(SimulatedGrid != null)
+////			{
+////				if((SimulatedGrid[(int)p.getX()][(int)p.getY()] == OBSTACLE) 
+////				   || SimulatedGrid[(int)p.getX()][(int)p.getY()] == HAZARD)
+////				{
+////					return false;
+////				}
+////			}
+//		}
+//		return true;
+//	}
 
 	// returns a list of balls that isn't obstructed by obstacles or a hazard zone
 	public List<Point> BallsWithDirectPathFunc(Point robotMiddle, List<Point> balls) {
 		List<Point> ballsWithDirectPath = new ArrayList<Point>();
 		// for each ball, check its path and put it into a list if no obstacles
 		for (Point ballPoint : balls) {
-			if (checkDirectPathObstacleHazard(pointsOnRoute(robotMiddle, ballPoint))) // gets route, checks route
-			{
+			if (isPathClear(robotMiddle, ballPoint, xCenter)) {
 				ballsWithDirectPath.add(ballPoint);
 			}
 		}
