@@ -58,9 +58,10 @@ public class Billedbehandling
     public static int[][] arrayMap = new int[imageHeight][imageWidth];
     public static List<Point> squareCorners = new ArrayList<>();
     public static List<Point> listOfBallCoordinates = new ArrayList<>();
-    public static List<Point> crossPoints = new ArrayList<>(0);
-    public static List<Point> crossPointsList = new ArrayList<>(0);
-    public static List<Point> listOfCircleBalls = new ArrayList<>(0);
+    public static List<Point> crossPoints = new ArrayList<>();
+    public static List<Point> crossPointsList = new ArrayList<>();
+    public static List<Point> listOfCircleBalls = new ArrayList<>();
+    public static List<Point> listOfCircleBallsPickup = new ArrayList<>();
     public static Point robotBlueMarker, robotGreenMarker;
 
     // Creating an array of points
@@ -191,9 +192,13 @@ public class Billedbehandling
 
         // Running ball detection method.
         arrayMap = findBalls(orgMatrix, isolatedRedColor, arrayMap);
-
+        
         // Delete balls outside of square | Do this before calibration
         evaluateBallLocation();
+        
+        // Detect balls within cross, and their safe pickup
+        listOfCircleBalls = isInside(listOfBallCoordinates, 100);
+        calculateSafePoints();
 
         /*
         // Calculating "actual" coordinates for each ball.
@@ -227,6 +232,8 @@ public class Billedbehandling
         int blockSize = 15;
         int gradientSize = 15;
         double k = 0.04;
+        
+        int radius = 100;
 
         int p1x = (int) getCorners().get(0).x;
         int p1y = (int) getCorners().get(0).y;
@@ -256,22 +263,11 @@ public class Billedbehandling
         }
         //****** ******//
 
-        if (corners.rows() == 4) {
-	        double x0 = crossPoints.get(0).x;
-	        double x1 = crossPoints.get(1).x;
-	        double x2 = crossPoints.get(2).x;
-	        double x3 = crossPoints.get(3).x;
+        if (corners.rows() == 4) 
+        {
+        	makeCircle();
 
-	        double y0 = crossPoints.get(0).y;
-	        double y1 = crossPoints.get(1).y;
-	        double y2 = crossPoints.get(2).y;
-	        double y3 = crossPoints.get(3).y;
-
-        	//runCrossCalc(x0, x1, x2, x3, y0, y1, y2, y3);
-
-	        makeCircle();
-
-	        listOfCircleBalls = isInside(listOfBallCoordinates, 100);
+	        //listOfCircleBalls = isInside(listOfBallCoordinates, radius);
 	        //calculateSafePoints();
         }
         else {
@@ -284,52 +280,68 @@ public class Billedbehandling
 	{
 		for (int i = 0; i < listOfCircleBalls.size(); i++)
 		{
-			double minDist1 = 1000000;
-			double minDist2 = 1000000;
-			int crossP1 = 0;
-			int crossP2 = 0;
+			double minDist = 10000000;
+			int smallestDistance = 0;
+			Point closePoint1 = new Point();
+			Point closePoint2 = new Point();
 			
-			for (int j = 0; j < crossPoints.size(); j++) {
-				double tempDist = calculateDistanceBetweenPoints(crossPoints.get(j).x, crossPoints.get(j).y, listOfCircleBalls.get(i).x, listOfCircleBalls.get(i).y);
-				
-				if (tempDist < minDist1) {
-					minDist1 = tempDist;
-					crossP1 = j;
-				} else if (tempDist < minDist2) {
-					minDist2 = tempDist;
-					crossP2 = j;
-				}
-				
-				
-			}
+			List<Point> tempCrossPoints = new ArrayList<>();
+			tempCrossPoints.addAll(crossPoints);
 			
-			/*
-			double minDistance = 1000.0;
-			double realMinDistance = 999.0;
-
-			for (int j = 0; j < crossPoints.size(); j++)
+			for (int j = 0; j < tempCrossPoints.size(); j++) 
 			{
-				double temp = calculateDistanceBetweenPoints(crossPoints.get(j).x, crossPoints.get(j).y, listOfCircleBalls.get(i).x, listOfCircleBalls.get(i).y);
-
-				if (temp < realMinDistance) {
-					realMinDistance = temp;
-				}
-
-				if (temp < minDistance && temp != realMinDistance) {
-					minDistance = temp;
+				double tempDist = calculateDistanceBetweenPoints(tempCrossPoints.get(j).x, tempCrossPoints.get(j).y, listOfCircleBalls.get(i).x, listOfCircleBalls.get(i).y);
+				if (tempDist < minDist) {
+					minDist = tempDist;
+					closePoint1 = tempCrossPoints.get(j);
+					smallestDistance = j;
+				} 
+			}
+			
+			tempCrossPoints.remove(smallestDistance);
+			minDist = 10000000;
+			
+			for (int j = 0; j < tempCrossPoints.size(); j++) 
+			{
+				double tempDist = calculateDistanceBetweenPoints(tempCrossPoints.get(j).x, tempCrossPoints.get(j).y, listOfCircleBalls.get(i).x, listOfCircleBalls.get(i).y);
+				if (tempDist < minDist) {
+					minDist = tempDist;
+					closePoint2 = tempCrossPoints.get(j);
 				}
 			}
-			*/
+			
+			Imgproc.circle(modMatrix, closePoint1, 3, new Scalar(0, 128, 255), Core.FILLED);
+			Imgproc.circle(modMatrix, closePoint2, 3, new Scalar(0, 0, 255), Core.FILLED);
+						
+			//double distanceBetweenCrossCorners = calculateDistanceBetweenPoints(closePoint1.x, closePoint1.y, closePoint2.x, closePoint2.y);
+			
+			double distanceRatio = 0.5;
+	    	Point betweenCrossLegs = new Point(
+	    			((1-distanceRatio)*closePoint1.x + distanceRatio*closePoint2.x) ,
+	    			((1-distanceRatio)*closePoint1.y + distanceRatio*closePoint2.y) );
+			
+	    	Imgproc.circle(modMatrix, betweenCrossLegs, 5, new Scalar(255, 255, 255), Core.FILLED);
+	    	Point crossCenter = getCrossCenterPoint();
+	    	
+	    	distanceRatio = 3;
+	    	Point safePickupPoint = new Point(
+	    			((1-distanceRatio)*crossCenter.x + distanceRatio*betweenCrossLegs.x) ,
+	    			((1-distanceRatio)*crossCenter.y + distanceRatio*betweenCrossLegs.y) );
+
+	    	Imgproc.circle(modMatrix, safePickupPoint, 5, new Scalar(255, 255, 255));
+
+	    	listOfCircleBallsPickup.set(i, safePickupPoint);
+	    	
 		}
 	}
 
 	public void makeCircle() {
-
+		int radius = 100;
 
 		double meanx = (crossPoints.get(0).x + crossPoints.get(1).x + crossPoints.get(2).x + crossPoints.get(3).x)/4;
 		double meany = (crossPoints.get(0).y + crossPoints.get(1).y + crossPoints.get(2).y + crossPoints.get(3).y)/4;
 
-		Imgproc.circle(modMatrix, new Point(meanx, meany), 100, new Scalar(255,255,0)); // CYAN
+		Imgproc.circle(modMatrix, new Point(meanx, meany), radius, new Scalar(255,255,0)); // CYAN
 
 	}
 
@@ -1538,16 +1550,26 @@ public class Billedbehandling
 	{
 		return crossPoints;
 	}
+	
+	public List<Point> getCrossBalls()
+	{
+		return listOfCircleBalls;
+	}
+	
+	public List<Point> getCrossBallsPickup()
+	{
+		return listOfCircleBallsPickup;
+	}
 
 	public Point getCrossCenterPoint()
 	{
 		double meanx = 0.0;
 		double meany = 0.0;
 
-		if (!crossPointsList.isEmpty())
+		if (!crossPoints.isEmpty())
 		{
-			meanx = (crossPointsList.get(0).x + crossPointsList.get(1).x + crossPointsList.get(2).x + crossPointsList.get(3).x)/4;
-			meany = (crossPointsList.get(0).y + crossPointsList.get(1).y + crossPointsList.get(2).y + crossPointsList.get(3).y)/4;
+			meanx = (crossPoints.get(0).x + crossPoints.get(1).x + crossPoints.get(2).x + crossPoints.get(3).x)/4;
+			meany = (crossPoints.get(0).y + crossPoints.get(1).y + crossPoints.get(2).y + crossPoints.get(3).y)/4;
 		}
 		return new Point (meanx,meany);
 	}
