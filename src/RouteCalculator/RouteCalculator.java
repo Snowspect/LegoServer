@@ -106,17 +106,22 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		if (calc_Dist(robotMiddle, destPoint) < 5) {
 			
 		}
+		
+		if (dist > 900) {
+			dist /= 2;
+		}
+		
 		if (dist > 200) {
 			System.out.println("Driving fast: "+dist);
-			if (angle > 4) {
+			if (angle > 3) {
 				OF = "0F:4;"; //function 4 (right)
 				OR = "0R:"+Math.round(angle*5)+";"; //rotate right
 				OS = "0S:500;"; //Old 200
-			} else if (angle < -4) {
+			} else if (angle < -3) {
 				OF = "0F:3;"; //function 3 (left)
 				OR = "0R:"+Math.round(Math.abs(angle*5))+";"; //rotate left
 				OS = "0S:500;";
-			} else if (angle >= -4 && angle <= 4) {
+			} else if (angle >= -3 && angle <= 3) {
 				OF = "0F:1;"; //forward is 1
 				//TODO 
 				OR = "0R:" + Math.round(Math.abs(dist*5.81)-50) + ";"; //rotate 200 on both motors
