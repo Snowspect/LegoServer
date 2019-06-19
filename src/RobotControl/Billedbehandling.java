@@ -137,10 +137,7 @@ public class Billedbehandling
         squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));
 
         // Detect Cross
-        Boolean succesfullRun = false;
-        while(!succesfullRun) {
-        	succesfullRun = detectCross(isolatedRedColor);
-        }
+        detectCross(isolatedRedColor);
 
         doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
 
@@ -207,7 +204,6 @@ public class Billedbehandling
 		}
 		*/
 
-
         // Estimating Robot Coordinates based on image from webcam
         robotCameraPoints = newRobotDetect(orgMatrix);
 
@@ -215,11 +211,13 @@ public class Billedbehandling
         robotBlueMarker = calculateActualCoordinates(robotCameraPoints[0], "robot");
         robotGreenMarker = calculateActualCoordinates(robotCameraPoints[1], "robot");
 
+        detectCross(isolatedRedColor);
+        
         doFrameReprint(orgMatrix, modMatrix, isolatedRedColor);
   	}
 
-	private void detectCross(Mat isolatedRed) {
-
+	private void detectCross(Mat isolatedRed) 
+	{
 		crossPoints.clear();
 		Mat isolatedRedLocal = new Mat();
 		isolatedRedLocal = isolatedRed.clone();
@@ -249,7 +247,6 @@ public class Billedbehandling
         corners.get(0, 0, cornersData);
 
 
-
         for (int i = 0; i < corners.rows(); i++) {
         	crossPoints.add(new Point(cornersData[i * 2]+p1x, cornersData[i * 2 + 1]+p1y));
         }
@@ -259,9 +256,7 @@ public class Billedbehandling
         }
         //****** ******//
 
-
-        if (corners.rows() == 4)
-        {
+        if (corners.rows() == 4) {
 	        double x0 = crossPoints.get(0).x;
 	        double x1 = crossPoints.get(1).x;
 	        double x2 = crossPoints.get(2).x;
@@ -277,44 +272,54 @@ public class Billedbehandling
 	        makeCircle();
 
 	        listOfCircleBalls = isInside(listOfBallCoordinates, 100);
-	        findangles(listOfCircleBalls, x0, x1, x2, x3, y0, y1, y2, y3);
-
+	        //calculateSafePoints();
         }
-        else
-        {
+        else {
         	crossPoints.clear();
-        	// Vi m� pr�ve igen
+        	// Try again
         }
-
-
 	}
 
-	private void findangles(List<Point> LocalListOfCircleBalls, double x0, double x1, double x2, double x3, double y0, double y1, double y2, double y3) {
-
-
-
+	private void calculateSafePoints()
+	{
 		for (int i = 0; i < listOfCircleBalls.size(); i++)
 		{
+			double minDist1 = 1000000;
+			double minDist2 = 1000000;
+			int crossP1 = 0;
+			int crossP2 = 0;
+			
+			for (int j = 0; j < crossPoints.size(); j++) {
+				double tempDist = calculateDistanceBetweenPoints(crossPoints.get(j).x, crossPoints.get(j).y, listOfCircleBalls.get(i).x, listOfCircleBalls.get(i).y);
+				
+				if (tempDist < minDist1) {
+					minDist1 = tempDist;
+					crossP1 = j;
+				} else if (tempDist < minDist2) {
+					minDist2 = tempDist;
+					crossP2 = j;
+				}
+				
+				
+			}
+			
+			/*
 			double minDistance = 1000.0;
 			double realMinDistance = 999.0;
 
-			System.out.println(crossPoints.size());
-
-			for (int j = 0; j < crossPoints.size()-1; j++)
+			for (int j = 0; j < crossPoints.size(); j++)
 			{
 				double temp = calculateDistanceBetweenPoints(crossPoints.get(j).x, crossPoints.get(j).y, listOfCircleBalls.get(i).x, listOfCircleBalls.get(i).y);
 
-				if (temp < realMinDistance)
-				{
+				if (temp < realMinDistance) {
 					realMinDistance = temp;
 				}
 
-				if (temp < minDistance && temp != realMinDistance)
-				{
+				if (temp < minDistance && temp != realMinDistance) {
 					minDistance = temp;
 				}
 			}
-			System.out.println("Bold: " + realMinDistance + " : " + minDistance);
+			*/
 		}
 	}
 
@@ -336,18 +341,20 @@ public class Billedbehandling
 		listOfCircleBalls.clear();
 		Point circle = new Point(meanx, meany);
 
-
 		for (int i = 0; i < listOfBallCoordinates.size(); i++)
 		{
 			//System.out.println(calculateDistanceBetweenPoints(listOfBallCoordinates.get(i).x, listOfBallCoordinates.get(i).y, circle.x, circle.y));
-			if (calculateDistanceBetweenPoints(listOfBallCoordinates.get(i).x, listOfBallCoordinates.get(i).y, circle.x, circle.y) < rad)
-			{
+			if (calculateDistanceBetweenPoints(listOfBallCoordinates.get(i).x, listOfBallCoordinates.get(i).y, circle.x, circle.y) < rad) {
 				listOfCircleBalls.add(listOfBallCoordinates.get(i));
-				Imgproc.circle(modMatrix, listOfCircleBalls.get(i), 8, new Scalar(0,255,255), Core.FILLED); // YELLOW
-
 			}
 		}
+		
+		for (int i = 0; i < listOfCircleBalls.size(); i++) {
+			Imgproc.circle(modMatrix, listOfCircleBalls.get(i), 8, new Scalar(0,255,255), Core.FILLED); // YELLOW
+		}		
+		
 		return listOfCircleBalls;
+		
 	}
 
 
@@ -921,6 +928,20 @@ public class Billedbehandling
         		circles,
         		Imgproc.HOUGH_GRADIENT,
         		1.0,
+                (double) gray.rows() / 50,  	// change this value to detect circles with different distances to each other (orig: 8)
+                25.0,
+                20.0,
+                9, 								// Minimum radius
+                13);           					// Maximum radius
+        										// change the last two parameters (orig: 1 , 10)
+        										// Latest calibration : 8, 15)
+        										// Eclipse calibration : 9, 11)
+
+        /*
+                Imgproc.HoughCircles(gray,
+        		circles,
+        		Imgproc.HOUGH_GRADIENT,
+        		1.0,
                 (double) gray.rows() / 25,  	// change this value to detect circles with different distances to each other (orig: 8)
                 25.0,
                 14.0,
@@ -929,7 +950,8 @@ public class Billedbehandling
         										// change the last two parameters (orig: 1 , 10)
         										// Latest calibration : 8, 15)
         										// Eclipse calibration : 9, 11)
-
+         */
+        
         listOfBallCoordinates.clear();
         for (int x = 0; x < circles.cols(); x++)
         {
@@ -1514,7 +1536,7 @@ public class Billedbehandling
 
 	public List<Point> getCrossPoints()
 	{
-		return crossPointsList;
+		return crossPoints;
 	}
 
 	public Point getCrossCenterPoint()

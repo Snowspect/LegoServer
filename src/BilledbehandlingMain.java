@@ -9,7 +9,7 @@ public class BilledbehandlingMain {
 			//long startTime = System.nanoTime();
 						
 			bh.runImageRec();
-			
+						
 			/*
 			long totalTime = System.nanoTime() - startTime;			
 			double seconds = (double)totalTime / 1000000000.0;
