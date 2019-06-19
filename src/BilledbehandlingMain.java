@@ -6,15 +6,13 @@ public class BilledbehandlingMain {
 		
 		while (true)
 		{
-			//long startTime = System.nanoTime();
+			long startTime = System.nanoTime();
 						
-			bh.runImageRec();
-						
-			/*
+			bh.runImageRec();			
+			
 			long totalTime = System.nanoTime() - startTime;			
 			double seconds = (double)totalTime / 1000000000.0;
-			System.out.println("which is " + seconds + " seconds");
-			*/
+			System.out.println("OVERALL TIME : " + seconds + " seconds");
 			
 		} // End of while loop
 	} // End of main
