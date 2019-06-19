@@ -22,8 +22,8 @@ public class TestClass {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		//RobotPerimeter(9, 9, 4);
-		CreateGrid();
+		RobotPerimeter(9, 9, 4);
+		//CreateGrid();
 		findElementsInGrid();
 		Calculator = new RouteCalculator();
 		
