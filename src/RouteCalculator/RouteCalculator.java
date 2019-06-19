@@ -106,6 +106,11 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 		if (calc_Dist(robotMiddle, destPoint) < 5) {
 			
 		}
+		
+		if (dist > 300) {
+			dist /= 2;
+		}
+		
 		if (dist > 200) {
 			System.out.println("Driving fast: "+dist);
 			if (angle > 4) {

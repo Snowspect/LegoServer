@@ -211,13 +211,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 						newConnectionPoint = newConnectionpoints.get(1);
 						break;
 					case 1:
-						newConnectionPoint = newConnectionpoints.get(2);
-						break;
-					case 2:
 						newConnectionPoint = newConnectionpoints.get(3);
 						break;
-					case 3:
+					case 2:
 						newConnectionPoint = newConnectionpoints.get(0);
+						break;
+					case 3:
+						newConnectionPoint = newConnectionpoints.get(2);
 						break;
 					}
 
@@ -228,7 +228,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				
 				
 				
-				while (!checkIfCoordsNear(robotFront, newConnectionPoint, 20)) // old 12
+				while (!checkIfCoordsNear(robotFront, newConnectionPoint, 30)) // old 12
 				{
 
 					String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionPoint);
@@ -384,7 +384,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 		if (firstTime) {
 
-			int connectionDist = 150;
+			int connectionDist = 75;
 			
 			xCenter = ConvertPoint(ImageRec.getCrossCenterPoint());
 //			
@@ -425,13 +425,13 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			}
 
 			newConnectionpoints
-					.add(new Point((int) URcorner.getX() + connectionDist, (int) URcorner.getY() + connectionDist));
+					.add(new Point((int) URcorner.getX() - connectionDist, (int) URcorner.getY() + connectionDist));
 			newConnectionpoints
-					.add(new Point((int) LRcorner.getX() + connectionDist, (int) LRcorner.getY() - connectionDist));
+					.add(new Point((int) LRcorner.getX() - connectionDist, (int) LRcorner.getY() - connectionDist));
 			newConnectionpoints
-					.add(new Point((int) ULcorner.getX() - connectionDist, (int) ULcorner.getY() + connectionDist));
+					.add(new Point((int) ULcorner.getX() + connectionDist, (int) ULcorner.getY() + connectionDist));
 			newConnectionpoints
-					.add(new Point((int) LLcorner.getX() - connectionDist, (int) LLcorner.getY() - connectionDist));
+					.add(new Point((int) LLcorner.getX() + connectionDist, (int) LLcorner.getY() - connectionDist));
 
 			firstTime = false;
 		}
@@ -929,7 +929,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 		Point goalMiddle = new Point(middleX, middleY);
 		Point goalPointOne = new Point((int) goalMiddle.getX() + 150, middleY);
-		Point goalPointTwo = new Point((int) goalMiddle.getX() + 25, middleY);
+		Point goalPointTwo = new Point((int) goalMiddle.getX() + 50, middleY);
 
 		// initialiing points (should not be a problem)
 
@@ -981,6 +981,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				}
 			}
 		}
+		this.programStillRunning = false;
 	}
 
 	public boolean isPathClear(Point robotMiddle, Point dest, Point xMiddle) {
@@ -1031,7 +1032,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				System.out.println("is path clear? YES IT IS");
 				ballsWithDirectPath.add(ballPoint);
 			}
-			keyb.next();
+			//keyb.next();
 		}
 		return ballsWithDirectPath;
 	}
