@@ -107,7 +107,7 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 			
 		}
 		
-		if (dist > 300) {
+		if (dist > 500) {
 			dist /= 2;
 		}
 		

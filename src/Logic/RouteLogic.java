@@ -293,8 +293,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				else if (point.getX() > rightWall - wallMargin) {
 					cornerPickupPoints.add(
 							new Point((int) point.getX() - cornerPickupDist, (int) point.getY() + cornerPickupDist));
-					cornerBalls.add(new Point((int) point.getX() - cornerCorrectionDist,
-							(int) point.getY() + cornerCorrectionDist));
+					cornerBalls.add(new Point((int) point.getX() + 5 - cornerCorrectionDist,
+							(int) point.getY() - 5 + cornerCorrectionDist));
 				} else {
 					dangerBalls.add(new Point((int) point.getX(), (int) point.getY() + wallCorrectionDist));
 					dangerPickupPoints.add(new Point((int) point.getX(), (int) point.getY() + pickupDist));
@@ -314,8 +314,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				else if (point.getX() > rightWall - wallMargin) {
 					cornerPickupPoints.add(
 							new Point((int) point.getX() - cornerPickupDist, (int) point.getY() - cornerPickupDist));
-					cornerBalls.add(new Point((int) point.getX() - cornerCorrectionDist,
-							(int) point.getY() - cornerCorrectionDist));
+					cornerBalls.add(new Point((int) point.getX() + 5 - cornerCorrectionDist,
+							(int) point.getY() + 5 - cornerCorrectionDist));
 				} else {
 					dangerBalls.add(new Point((int) point.getX(), (int) point.getY() - wallCorrectionDist));
 					dangerPickupPoints.add(new Point((int) point.getX(), (int) point.getY() - pickupDist));
