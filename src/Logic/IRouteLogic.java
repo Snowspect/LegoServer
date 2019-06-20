@@ -6,16 +6,6 @@ import java.util.List;
 import RouteCalculator.PointInGrid;
 
 public interface IRouteLogic {
-	
-	/**
-	 * 
-	 * @param Robot Location of the robot
-	 * @param nextCornor Location of the next corner on the track 
-	 * @param nearestBall Location of the nearest ball
-	 * @return Location on the path that gives the robot a 90 degree turn to the nearest ball 
-	 */
-	public Point CheckPickupAngleOnRoute(Point Robot, Point nextCornor, Point nearestBall, List<Point> pointsOnPath);
-	
 	/**
 	 * 
 	 * @param Robot Location of the robot
@@ -23,14 +13,5 @@ public interface IRouteLogic {
 	 * @return Location of the nearest ball
 	 */
 	public Point findNearestBall(Point Robot, List<Point> BallPoints);
-
-	/**
-	 * 
-	 * @param conPoint Point right in front of the robot
-	 * @param Robot Location of the robot
-	 * @param nextCornor Location of the next corner on the track 
-	 * @param nearestBall Location of the nearest ball
-	 */
-	public void Drive(Point conPoint, Point Robot, Point nextCornor, Point nearestBall);
 
 }

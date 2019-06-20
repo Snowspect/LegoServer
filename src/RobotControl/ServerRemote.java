@@ -102,11 +102,11 @@ public class ServerRemote {
 			break;
 		case RemoteCarClient.WHEELUP:
 			// For activate : 1
-			ArmWheelMoter.backward();
+			ArmWheelMoter.forward();
 			break;
 		case RemoteCarClient.WHEELDOWN:
 			// For activate : 2
-			ArmWheelMoter.forward();
+			ArmWheelMoter.backward();
 			break;
 		case RemoteCarClient.WHEELSTOP:
 			// For activate : 3
@@ -156,10 +156,10 @@ public class ServerRemote {
 			grappleArmDown();
 			break;
 		case 8: // wheel up
-			ArmWheelMoter.backward();
+			ArmWheelMoter.forward();
 			break;
 		case 9: // wheel down
-			ArmWheelMoter.forward();
+			ArmWheelMoter.backward();
 			break;
 		case 10: // wheel stop
 			stopWheels();
@@ -346,7 +346,7 @@ public class ServerRemote {
 	 * @throws IOException
 	 */
 	private void pickUpBall() throws IOException {
-		ArmWheelMoter.forward();
+		ArmWheelMoter.backward();
 		grappleArmDown();
 		try {
 			Thread.sleep(500);
@@ -374,11 +374,11 @@ public class ServerRemote {
 	
 	private void allTheWayUp()
 	{
-		GrappleArm.rotate(-100);
+		GrappleArm.rotate(-500);
 	}
 	
 	private void xArmdown() {
-		ArmWheelMoter.forward();
+		ArmWheelMoter.backward();
 		GrappleArm.rotate(60); //Set xArm	
 	}
 	private void xArmAlldown() {
@@ -413,7 +413,7 @@ public class ServerRemote {
 	 */
 	private void unload() {
 		ArmWheelMoter.setSpeed(600);
-		ArmWheelMoter.backward();
+		ArmWheelMoter.forward();
 		try {
 			Thread.sleep(15000);
 		} catch (InterruptedException e) {
