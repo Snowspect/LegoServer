@@ -289,7 +289,7 @@ public class Billedbehandling
 		    	Imgproc.circle(modMatrix, betweenCrossLegs, 5, new Scalar(255, 255, 255), Core.FILLED);
 		    	Point crossCenter = getCrossCenterPoint();
 		    	
-		    	distanceRatio = 3;
+		    	distanceRatio = 4;
 		    	Point safePickupPoint = new Point(
 		    			((1-distanceRatio)*crossCenter.x + distanceRatio*betweenCrossLegs.x) ,
 		    			((1-distanceRatio)*crossCenter.y + distanceRatio*betweenCrossLegs.y) );
