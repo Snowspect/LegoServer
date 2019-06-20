@@ -670,7 +670,7 @@ public class RouteLogic implements IRouteLogic{
 				System.out.print("");
 			}
 			
-			CommunicateToServer("0F:1;0R:180;0S:200;0B:true;"); // Kør lidt frem
+			CommunicateToServer("0F:1;0R:140;0S:200;0B:true;"); // Kør lidt frem
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
