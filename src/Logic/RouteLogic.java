@@ -65,17 +65,6 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	}
 
 	/**
-	 * Constructor for the class
-	 * 
-	 * @param robotMiddle      rotaionCenter on robot
-	 * @param robotFront       Point right in front of robot
-	 * @param Balls            Locations of the balls on the track
-	 * @param ConnectionPoints Four connectionPoints posing for the robot's overall
-	 *                         path
-	 * @param ImageGrid        2D array that imitates the entire track
-	 */
-
-	/**
 	 * Finds the closest connection point that has a direct path in relation to the
 	 * robot middle
 	 * 
@@ -310,8 +299,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				else if (point.getX() > rightWall - wallMargin) {
 					cornerPickupPoints.add(
 							new Point((int) point.getX() - cornerPickupDist, (int) point.getY() + cornerPickupDist));
-					cornerBalls.add(new Point((int) point.getX() + 5 - cornerCorrectionDist,
-							(int) point.getY() - 5 + cornerCorrectionDist));
+					cornerBalls.add(new Point((int) point.getX() - cornerCorrectionDist,
+							(int) point.getY() + cornerCorrectionDist));
 				} else {
 					dangerBalls.add(new Point((int) point.getX(), (int) point.getY() + wallCorrectionDist));
 					dangerPickupPoints.add(new Point((int) point.getX(), (int) point.getY() + pickupDist));
@@ -331,8 +320,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				else if (point.getX() > rightWall - wallMargin) {
 					cornerPickupPoints.add(
 							new Point((int) point.getX() - cornerPickupDist, (int) point.getY() - cornerPickupDist));
-					cornerBalls.add(new Point((int) point.getX() + 5 - cornerCorrectionDist,
-							(int) point.getY() + 5 - cornerCorrectionDist));
+					cornerBalls.add(new Point((int) point.getX() - cornerCorrectionDist,
+							(int) point.getY() - cornerCorrectionDist));
 				} else {
 					dangerBalls.add(new Point((int) point.getX(), (int) point.getY() - wallCorrectionDist));
 					dangerPickupPoints.add(new Point((int) point.getX(), (int) point.getY() - pickupDist));
@@ -345,7 +334,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			}
 			// Close to rightside wall
 			else if (point.getX() > rightWall - wallMargin) {
-				dangerBalls.add(new Point((int) point.getX() + 5 - wallCorrectionDist, (int) point.getY()));
+				dangerBalls.add(new Point((int) point.getX()  - wallCorrectionDist, (int) point.getY()));
 				dangerPickupPoints.add(new Point((int) point.getX() - pickupDist, (int) point.getY()));
 			}
 			// tilf�j flere else if til krydset i midten
@@ -362,32 +351,32 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		allPickUpPoints.addAll(dangerPickupPoints);
 		allPickUpPoints.addAll(cornerPickupPoints);
 		allPickUpPoints.addAll(xPickupPoints);
-
-		System.out.println("Upperwall: " + upperWall);
-		System.out.println("Lowerwall: " + lowerWall);
-		System.out.println("Rightwall: " + rightWall);
-		System.out.println("Leftwall: " + leftWall);
-
-		System.out.println("ALLBALLS");
-		for (Point point : allBalls)
-			System.out.println(point.getX() + ", " + point.getY());
-
-		System.out.println("SAFEBALLS");
-		for (Point point : safeBalls)
-			System.out.println(point.getX() + ", " + point.getY());
-		System.out.println("DANGERBALLS");
-		for (Point point : dangerBalls)
-			System.out.println(point.getX() + ", " + point.getY());
-		System.out.println("DANGERBALLS PICKUPPOINT");
-		for (Point point : dangerPickupPoints)
-			System.out.println(point.getX() + ", " + point.getY());
-
-		System.out.println("CORNERBALLS");
-		for (Point point : cornerBalls)
-			System.out.println(point.getX() + ", " + point.getY());
-		System.out.println("CORNERBALLS PICKUPPOINT");
-		for (Point point : cornerPickupPoints)
-			System.out.println(point.getX() + ", " + point.getY());
+//
+//		System.out.println("Upperwall: " + upperWall);
+//		System.out.println("Lowerwall: " + lowerWall);
+//		System.out.println("Rightwall: " + rightWall);
+//		System.out.println("Leftwall: " + leftWall);
+//
+//		System.out.println("ALLBALLS");
+//		for (Point point : allBalls)
+//			System.out.println(point.getX() + ", " + point.getY());
+//
+//		System.out.println("SAFEBALLS");
+//		for (Point point : safeBalls)
+//			System.out.println(point.getX() + ", " + point.getY());
+//		System.out.println("DANGERBALLS");
+//		for (Point point : dangerBalls)
+//			System.out.println(point.getX() + ", " + point.getY());
+//		System.out.println("DANGERBALLS PICKUPPOINT");
+//		for (Point point : dangerPickupPoints)
+//			System.out.println(point.getX() + ", " + point.getY());
+//
+//		System.out.println("CORNERBALLS");
+//		for (Point point : cornerBalls)
+//			System.out.println(point.getX() + ", " + point.getY());
+//		System.out.println("CORNERBALLS PICKUPPOINT");
+//		for (Point point : cornerPickupPoints)
+//			System.out.println(point.getX() + ", " + point.getY());
 		// keyb.next();
 		
 		int middleX = (int) ULcorner.getX();
@@ -624,8 +613,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 		// if there was a succesfull point with angle then
 		// create the route
 		else {
-			String commandToSend = Calculator.getDir(conPoint, Robot,
-					CheckPickupAngleOnRoute(Robot, nextCornor, nearestBall, null));
+			String commandToSend = null;//Calculator.getDir(conPoint, Robot,
+					CheckPickupAngleOnRoute(Robot, nextCornor, nearestBall, null);
 			CommunicateToServer(commandToSend);
 			// Calculator.getDir(conPoint, Robot, EvalRoute(Robot, nextCornor,
 			// findNearestBall(Robot, BallPoints)));
@@ -657,6 +646,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	}
 
 	// x is robotmiddle.getX(), y is robotmiddle.getY().
+	
 	// r is from dist form between robotMiddle and robotFront.
 	/**
 	 * finds the robots circumference were it to do a 360 rotation
@@ -727,6 +717,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 	// checks if two Points coords are equals
 	public boolean checkIfCoordsNear(Point robotMiddle, Point dest, double d) {
+//		System.out.println("Robot middle: "+robotMiddle.getX()+" , "+robotMiddle.getY());
 		System.out.println("Dif. on x-axis" + (robotMiddle.getX() - dest.getX()));
 		System.out.println("Dif. on y-axis" + (robotMiddle.getY() - dest.getY()));
 
@@ -831,9 +822,11 @@ public class RouteLogic implements IRouteLogic, Runnable {
 	public Double NearestSafeBallPickupAlgorithm(List<Point> Balls, double counter) {
 		// if the list isn't empty
 		Point nearestBall = findNearestBall(robotFront, Balls);
+		
 		// Point nearestBall = findNearestBall(robotMiddle, safeBalls);
-		while (!checkIfCoordsNear(robotFront, nearestBall, 10)) // old 12
+		while (!checkIfCoordsNear(robotFront, nearestBall, 12)) // old 12
 		{
+			
 			/*
 			 * if (checkIfCoordsNear(robotMiddle, nearestBall,
 			 * Calculator.calc_Dist(robotMiddle, robotFront)-15.3)) {
@@ -841,6 +834,7 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			 * CommunicateToServer("0F:2;0S:250;0R:300;0B:false"); nearestBall =
 			 * findNearestBall(robotFront,safeBalls); }
 			 */
+			
 			String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 			// keyb.next();
 			CommunicateToServer(commandToSend);
@@ -867,6 +861,12 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				System.out.print("");
 			}
 		} else if (dangerPickupPoints.contains(nearestBall)) {
+			
+			CommunicateToServer("0F:1;0R:300;0S:200;0B:true;");
+			while (RC.robotExecuting) {
+				System.out.print("");
+			}
+			
 			nearestBall = dangerBalls.get(dangerPickupPoints.indexOf(nearestBall));
 			while (!checkIfCoordsNear(robotFront, nearestBall, 4)) {
 				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
@@ -882,12 +882,18 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
-			CommunicateToServer("0F:2;0R:720;0S:200;0B:true;");
+			CommunicateToServer("0F:2;0R:300;0S:200;0B:true;");
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
 
 		} else if (cornerPickupPoints.contains(nearestBall)) {
+			
+			CommunicateToServer("0F:1;0R:300;0S:200;0B:true;");
+			while (RC.robotExecuting) {
+				System.out.print("");
+			}
+			
 			nearestBall = cornerBalls.get(cornerPickupPoints.indexOf(nearestBall));
 			while (!checkIfCoordsNear(robotFront, nearestBall, 40)) {
 				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
@@ -903,13 +909,19 @@ public class RouteLogic implements IRouteLogic, Runnable {
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
-			CommunicateToServer("0F:2;0R:720;0S:200;0B:true;");
+			CommunicateToServer("0F:2;0R:300;0S:200;0B:true;");
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
 		} else if (xPickupPoints.contains(nearestBall)) {
+			
+			CommunicateToServer("0F:1;0R:300;0S:200;0B:true;");
+			while (RC.robotExecuting) {
+				System.out.print("");
+			}
+			
 			nearestBall = xBalls.get(xPickupPoints.indexOf(nearestBall));
-			while (!checkIfCoordsNear(robotFront, nearestBall, 20)) {
+			while (!checkIfCoordsNear(robotFront, nearestBall, 10)) {
 				String commandToSend = Calculator.getDir(robotFront, robotMiddle, nearestBall);
 				CommunicateToServer(commandToSend);
 				while (RC.robotExecuting) {
@@ -917,6 +929,8 @@ public class RouteLogic implements IRouteLogic, Runnable {
 				}
 				ImageRec.runImageRec();
 				GetImageInfo();
+				
+				
 			}
 			xPickup();
 			while (RC.robotExecuting) {
@@ -1020,9 +1034,10 @@ public class RouteLogic implements IRouteLogic, Runnable {
 						+ "Cross: " + xMiddle.getX() + ", " + xMiddle.getY() + "\n"
 								+ "dest: " + dest.getX() + ", " + dest.getY() + "\n"
 									+ "" +"Distance from cross: " + distanceFromPathToCross);
-		if (RADIUS >= distanceFromPathToCross) return false;
+		if (RADIUS < distanceFromPathToCross || Calculator.calc_Dist(robotMiddle, xMiddle)
+				>Calculator.calc_Dist(robotMiddle, dest)) return true;
 		
-		else return true;
+		else return false;
 	}
 	
 	// checks if a direct path touches hazard zones or obstacles
@@ -1076,30 +1091,30 @@ public class RouteLogic implements IRouteLogic, Runnable {
 
 	public void xPickup() {
 		// K�r arm lidt ned
-		keyb.next();
-		CommunicateToServer("OF:14;OR:0;OS:0;OB:true");
+//		keyb.next();
+		CommunicateToServer("0F:14;0R:0;0S:0;0B:true");
 		while (RC.robotExecuting) {
 			System.out.print("");
 		}
-		keyb.next();
+//		keyb.next();
 		// Bak lidt
-		CommunicateToServer("OF:2;OR:70;OS:100;OB:true");
+		CommunicateToServer("0F:2;0R:150;0S:100;0B:true");
 		while (RC.robotExecuting) {
 			System.out.print("");
 		}
-		keyb.next();
+//		keyb.next();
 		// Arm helt ned og op
-		CommunicateToServer("OF:15;OR:0;OS:0;OB:true");
+		CommunicateToServer("0F:15;0R:0;0S:0;0B:true");
 		while (RC.robotExecuting) {
 			System.out.print("");
 		}
-		keyb.next();
+//		keyb.next();
 		// Bak lidt
-		CommunicateToServer("OF:2;OR:130;OS:100;OB:true");
+		CommunicateToServer("0F:2;0R:75;0S:100;0B:true");
 		while (RC.robotExecuting) {
 			System.out.print("");
 		}
-		keyb.next();
+//		keyb.next();
 
 	}
 

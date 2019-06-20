@@ -374,15 +374,15 @@ public class ServerRemote {
 	
 	private void allTheWayUp()
 	{
-		GrappleArm.rotate(-300);
+		GrappleArm.rotate(-100);
 	}
 	
 	private void xArmdown() {
 		ArmWheelMoter.forward();
-		GrappleArm.rotate(-170); //Set xArm	
+		GrappleArm.rotate(60); //Set xArm	
 	}
 	private void xArmAlldown() {
-		GrappleArm.rotate(-130);
+		GrappleArm.rotate(240);
 		
 		grappleArmUp();
 		

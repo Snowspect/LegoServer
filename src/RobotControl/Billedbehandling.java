@@ -558,7 +558,7 @@ public class Billedbehandling
 
         // Measurements (camera, robot, ball and obstacles)
         double cameraHeight = 2000 / 2; 		// 2000mm
-        double robotHeight = 300; 				// 300mm
+        double robotHeight = 325; 				// 300mm
         double ballHeight = 15;					// 40mm
         double courseEdgeHeight = 74;			// 70mm
         double crossHeight = 30;				// 30mm

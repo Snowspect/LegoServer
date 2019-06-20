@@ -102,12 +102,9 @@ public class RouteCalculator implements RouteCalculatorInterface  {
 //			
 //		}
 //		else 
+
 		
-		if (calc_Dist(robotMiddle, destPoint) < 5) {
-			
-		}
-		
-		if (dist > 900) {
+		if (dist > 500) {
 			dist /= 2;
 		}
 		
