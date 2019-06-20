@@ -447,9 +447,9 @@ public class RouteLogic implements IRouteLogic{
 			newConnectionpoints
 					.add(new Point((int) LRcorner.getX() - connectionDist, (int) LRcorner.getY() - connectionDist));
 			newConnectionpoints
-					.add(new Point((int) ULcorner.getX() + connectionDist, (int) ULcorner.getY() + connectionDist));
+					.add(new Point((int) ULcorner.getX() + connectionDist + 20, (int) ULcorner.getY() + connectionDist));
 			newConnectionpoints
-					.add(new Point((int) LLcorner.getX() + connectionDist, (int) LLcorner.getY() - connectionDist));
+					.add(new Point((int) LLcorner.getX() + connectionDist + 15, (int) LLcorner.getY() - connectionDist));
 
 			firstTime = false;
 		}
@@ -648,6 +648,8 @@ public class RouteLogic implements IRouteLogic{
 			System.out.print("");
 		}
 		
+		// BENJAMIN TILFØJELSE
+		//ImageRec.unload = true;
 		ImageRec.runImageRec();
 		GetImageInfo();
 		

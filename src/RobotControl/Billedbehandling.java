@@ -6,6 +6,8 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
+import lejos.hardware.sensor.NXTUltrasonicSensor.DistanceMode;
+
 import java.io.*;
 import java.math.*;
 import java.awt.geom.*;
@@ -57,6 +59,9 @@ public class Billedbehandling
 
     private VideoCapture capture;
     
+    // ENABLE GUI
+    static Boolean gui = false;
+    
     // Set true if unload
     public boolean unload = false;
 
@@ -96,9 +101,6 @@ public class Billedbehandling
     
     // Scanner for constructor ini
     Scanner keyboardInput = new Scanner(System.in);
-    
-    // ENABLE GUI
-    static Boolean gui = false;
 
     public Billedbehandling()
     {
@@ -113,9 +115,7 @@ public class Billedbehandling
         // ----------------------- ONLY TO BE CALCULATED ONCE ---------------------------
         
         int keyInput = 1;
-        while (keyInput == 1) {
-        	System.out.println("Press 1 to RUN | Press 2 to ACCEPT");
-            keyInput = keyboardInput.nextInt();
+        do {
             orgMatrix = new Mat();
             modMatrix = new Mat();
 
@@ -140,7 +140,11 @@ public class Billedbehandling
             
             // Print informations to GUI
             doFrameReprint();
-		} // End of while loop checking for keypress
+            
+            System.out.println("Press 1 to RE-RUN CALIBRATION | Press 2 to ACCEPT");
+            keyInput = keyboardInput.nextInt();
+            
+		} while (keyInput == 1); // End of while loop checking for keypress
     } // End of main()
 
 	public void runImageRec()
@@ -156,6 +160,7 @@ public class Billedbehandling
 		modMatrix = orgMatrix.clone();
 
 		// Re-evaluate the course if robot is in front of goal and ready to unload
+		/*
 		if(unload) {
 			// Running color detection
             Mat isolatedRedColor = new Mat();
@@ -172,6 +177,7 @@ public class Billedbehandling
             
             unload = !unload;
 		}
+		*/
 		
         // Create a new outline for the obstacle course
 		if(gui) printOutlineToOrigImg();
@@ -190,6 +196,11 @@ public class Billedbehandling
             
             // Detect cross based on the red outline
             do {
+            	System.out.println("DETECTING CROSS");
+            	capture.read(orgMatrix);
+                // Running color detection
+                isolatedRedColor = new Mat();
+                isolatedRedColor = runColorDetection();
                 detectCross(isolatedRedColor);
             } while(crossPoints.size() != 4);
             runDetectCross = !runDetectCross;
@@ -618,6 +629,14 @@ public class Billedbehandling
 				break;
 		}
 
+    	// CALCULATE MIDDLE OF TRACK - BENJAMIN AENDRING TORSDAG/FREDAG NAT
+    	int VT = 0;		int VB = 1;		int HT = 2;		int HB = 3;
+    	imageCenter = new Point(squareCorners.get(VT).x + (squareCorners.get(HT).x - squareCorners.get(VT).x)/2, 
+    			squareCorners.get(VT).y + (squareCorners.get(VB).y - squareCorners.get(VT).y)/2);
+    	if(gui) Imgproc.circle(modMatrix, imageCenter, 6, new Scalar(0,255,255), Core.FILLED);
+    	//System.out.println("IMAGE CENTER : " +imageCenter.x+ " , " +imageCenter.y);
+    	// ----------------------------------------------------------------
+    	
     	// Calculating the distance between a CirclePoint and the center of the image.
     	double pointToCenterDistance = Point2D.distance(imageCenter.x, imageCenter.y, localPoint.x, localPoint.y);
     	if(enableComments) System.out.println("Distance between circle center and image center : " + pointToCenterDistance);
