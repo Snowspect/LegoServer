@@ -44,6 +44,7 @@ public class Main {
 //			thread2.start();
 			
 			new RouteLogic(BB).runningTwo();
+			System.exit(0);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

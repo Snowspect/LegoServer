@@ -28,7 +28,9 @@ public class RouteLogic implements IRouteLogic{
 	Point goalPointOne;
 	Point goalPointTwo;
 	
-	private boolean onBallMission;
+	
+	private int ballsOnMap;
+	private boolean onBallMission, firstUnloadDone;
 	private double upperWall, lowerWall, rightWall, leftWall;
 	private Point robotMiddle, robotFront, xCenter;
 	private Point ULcorner, LLcorner, URcorner, LRcorner;
@@ -91,10 +93,13 @@ public class RouteLogic implements IRouteLogic{
 	// an implementation that picks up safe balls first, then dangerous balls
 	// using two different rule sets.
 	public void runningTwo() {
-
+		
+		firstUnloadDone = false;
 		shotOnGoal = false;
 		firstTime = true;
 		onBallMission = true;
+		
+		ballsOnMap = 0;
 
 		System.out.println("MADE IT INTO RUNNINGTWO");
 		dangerBalls = new ArrayList<Point>();
@@ -150,6 +155,25 @@ public class RouteLogic implements IRouteLogic{
 
 			
 			List<Point> ballsWithDirectPathFromRobot = BallsWithDirectPathFunc(robotMiddle, allPickUpPoints);
+			
+			if(robotMiddle.getX() > 1000) {
+				boolean rightBall = false;
+				List<Point> rightBalls = new ArrayList<Point>();
+				
+				for (Point point : ballsWithDirectPathFromRobot) {
+					if(point.getX() > 1200) {
+						rightBall = true;
+						rightBalls.add(point);
+					}
+				}
+				
+				if(rightBall) {
+					ballsWithDirectPathFromRobot.clear();
+					ballsWithDirectPathFromRobot.addAll(rightBalls);
+				}
+			}
+			
+			
 			// find all balls with a direct path
 			if (!ballsWithDirectPathFromRobot.isEmpty()) {
 				// finds the safest ball and communicates to the server
@@ -224,7 +248,7 @@ public class RouteLogic implements IRouteLogic{
 
 		int wallMargin = 40;
 		int pickupDist = 90;
-		int wallCorrectionDist = 7;
+		int wallCorrectionDist = 8;
 		int cornerPickupDist = 100;
 		int cornerCorrectionDist = 0;
 
@@ -473,18 +497,10 @@ public class RouteLogic implements IRouteLogic{
 	}
 
 	// checks if two Points coords are equals
-	public boolean checkIfCoordsEqual(Point robotMiddle, Point dest) {
-		if (robotMiddle.getX() == dest.getX() && robotMiddle.getY() == dest.getY())
-			return true;
-
-		return false;
-	}
-
-	// checks if two Points coords are equals
 	public boolean checkIfCoordsNear(Point robotMiddle, Point dest, double d) {
 //		System.out.println("Robot middle: "+robotMiddle.getX()+" , "+robotMiddle.getY());
-		System.out.println("Dif. on x-axis" + (robotMiddle.getX() - dest.getX()));
-		System.out.println("Dif. on y-axis" + (robotMiddle.getY() - dest.getY()));
+//		System.out.println("Dif. on x-axis" + (robotMiddle.getX() - dest.getX()));
+//		System.out.println("Dif. on y-axis" + (robotMiddle.getY() - dest.getY()));
 
 //		if(robotMiddle.getX() < dest.getX()+error_margin && robotMiddle.getX() > dest.getX()-error_margin &&
 //		 robotMiddle.getY() < dest.getY()+error_margin && robotMiddle.getY() > dest.getY()-error_margin
@@ -549,7 +565,7 @@ public class RouteLogic implements IRouteLogic{
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
-			CommunicateToServer("0F:2;0R:300;0S:200;0B:true;");
+			CommunicateToServer("0F:2;0R:200;0S:200;0B:true;"); //Bak lidt
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
@@ -576,7 +592,7 @@ public class RouteLogic implements IRouteLogic{
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
-			CommunicateToServer("0F:2;0R:300;0S:200;0B:true;");
+			CommunicateToServer("0F:2;0R:300;0S:200;0B:true;");	//Bak lidt
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
@@ -614,27 +630,28 @@ public class RouteLogic implements IRouteLogic{
 		// task 1 is to get to goalspot 1.
 		// we want to keep going until we have reached that point
 		
-			// loop until we reached point one
-			while (!checkIfCoordsNear(robotFront, goalPointOne, 20)) {
-				String commandToSend = Calculator.getDir(robotFront, robotMiddle, goalPointOne);
-				CommunicateToServer(commandToSend);
-				System.out.println("Going For One ----------------------------------------");
-				while (RC.robotExecuting) {
-					System.out.print("");
-				}
-				
-				ImageRec.runImageRec();
-				GetImageInfo();
-			}
-			
-			CommunicateToServer("0F:1;0R:300;0S:200;0B:true;");
+		// loop until we reached point one
+		while (!checkIfCoordsNear(robotFront, goalPointOne, 20)) {
+			String commandToSend = Calculator.getDir(robotFront, robotMiddle, goalPointOne);
+			CommunicateToServer(commandToSend);
+			System.out.println("Going For One ----------------------------------------");
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
 			
 			ImageRec.runImageRec();
 			GetImageInfo();
-			
+		}
+		
+		CommunicateToServer("0F:1;0R:300;0S:200;0B:true;");
+		while (RC.robotExecuting) {
+			System.out.print("");
+		}
+		
+		ImageRec.runImageRec();
+		GetImageInfo();
+		
+		if(allBalls.size() == 0) {
 			// loop until we reached point two
 			while (!checkIfCoordsNear(robotFront, goalPointTwo, 20)) {
 				String commandToSend = Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
@@ -648,35 +665,141 @@ public class RouteLogic implements IRouteLogic{
 			}
 			String command = Calculator.turn(robotFront, robotMiddle, goalMiddle);
 			CommunicateToServer(command);
-
+		
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
+			
+			CommunicateToServer("0F:1;0R:180;0S:200;0B:true;"); // Kør lidt frem
+			while (RC.robotExecuting) {
+				System.out.print("");
+			}
+			////////////////////////////KLAR TIL UNLOAD////////////////////////////
 			CommunicateToServer("0F:13;0R:600;0S:100;0B:true"); // K?r armen helt op!
-			CommunicateToServer("0F:12;0R:0;0S:0;0B:true;"); // Smid bolde ud
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
-
-		shotOnGoal = true;
-		
-		//Kører til connectionpoint
-		while (!checkIfCoordsNear(robotFront, newConnectionpoints.get(2), 30)) // old 12
-		{
-
-			String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionpoints.get(0));
-		
-			CommunicateToServer(commandToSend);
-
-			while (RC.robotExecuting) {
-				System.out.print("");
+			/////////HVIS DER ER MINDRE END 6 BOLDE
+			if(firstUnloadDone && ballsOnMap < 6) {
+				for (int i = 0; i < ballsOnMap+2; i++) {
+					CommunicateToServer("0F:17;0R:0;0S:0;0B:true;");
+					while (RC.robotExecuting) {
+						System.out.print("");
+					}
+//					CommunicateToServer("0F:14;0R:0;0S:0;0B:true;");
+//					while (RC.robotExecuting) {
+//						System.out.print("");
+//					}
+//					CommunicateToServer("0F:20;0R:0;0S:0;0B:true;");
+//					while (RC.robotExecuting) {
+//						System.out.print("");
+//					}
+				}
+				
+				CommunicateToServer("0F:2;0R:180;0S:200;0B:true;"); // Kør lidt tilbage
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
 			}
-
-			ImageRec.runImageRec();
-
-			GetImageInfo();
+			/////////HVIS DER ER MERE END 6 BOLDE
+			else {
+//				for (int i = 0; i < 11; i++) {
+//					CommunicateToServer("0F:17;0R:0;0S:0;0B:true;");
+//					while (RC.robotExecuting) {
+//						System.out.print("");
+//					}
+//					CommunicateToServer("0F:14;0R:0;0S:0;0B:true;");
+//					while (RC.robotExecuting) {
+//						System.out.print("");
+//					}
+//					CommunicateToServer("0F:20;0R:0;0S:0;0B:true;");
+//					while (RC.robotExecuting) {
+//						System.out.print("");
+//					}
+//				}
+				CommunicateToServer("0F:12;0R:0;0S:0;0B:true;"); // Smid bolde ud
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
+				
+//				CommunicateToServer("0F:19;0R:0;0S:0;0B:true;"); // Smid de sidste bolde ud
+//				while (RC.robotExecuting) {
+//					System.out.print("");
+//				}
+				
+				CommunicateToServer("0F:18;0R:180;0S:200;0B:true;"); // Kør arm lidt ned
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
+				
+				CommunicateToServer("0F:20;0R:180;0S:200;0B:true;"); // Kør arm lidt op
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
+				
+				CommunicateToServer("0F:2;0R:180;0S:200;0B:true;"); // Kør lidt tilbage
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
+				
+				CommunicateToServer("0F:3;0R:500;0S:600;0B:true;"); // Drej rundt
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
+				
+				ImageRec.runImageRec();
+				GetImageInfo();
+				
+				// find punkt nr. 2 igen
+				while (!checkIfCoordsNear(robotFront, goalPointTwo, 20)) {
+					String commandToSend = Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
+					CommunicateToServer(commandToSend);
+					System.out.println("Going For Two ----------------------------------------");
+					while (RC.robotExecuting) {
+						System.out.print("");
+					}
+					ImageRec.runImageRec();
+					GetImageInfo();
+				}
+				
+				command = Calculator.turn(robotFront, robotMiddle, goalMiddle);
+				CommunicateToServer(command);
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
+				
+				
+				CommunicateToServer("0F:19;0R:0;0S:0;0B:true;"); // Smid bolde ud igen (2. gang)
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
+			}
+				
+			firstUnloadDone = true;
+			shotOnGoal = true;
+			
+			//Kører til connectionpoint
+			while (!checkIfCoordsNear(robotFront, newConnectionpoints.get(2), 30)) // old 12
+			{
+	
+				String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionpoints.get(2));
+			
+				CommunicateToServer(commandToSend);
+	
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
+	
+				ImageRec.runImageRec();
+	
+				GetImageInfo();
+			}
+			ballsOnMap = allBalls.size();
 		}
-		
+		CommunicateToServer("0F:18;0R:500;0S:600;0B:true;"); // Arm lidt ned igen
+		while (RC.robotExecuting) {
+			System.out.print("");
+		}
 	}
 
 	public boolean isPathClear(Point robotMiddle, Point dest, Point xMiddle) {
@@ -691,8 +814,16 @@ public class RouteLogic implements IRouteLogic{
 						+ "Cross: " + xMiddle.getX() + ", " + xMiddle.getY() + "\n"
 								+ "dest: " + dest.getX() + ", " + dest.getY() + "\n"
 									+ "" +"Distance from cross: " + distanceFromPathToCross);
+		///CHECK FOR MODSAT RETNING
+		boolean otherWay = false;
+		
+		if((robotMiddle.getY()-dest.getY())*(robotMiddle.getY()-xMiddle.getY()) < 0 && (robotMiddle.getX()-dest.getX())*(robotMiddle.getX()-xMiddle.getX()) < 0) {
+			otherWay = true;
+		}
+		
+		
 		if (RADIUS < distanceFromPathToCross || Calculator.calc_Dist(robotMiddle, xMiddle)
-				>Calculator.calc_Dist(robotMiddle, dest)) return true;
+				>Calculator.calc_Dist(robotMiddle, dest) || otherWay) return true;
 		
 		else return false;
 	}

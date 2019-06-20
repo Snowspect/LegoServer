@@ -179,8 +179,47 @@ public class ServerRemote {
 		case 15:
 			xArmAlldown();
 			break;
-		}	
+		case 16: // unloadFunction
+			unloadAgain();
+			break;
+		case 17: // unloadFunction - Only one ball
+			unloadOne();
+			break;
+		case 18: // takes the arm a little down
+			littleDown();
+			break;
+		case 19: // unloadFunction - Only one ball
+			unloadBurst();
+			break;
+		case 20: // takes the arm a little down
+			littleUp();
+			break;
+		}
+		
+		
 		robotFeedback();
+	}
+	
+	public void unloadAgain() {
+		ArmWheelMoter.setSpeed(600);
+		
+		for (int i = 0; i < 2; i++) {
+			ArmWheelMoter.forward();
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ArmWheelMoter.stop();
+			try {
+				Thread.sleep(400);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 	}
 
 	/**
@@ -374,7 +413,16 @@ public class ServerRemote {
 	
 	private void allTheWayUp()
 	{
-		GrappleArm.rotate(-500);
+		GrappleArm.rotate(-60);
+	}
+	
+	private void littleDown()
+	{
+		GrappleArm.rotate(60);
+	}
+	private void littleUp()
+	{
+		GrappleArm.rotate(-60);
 	}
 	
 	private void xArmdown() {
@@ -412,12 +460,52 @@ public class ServerRemote {
 	 * moves wheel on arm inwards (so the balls get pushed out)
 	 */
 	private void unload() {
-		ArmWheelMoter.setSpeed(600);
+		ArmWheelMoter.setSpeed(300);
+		
+		for (int i = 0; i < 11; i++) {
+			ArmWheelMoter.forward();
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ArmWheelMoter.stop();
+			try {
+				Thread.sleep(450);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+	
+	public void unloadOne() {
+		ArmWheelMoter.setSpeed(300);
+		
 		ArmWheelMoter.forward();
 		try {
-			Thread.sleep(15000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ArmWheelMoter.stop();
+		try {
+			Thread.sleep(450);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void unloadBurst() {
+		ArmWheelMoter.setSpeed(600);
+		
+		ArmWheelMoter.forward();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		ArmWheelMoter.stop();
