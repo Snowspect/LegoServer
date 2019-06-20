@@ -161,14 +161,14 @@ public class Billedbehandling
         //isInside(listOfBallCoordinates, 100);
         calculateSafePoints();
 
-        /*
+        
         // Calculating "actual" coordinates for each ball.
         for (int i = 0; i < listOfBallCoordinates.size(); i++) {
         	Point temp = new Point();
         	temp = calculateActualCoordinates(listOfBallCoordinates.get(i), "ball");
         	listOfBallCoordinates.set(i, temp);
 		}
-		*/
+		
 
         // Estimating Robot Coordinates based on image from webcam
         robotCameraPoints = newRobotDetect(orgMatrix);
@@ -558,7 +558,7 @@ public class Billedbehandling
         // Measurements (camera, robot, ball and obstacles)
         double cameraHeight = 2000 / 2; 		// 2000mm
         double robotHeight = 300; 				// 300mm
-        double ballHeight = 25;					// 40mm
+        double ballHeight = 15;					// 40mm
         double courseEdgeHeight = 74;			// 70mm
         double crossHeight = 30;				// 30mm
         Point imageCenter = new Point(imageWidth/2, imageHeight/2);
