@@ -169,6 +169,8 @@ public class Billedbehandling
             squareCorners.set(1, calculateActualCoordinates(squareCorners.get(1), "edge"));
             squareCorners.set(2, calculateActualCoordinates(squareCorners.get(2), "edge"));
             squareCorners.set(3, calculateActualCoordinates(squareCorners.get(3), "edge"));
+            
+            unload = !unload;
 		}
 		
         // Create a new outline for the obstacle course
