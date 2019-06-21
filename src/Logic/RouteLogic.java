@@ -182,10 +182,10 @@ public class RouteLogic implements IRouteLogic{
 				shotOnGoal = false;
 			}
 			else if(allBalls.isEmpty() && shotOnGoal) {
-				this.programStillRunning = false;
 				long totalTime = System.nanoTime() - startTime;			
 				double seconds = (double)totalTime / 1000000000.0;
 				System.out.println("OVERALL TIME : " + seconds + " seconds");
+				this.programStillRunning = false;
 			}
 			else if (allBalls.isEmpty() && isPathClear(robotMiddle, goalPointOne, xCenter)) {
 				onBallMission = true;
@@ -246,7 +246,7 @@ public class RouteLogic implements IRouteLogic{
 		
 		
 
-		int wallMargin = 40;
+		int wallMargin = 50;
 		int pickupDist = 90;
 		int wallCorrectionDist = 8;
 		int cornerPickupDist = 100;
@@ -409,7 +409,6 @@ public class RouteLogic implements IRouteLogic{
 //			for(Point point: markX(xCenter.getX(),xCenter.getY(),200)) {
 //				ImageGrid[(int)point.getX()-1][(int)point.getY()-1] = 1;
 //			}
-//			
 
 			newConnectionpoints = new ArrayList<Point>(4);
 
@@ -443,13 +442,13 @@ public class RouteLogic implements IRouteLogic{
 			}
 
 			newConnectionpoints
-					.add(new Point((int)URcorner.getX() - (int)(Math.abs((URcorner.getX()-xCenter.getX()))*0.75), (int)URcorner.getY() + (int)(Math.abs((URcorner.getY()-xCenter.getY()))*0.5)));
+					.add(new Point((int)URcorner.getX() - (int)(Math.abs((URcorner.getX()-xCenter.getX()))*0.60), (int)URcorner.getY() + (int)(Math.abs((URcorner.getY()-xCenter.getY()))*0.40)));
 			newConnectionpoints
-					.add(new Point((int)LRcorner.getX() - (int)(Math.abs((LRcorner.getX()-xCenter.getX()))*0.75), (int)LRcorner.getY() - (int)(Math.abs((LRcorner.getY()-xCenter.getY()))*0.5)));
+					.add(new Point((int)LRcorner.getX() - (int)(Math.abs((LRcorner.getX()-xCenter.getX()))*0.60), (int)LRcorner.getY() - (int)(Math.abs((LRcorner.getY()-xCenter.getY()))*0.40)));
 			newConnectionpoints
-					.add(new Point((int)ULcorner.getX() + (int)(Math.abs((ULcorner.getX()-xCenter.getX()))*0.75), (int)ULcorner.getY() + (int)(Math.abs((ULcorner.getY()-xCenter.getY()))*0.5)));
+					.add(new Point((int)ULcorner.getX() + (int)(Math.abs((ULcorner.getX()-xCenter.getX()))*0.60), (int)ULcorner.getY() + (int)(Math.abs((ULcorner.getY()-xCenter.getY()))*0.40)));
 			newConnectionpoints
-					.add(new Point((int)LLcorner.getX() + (int)(Math.abs((LLcorner.getX()-xCenter.getX()))*0.75), (int)LLcorner.getY() - (int)(Math.abs((LLcorner.getY()-xCenter.getY()))*0.5)));
+					.add(new Point((int)LLcorner.getX() + (int)(Math.abs((LLcorner.getX()-xCenter.getX()))*0.60), (int)LLcorner.getY() - (int)(Math.abs((LLcorner.getY()-xCenter.getY()))*0.40)));
 
 			firstTime = false;
 		}
@@ -545,7 +544,7 @@ public class RouteLogic implements IRouteLogic{
 			}
 		} else if (dangerPickupPoints.contains(nearestBall)) {
 			
-			CommunicateToServer("0F:1;0R:300;0S:200;0B:true;");
+			CommunicateToServer("0F:1;0R:300;0S:400;0B:true;");
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
@@ -565,14 +564,14 @@ public class RouteLogic implements IRouteLogic{
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
-			CommunicateToServer("0F:2;0R:200;0S:200;0B:true;"); //Bak lidt
+			CommunicateToServer("0F:2;0R:200;0S:400;0B:true;"); //Bak lidt //HAIL MARY
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
 
 		} else if (cornerPickupPoints.contains(nearestBall)) {
 			
-			CommunicateToServer("0F:1;0R:300;0S:200;0B:true;");
+			CommunicateToServer("0F:1;0R:300;0S:400;0B:true;");
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
@@ -592,13 +591,13 @@ public class RouteLogic implements IRouteLogic{
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
-			CommunicateToServer("0F:2;0R:300;0S:200;0B:true;");	//Bak lidt
+			CommunicateToServer("0F:2;0R:300;0S:400;0B:true;");	//Bak lidt // HAIL MARY
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
 		} else if (xPickupPoints.contains(nearestBall)) {
 			
-			CommunicateToServer("0F:1;0R:300;0S:200;0B:true;");
+			CommunicateToServer("0F:1;0R:300;0S:400;0B:true;");
 			while (RC.robotExecuting) {
 				System.out.print("");
 			}
@@ -643,7 +642,7 @@ public class RouteLogic implements IRouteLogic{
 			GetImageInfo();
 		}
 		
-		CommunicateToServer("0F:1;0R:300;0S:200;0B:true;");
+		CommunicateToServer("0F:1;0R:300;0S:400;0B:true;");
 		while (RC.robotExecuting) {
 			System.out.print("");
 		}
@@ -730,6 +729,8 @@ public class RouteLogic implements IRouteLogic{
 //					System.out.print("");
 //				}
 				
+				// HAIL MARY
+				/*				
 				CommunicateToServer("0F:18;0R:180;0S:200;0B:true;"); // Kør arm lidt ned
 				while (RC.robotExecuting) {
 					System.out.print("");
@@ -740,7 +741,7 @@ public class RouteLogic implements IRouteLogic{
 					System.out.print("");
 				}
 				
-				/*// HAIL MARY
+				// HAIL MARY
 				CommunicateToServer("0F:2;0R:180;0S:200;0B:true;"); // Kør lidt tilbage
 				while (RC.robotExecuting) {
 					System.out.print("");
@@ -788,11 +789,11 @@ public class RouteLogic implements IRouteLogic{
 				}
 				
 			}
-				
-			// firstUnloadDone = true;
-			// shotOnGoal = true;
+				*/
+			firstUnloadDone = true;
+			shotOnGoal = true;
 			
-			
+			/*
 			//Kører til connectionpoint
 			while (!checkIfCoordsNear(robotFront, newConnectionpoints.get(2), 30)) // old 12
 			{
@@ -887,7 +888,7 @@ public class RouteLogic implements IRouteLogic{
 		}
 //		keyb.next();
 		// Bak lidt
-		CommunicateToServer("0F:2;0R:150;0S:100;0B:true");
+		CommunicateToServer("0F:2;0R:150;0S:400;0B:true"); //HAIL MARY
 		while (RC.robotExecuting) {
 			System.out.print("");
 		}

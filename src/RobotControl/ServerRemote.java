@@ -461,7 +461,7 @@ public class ServerRemote {
 	 */
 	private void unload() {
 		ArmWheelMoter.setSpeed(300);
-		
+//		ArmWheelMoter.forward();
 		for (int i = 0; i < 11; i++) {
 			ArmWheelMoter.forward();
 			try {
@@ -470,15 +470,16 @@ public class ServerRemote {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			ArmWheelMoter.stop();
-			try {
-				Thread.sleep(450);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			ArmWheelMoter.stop();
+//			try {
+//				Thread.sleep(50);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			
 		}
+		ArmWheelMoter.stop();
 		
 	}
 	
