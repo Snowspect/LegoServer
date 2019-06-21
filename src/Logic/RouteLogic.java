@@ -443,13 +443,13 @@ public class RouteLogic implements IRouteLogic{
 			}
 
 			newConnectionpoints
-					.add(new Point((int) URcorner.getX() - connectionDist, (int) URcorner.getY() + connectionDist));
+					.add(new Point((int)URcorner.getX() - (int)(Math.abs((URcorner.getX()-xCenter.getX()))*0.75), (int)URcorner.getY() + (int)(Math.abs((URcorner.getY()-xCenter.getY()))*0.5)));
 			newConnectionpoints
-					.add(new Point((int) LRcorner.getX() - connectionDist, (int) LRcorner.getY() - connectionDist));
+					.add(new Point((int)LRcorner.getX() - (int)(Math.abs((LRcorner.getX()-xCenter.getX()))*0.75), (int)LRcorner.getY() - (int)(Math.abs((LRcorner.getY()-xCenter.getY()))*0.5)));
 			newConnectionpoints
-					.add(new Point((int) ULcorner.getX() + connectionDist + 20, (int) ULcorner.getY() + connectionDist));
+					.add(new Point((int)ULcorner.getX() + (int)(Math.abs((ULcorner.getX()-xCenter.getX()))*0.75), (int)ULcorner.getY() + (int)(Math.abs((ULcorner.getY()-xCenter.getY()))*0.5)));
 			newConnectionpoints
-					.add(new Point((int) LLcorner.getX() + connectionDist + 15, (int) LLcorner.getY() - connectionDist));
+					.add(new Point((int)LLcorner.getX() + (int)(Math.abs((LLcorner.getX()-xCenter.getX()))*0.75), (int)LLcorner.getY() - (int)(Math.abs((LLcorner.getY()-xCenter.getY()))*0.5)));
 
 			firstTime = false;
 		}
@@ -697,11 +697,12 @@ public class RouteLogic implements IRouteLogic{
 //						System.out.print("");
 //					}
 				}
-				
+				/*// HAIL MARY
 				CommunicateToServer("0F:2;0R:180;0S:200;0B:true;"); // Kør lidt tilbage
 				while (RC.robotExecuting) {
 					System.out.print("");
 				}
+				*/
 			}
 			/////////HVIS DER ER MERE END 6 BOLDE
 			else {
@@ -739,7 +740,7 @@ public class RouteLogic implements IRouteLogic{
 					System.out.print("");
 				}
 				
-				/*
+				/*// HAIL MARY
 				CommunicateToServer("0F:2;0R:180;0S:200;0B:true;"); // Kør lidt tilbage
 				while (RC.robotExecuting) {
 					System.out.print("");
@@ -751,8 +752,8 @@ public class RouteLogic implements IRouteLogic{
 				}
 				*/
 				
-				ImageRec.runImageRec();
-				GetImageInfo();
+				// ImageRec.runImageRec();
+				// GetImageInfo();
 				
 				// find punkt nr. 2 igen
 				/*
@@ -767,6 +768,8 @@ public class RouteLogic implements IRouteLogic{
 					GetImageInfo();
 				}
 				*/
+				
+				/*// HAIL MARY
 				CommunicateToServer("0F:2;0R:100;0S:200;0B:true;"); // Kør lidt tilbage
 				while (RC.robotExecuting) {
 					System.out.print("");
@@ -779,30 +782,26 @@ public class RouteLogic implements IRouteLogic{
 					System.out.print("");
 				}
 				
-				
 				CommunicateToServer("0F:19;0R:0;0S:0;0B:true;"); // Smid bolde ud igen (2. gang)
 				while (RC.robotExecuting) {
 					System.out.print("");
 				}
+				
 			}
 				
-			firstUnloadDone = true;
-			shotOnGoal = true;
+			// firstUnloadDone = true;
+			// shotOnGoal = true;
+			
 			
 			//Kører til connectionpoint
 			while (!checkIfCoordsNear(robotFront, newConnectionpoints.get(2), 30)) // old 12
 			{
-	
 				String commandToSend = Calculator.getDir(robotFront, robotMiddle, newConnectionpoints.get(2));
-			
 				CommunicateToServer(commandToSend);
-	
 				while (RC.robotExecuting) {
 					System.out.print("");
 				}
-	
 				ImageRec.runImageRec();
-	
 				GetImageInfo();
 			}
 			ballsOnMap = allBalls.size();
@@ -810,6 +809,8 @@ public class RouteLogic implements IRouteLogic{
 		CommunicateToServer("0F:18;0R:500;0S:600;0B:true;"); // Arm lidt ned igen
 		while (RC.robotExecuting) {
 			System.out.print("");
+		} */
+			}
 		}
 	}
 
