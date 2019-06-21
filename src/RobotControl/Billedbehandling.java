@@ -630,11 +630,13 @@ public class Billedbehandling
 		}
 
     	// CALCULATE MIDDLE OF TRACK - BENJAMIN AENDRING TORSDAG/FREDAG NAT
+    	/*
     	int VT = 0;		int VB = 1;		int HT = 2;		int HB = 3;
     	imageCenter = new Point(squareCorners.get(VT).x + (squareCorners.get(HT).x - squareCorners.get(VT).x)/2, 
     			squareCorners.get(VT).y + (squareCorners.get(VB).y - squareCorners.get(VT).y)/2);
     	if(gui) Imgproc.circle(modMatrix, imageCenter, 6, new Scalar(0,255,255), Core.FILLED);
     	//System.out.println("IMAGE CENTER : " +imageCenter.x+ " , " +imageCenter.y);
+    	*/
     	// ----------------------------------------------------------------
     	
     	// Calculating the distance between a CirclePoint and the center of the image.

@@ -739,6 +739,7 @@ public class RouteLogic implements IRouteLogic{
 					System.out.print("");
 				}
 				
+				/*
 				CommunicateToServer("0F:2;0R:180;0S:200;0B:true;"); // Kør lidt tilbage
 				while (RC.robotExecuting) {
 					System.out.print("");
@@ -748,11 +749,13 @@ public class RouteLogic implements IRouteLogic{
 				while (RC.robotExecuting) {
 					System.out.print("");
 				}
+				*/
 				
 				ImageRec.runImageRec();
 				GetImageInfo();
 				
 				// find punkt nr. 2 igen
+				/*
 				while (!checkIfCoordsNear(robotFront, goalPointTwo, 20)) {
 					String commandToSend = Calculator.getDir(robotFront, robotMiddle, goalPointTwo);
 					CommunicateToServer(commandToSend);
@@ -763,6 +766,12 @@ public class RouteLogic implements IRouteLogic{
 					ImageRec.runImageRec();
 					GetImageInfo();
 				}
+				*/
+				CommunicateToServer("0F:2;0R:100;0S:200;0B:true;"); // Kør lidt tilbage
+				while (RC.robotExecuting) {
+					System.out.print("");
+				}
+				
 				
 				command = Calculator.turn(robotFront, robotMiddle, goalMiddle);
 				CommunicateToServer(command);

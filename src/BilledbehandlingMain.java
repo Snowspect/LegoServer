@@ -6,6 +6,7 @@ public class BilledbehandlingMain {
 		
 		while (true)
 		{
+			
 			long startTime = System.nanoTime();
 						
 			bh.runImageRec();			
