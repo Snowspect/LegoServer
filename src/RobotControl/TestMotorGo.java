@@ -1,3 +1,4 @@
+package RobotControl;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -33,17 +34,17 @@ public class TestMotorGo extends KeyAdapter{
 	    public static void main(String[] args) throws IOException
 	    {
 	    	String ip = "192.168.43.199";
-	    	if(args.length > 0)
-	    	{
-	    		ip = args[0];
-	    	}
-	    	Socket sock = new Socket(ip, Server.port);
-	    	System.out.println(sock);
-	    	System.out.println("HELLLOOO");
-	    	InputStream in = sock.getInputStream();
-	    	DataInputStream recieveData = new DataInputStream(in);
-	    	String str = recieveData.readUTF();
-	    	System.out.println(str);
+	    	if(args.length > 0) 
+	    	{ 
+	    		ip = args[0]; 
+	    	} 
+	    	Socket sock = new Socket(ip, Server.port); 
+	    	System.out.println(sock); 
+	    	System.out.println("HELLLOOO"); 
+	    	InputStream in = sock.getInputStream(); 
+	    	DataInputStream recieveData = new DataInputStream(in); 
+	    	String str = recieveData.readUTF(); 
+	    	System.out.println(str); 
 	    	
 	    	/*
 	    	left = new UnregulatedMotor(MotorPort.A); 

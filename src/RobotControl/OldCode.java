@@ -1,3 +1,4 @@
+package RobotControl;
 	import lejos.hardware.BrickFinder;
 	import lejos.hardware.Button;
 	import lejos.hardware.Key;
